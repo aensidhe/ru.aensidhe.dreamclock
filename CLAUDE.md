@@ -8,8 +8,9 @@ An **Android TV screensaver** (`DreamService`) — a kid-friendly ambient clock
 over a rotating slide deck (photos, agenda). Target devices: NVIDIA Shield and
 Xiaomi TV Stick, ≥1080p.
 
-Package id today is `ru.aensidhe.tv.calendar`; the name/id is provisional and
-likely to change.
+Package (`applicationId`): `ru.aensidhe.dreamclock`. The user-facing app name is
+still a working title ("TV Ambient Clock"). The repo directory is still named
+`ru.aensidhe.tv.calendar` — harmless; the `applicationId` is what matters.
 
 ## Build order (do not skip ahead)
 

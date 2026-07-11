@@ -3,7 +3,7 @@
 - **Date:** 2026-07-12
 - **Status:** Approved for feature 1 implementation
 - **Working title:** TV Ambient Clock (name provisional)
-- **Package (provisional):** `ru.aensidhe.tv.calendar`
+- **Package (`applicationId`):** `ru.aensidhe.dreamclock`
 
 ## Overview
 
