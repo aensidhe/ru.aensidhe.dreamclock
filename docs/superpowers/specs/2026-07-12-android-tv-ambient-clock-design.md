@@ -1,26 +1,26 @@
 # Reverie (Грёзы) — Android TV Screensaver — Design
 
-- **Date:** 2026-07-12
-- **Status:** Approved for feature 1 implementation
-- **Name (localized label):** Reverie (EN) / Грёзы (RU)
-- **Package (`applicationId`):** `ru.aensidhe.dreamclock`
+- Date: 2026-07-12
+- Status: Approved for feature 1 implementation
+- Name (localized label): Reverie (EN) / Грёзы (RU)
+- Package (`applicationId`): `ru.aensidhe.dreamclock`
 
 ## Overview
 
-An Android TV **screensaver** (`DreamService`) for the living-room screen. It
-shows an always-visible, kid-friendly clock overlaid on a rotating deck of
-slides. Photos anchored around the current date and a "tomorrow" agenda are
-later slide sources.
+An Android TV screensaver (`DreamService`) for the living-room screen. It shows
+an always-visible, kid-friendly clock overlaid on a rotating deck of slides.
+Photos anchored around the current date and a "tomorrow" agenda are later slide
+sources.
 
-Target devices: **NVIDIA Shield** and **Xiaomi TV Stick**, at 1080p or higher.
+Target devices: NVIDIA Shield and Xiaomi TV Stick, at 1080p or higher.
 
 ### Goals (priority order)
 
-1. **Kid-friendly dual clock** — build first. Fully designed here.
-2. **Immich photos** — recorded as scope; full design deferred to its own brainstorm.
-3. **Agenda slide** — recorded as scope; source undecided; design deferred.
+1. Kid-friendly dual clock — build first. Fully designed here.
+2. Immich photos — recorded as scope; full design deferred to its own brainstorm.
+3. Agenda slide — recorded as scope; source undecided; design deferred.
 
-Everything below designs **feature 1** in full and records 2 and 3 as future scope.
+Everything below designs feature 1 in full and records 2 and 3 as future scope.
 
 ## Architecture
 
@@ -54,8 +54,8 @@ State driven by ViewModel / Kotlin Flows (clock ticks, active state)
 | `TvDreamService` | Screensaver entry point; hosts Compose; lifecycle | Yes |
 | `SlideDeck` | Rotation logic; which slide is current | UI only |
 | `ClockOverlay` | Renders digital + colloquial + status; applies color render mode | UI only |
-| `ScheduleEngine` | `(now, config) → active state + status text` | **No** |
-| `ColloquialTimeFormatter` | Per-locale spoken time (`Ru`, `En`) | **No** |
+| `ScheduleEngine` | `(now, config) → active state + status text` | No |
+| `ColloquialTimeFormatter` | Per-locale spoken time (`Ru`, `En`) | No |
 | `SettingsRepository` | Read/write config (Proto DataStore) | Yes |
 | `SettingsActivity` | Configuration UI | Yes |
 
@@ -66,21 +66,21 @@ the real logic and carry the bulk of test coverage.
 
 - Kotlin + Jetpack Compose, latest stable tooling. Kotlin over Java.
 - Target latest stable SDK.
-- `minSdk` chosen to cover Shield + Xiaomi TV Stick — **confirm against the actual
-  device OS versions before locking** (expected somewhere in API 28–30).
+- `minSdk` chosen to cover Shield + Xiaomi TV Stick — confirm against the actual
+  device OS versions before locking (expected somewhere in API 28–30).
 - TV screensaver registered via manifest `<meta-data>` (Leanback/DreamService).
 
 ## Feature 1 — The clock
 
 ### Overlay contents (always on top of the current slide)
 
-1. **Digital time** — the locale's convention (24-hour in RU, e.g. `21:05:00`).
+1. Digital time — the locale's convention (24-hour in RU, e.g. `21:05:00`).
    Seconds shown by default; a "full time" toggle can drop seconds. Ticks every
    second.
-2. **Colloquial time** (toggle, default on) — kid-readable spoken form. See rules
+2. Colloquial time (toggle, default on) — kid-readable spoken form. See rules
    below. Recomputed every minute.
-3. **Status text** — from the active state's localized template, or a custom
-   override string.
+3. Status text — from the active state's localized template, or a custom override
+   string.
 
 ### Three states
 
@@ -97,10 +97,10 @@ Colors are per-state configurable. See Color palette and Color render modes.
 ### Colloquial time rules
 
 A dedicated `ColloquialTimeFormatter` per locale, no Android deps, exhaustively
-unit-tested. **No part-of-day suffix** (утра/вечера / "in the evening") — the
-color state and the 24-hour digital line already convey the time of day.
+unit-tested. No part-of-day suffix (утра/вечера / "in the evening") — the color
+state and the 24-hour digital line already convey the time of day.
 
-**Russian** — pivot at 30 minutes; reference the *coming* hour:
+Russian — pivot at 30 minutes; reference the coming hour:
 - Exact hour: `<hour> часов` — e.g. 21:00 → `девять часов`.
 - 1–14 and 16–29 min: `<minutes, agreeing> минут <coming-hour ordinal, genitive>`
   — e.g. 21:05 → `пять минут десятого`; 21:23 → `двадцать три минуты десятого`.
@@ -114,7 +114,7 @@ color state and the 24-hour digital line already convey the time of day.
   (первого…двенадцатого). The 12-hour number is used (21 → десятого / десять).
 - Noon/midnight kept plain: `двенадцать часов` (полдень/полночь may come later).
 
-**English** — pivot at 30 minutes; `past`/`to`, with `quarter`/`half` words:
+English — pivot at 30 minutes; `past`/`to`, with `quarter`/`half` words:
 - 21:00 → `nine o'clock`
 - 21:05 → `five past nine`; 21:15 → `quarter past nine`; 21:23 → `twenty-three past nine`
 - 21:30 → `half past nine`
@@ -130,8 +130,8 @@ digital overlay still sits on top of it.
 
 ### Color palette
 
-A five-color ramp is defined; **three states are active now, no ramp** (the two
-extra colors stay defined but unused for now):
+A five-color ramp is defined; three states are active now, no ramp (the two extra
+colors stay defined but unused for now):
 
 ```
 Play (teal)  →  Soft green  →  Warm amber  →  Muted rose-brown  →  Deep plum
@@ -144,7 +144,7 @@ dim end (amber → plum) lowers blue light in the evening. Default active mappin
 
 ### Color render modes
 
-How the state color is applied is a **configurable strategy** (`ColorRenderMode`),
+How the state color is applied is a configurable strategy (`ColorRenderMode`),
 selectable in settings, so we can build several, compare on real devices, and
 likely keep more than one. Implemented as swappable renderers behind one
 interface; nothing else in the app depends on which is active. Each mode owns its
@@ -161,7 +161,7 @@ The set is extensible; more modes may be added after on-device comparison.
 
 ## Configuration & schedule data model
 
-Persisted in **Proto DataStore** (typed; suits a nested schedule).
+Persisted in Proto DataStore (typed; suits a nested schedule).
 
 ### Schedule resolution — most specific wins
 
@@ -169,7 +169,7 @@ Persisted in **Proto DataStore** (typed; suits a nested schedule).
 date override (holidays)  →  day-of-week schedule  →  default schedule
 ```
 
-Only the **default schedule** is populated now (fixed times, same every day). The
+Only the default schedule is populated now (fixed times, same every day). The
 day-of-week and date-override layers exist in the model so they can be filled
 later as pure data, no rework.
 
@@ -220,9 +220,9 @@ undecided (local setup unsettled). Design deferred until the source is chosen.
 
 ## Open decisions
 
-- **`minSdk`** — confirm against the real OS versions of the target Shield and
-  Xiaomi TV Stick before locking the manifest.
-- **Color render modes** — the winning default (and which modes to keep) decided
+- `minSdk` — confirm against the real OS versions of the target Shield and Xiaomi
+  TV Stick before locking the manifest.
+- Color render modes — the winning default (and which modes to keep) decided
   after side-by-side testing on real devices.
 
 ## Out of scope (for now)
