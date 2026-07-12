@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Package / `applicationId`: `ru.aensidhe.dreamclock`.
-- `minSdk` 30; `compileSdk` / `targetSdk` 37; Android Gradle Plugin 9.2.0; JDK 21; Gradle pinned via the wrapper.
+- `minSdk` 30; `compileSdk` / `targetSdk` 36; Android Gradle Plugin 8.13.2; Kotlin 2.4.0; JDK 21; Gradle 8.14.5 (wrapper-pinned). Static analysis: detekt 1.23.8, ktlint-gradle 14.2.0. The stack stays on the Gradle 8 line so every tool is stable (API 37 / AGP 9 would force Gradle 9, where detekt has no stable release).
 - App name is a localized label: `Reverie` (default/EN), `Грёзы` (RU).
 - Three states: `PLAY`, `PREPARE`, `SLEEP`. Default colours: PLAY soft green `#7CB342`, PREPARE warm amber `#FFB300`, SLEEP deep plum `#5E35B1`.
 - Colour render modes: `TEXT_TINT`, `PANEL_TINT`, `FULL_SCRIM`, `ACCENT`.
@@ -70,7 +70,7 @@ app/
 ## Task 1: Gradle scaffold, version catalog, lint, and empty `:core`
 
 **Files:**
-- Create: `settings.gradle.kts`, `build.gradle.kts`, `gradle/libs.versions.toml`, `config/detekt/detekt.yml`, `core/build.gradle.kts`, `.gitignore` additions
+- Create: `settings.gradle.kts`, `build.gradle.kts`, `gradle/libs.versions.toml`, `config/detekt/detekt.yml`, `core/build.gradle.kts`, `.editorconfig` (sets `ij_kotlin_imports_layout = *` so ktlint accepts lexicographic import order), `.gitignore` additions
 - Create: `core/src/test/kotlin/ru/aensidhe/dreamclock/core/ScaffoldSmokeTest.kt`
 
 **Interfaces:**
@@ -92,8 +92,8 @@ Expected: creates `gradlew`, `gradlew.bat`, `gradle/wrapper/gradle-wrapper.jar`,
 Create `gradle/libs.versions.toml`:
 ```toml
 [versions]
-agp = "9.2.0"
-kotlin = "2.2.0"
+agp = "8.13.2"
+kotlin = "2.4.0"
 composeBom = "2026.06.00"
 coreKtx = "1.15.0"
 lifecycle = "2.9.0"
@@ -101,8 +101,8 @@ activityCompose = "1.10.0"
 datastore = "1.1.1"
 protobuf = "4.28.2"
 junit = "5.11.0"
-ktlint = "12.1.1"
-detekt = "1.23.6"
+ktlint = "14.2.0"
+detekt = "1.23.8"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -127,7 +127,7 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ```
-Note: bump any version the toolchain reports as unavailable to its nearest published release; keep AGP at 9.2.0 and `compileSdk`/`minSdk`/`targetSdk` per Global Constraints.
+Note: bump any version the toolchain reports as unavailable to its nearest published release; keep AGP on the 8.13 line and `compileSdk`/`minSdk`/`targetSdk` per Global Constraints.
 
 - [ ] **Step 3: Write settings and root build**
 
@@ -183,6 +183,7 @@ detekt {
 }
 
 dependencies {
+    testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter)
 }
 
@@ -1048,7 +1049,7 @@ git commit -m "feat: :robot: add schedule engine with layered resolution"
 
 ---
 
-> **Gate:** Tasks 9–15 build the Android `:app` module and require the Android SDK (API 37) installed with `local.properties` pointing at it (`sdk.dir=…`). They also need the confirmed device minSdk (30). Do not start them until the SDK is available.
+> **Gate:** Tasks 9–15 build the Android `:app` module and require the Android SDK (API 36) installed with `local.properties` pointing at it (`sdk.dir=…`). They also need the confirmed device minSdk (30). Do not start them until the SDK is available.
 
 ## Task 9: App module, manifest, localized labels, DreamService registration
 
@@ -1075,12 +1076,12 @@ plugins {
 
 android {
     namespace = "ru.aensidhe.dreamclock"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "ru.aensidhe.dreamclock"
         minSdk = 30
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
     }

@@ -66,9 +66,14 @@ the real logic and carry the bulk of test coverage.
 
 - Kotlin + Jetpack Compose, latest stable tooling. Kotlin over Java.
 - `minSdk` 30 — both target devices (Shield and Xiaomi TV Stick) run Android 11.
-- `compileSdk` / `targetSdk` 37 — latest stable (July 2026).
-- Android Gradle Plugin 9.2.0; Gradle pinned via the wrapper; JDK 21 (the
-  existing dev/CI toolchain).
+- `compileSdk` / `targetSdk` 36 — the latest API that Android Gradle Plugin 8.13
+  supports.
+- Android Gradle Plugin 8.13.2; Gradle 8.14.5 (wrapper-pinned); Kotlin 2.4.0;
+  JDK 21. Static analysis via detekt 1.23.8 and ktlint-gradle 14.2.0. The stack
+  stays on the Gradle 8 line so every tool is a stable release: API 37 would
+  force AGP 9 and Gradle 9, where detekt has no stable build yet (only a 2.0
+  alpha), and API 36 costs nothing here — `minSdk` is 30 and the app is not on
+  Play.
 - TV screensaver registered via manifest `<meta-data>` (Leanback/DreamService).
 
 ## Feature 1 — The clock

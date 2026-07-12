@@ -36,14 +36,20 @@ the real complexity and get the most test coverage.
 
 ## Tech stack
 
-- Kotlin + Jetpack Compose (latest stable)
+- Kotlin 2.4.0 + Jetpack Compose
 - Jetpack DataStore (Proto) for config
-- minSdk covers Shield + Xiaomi Stick (confirm against real device OS versions)
+- Gradle 8.14.5 (wrapper-pinned), AGP 8.13.2, JDK 21
+- `minSdk` 30 (Shield + Xiaomi Stick run Android 11); `compileSdk`/`targetSdk` 36
+- Static analysis: ktlint-gradle 14.2.0, detekt 1.23.8
+- Stays on the Gradle 8 line so every tool is a stable release; API 37 / AGP 9
+  would force Gradle 9, where detekt has no stable build yet
 
 ## Development workflow
 
 - Commits: Conventional Commits (feat/fix/docs/chore/test/ci/refactor/build),
-  optional scope, imperative summary. Keep the Co-Authored-By trailer.
+  optional scope, imperative summary. No Co-Authored-By trailer; mark
+  robot-authored commits with a `:robot:` emoji after the type
+  (e.g. `feat: :robot: …`).
 - History is linear. Work on short-lived feature branches. Integrate by:
   `git rebase main` on the branch, push and open a PR so CI runs, then once
   green `git switch main && git merge --ff-only <branch> && git push`. No
