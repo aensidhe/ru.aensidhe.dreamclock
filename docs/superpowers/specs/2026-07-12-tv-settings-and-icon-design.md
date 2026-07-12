@@ -49,12 +49,19 @@ under the pinned composeBom 2025.09.01 without demanding compileSdk 37. Version
 1.1.0 depends on Compose 1.10.3, which risks dragging in the compileSdk-37 /
 AGP-9 line the project deliberately avoids. Therefore pin exactly 1.0.1.
 
-Verification gate: `assembleDebug` runs `checkDebugAarMetadata`. If tv-material
-1.0.1 fails the AAR-metadata compatibility check against compileSdk 36, fall
-back to hand-rolled focus on the existing Material3 components (focusable
-modifiers, manual focus highlight, `FocusRequester` for initial focus) — the
-rest of this design (theme, layout, labels, buttons, icons) is unchanged by the
-fallback.
+Verification (done 2026-07-13, before any implementation): a throwaway
+`implementation("androidx.tv:tv-material:1.0.1")` was added to the app and
+`:app:checkDebugAarMetadata` ran green against compileSdk 36 — the artifact does
+not require compileSdk 37. Dependency resolution confirmed the compose-bom
+2025.09.01 pins every Compose artifact to 1.9.2, upgrading tv-material's
+requested 1.6.8 rather than downgrading (no conflict), then the edit was
+reverted. The pin is confirmed safe on the stack.
+
+Fallback (contingency only, not expected to be needed): if a later change
+disturbs resolution or the metadata check regresses, fall back to hand-rolled
+focus on the existing Material3 components (focusable modifiers, manual focus
+highlight, `FocusRequester` for initial focus) — the rest of this design (theme,
+layout, labels, buttons, icons) is unchanged by the fallback.
 
 ## TV settings screen
 
@@ -190,9 +197,10 @@ Manifest wiring:
 
 ## Risks and mitigations
 
-- tv-material 1.0.1 incompatible with compileSdk 36: caught by
-  `checkDebugAarMetadata` during `assembleDebug`; fall back to hand-rolled focus
-  (see Toolkit decision). The rest of the design is unaffected.
+- tv-material 1.0.1 incompatible with compileSdk 36: retired. Verified green
+  via `:app:checkDebugAarMetadata` on 2026-07-13 (see Toolkit decision); the
+  hand-rolled fallback is retained only as contingency against future
+  resolution changes.
 - `android.settings.DREAM_SETTINGS` missing on a device: handled by the
   try/catch fallback in the Set-as-screensaver button.
 - Banner text rendering: solved by generating a committed PNG with Pillow rather
