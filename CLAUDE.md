@@ -4,12 +4,12 @@ Project memory for Claude Code. Keep it concise and high-signal.
 
 ## What this is
 
-An **Android TV screensaver** (`DreamService`) — a kid-friendly ambient clock
+An Android TV screensaver (`DreamService`) — a kid-friendly ambient clock
 over a rotating slide deck (photos, agenda). Target devices: NVIDIA Shield and
 Xiaomi TV Stick, ≥1080p.
 
 Package (`applicationId`): `ru.aensidhe.dreamclock`. The user-facing app name is
-**Reverie** (Russian: **Грёзы**), shown as a localized app label.
+Reverie (Russian: Грёзы), shown as a localized app label.
 
 ## Build order (do not skip ahead)
 
@@ -25,9 +25,9 @@ are recorded scope, not yet designed in full.
 - `TvDreamService` — screensaver entry point; hosts a `ComposeView`.
 - `SlideDeck` — slide rotation (analog clock / photos / agenda).
 - `ClockOverlay` — always-on overlay: digital + colloquial + status text.
-- `ScheduleEngine` — **pure Kotlin, no Android deps**: `(now, config) → active
+- `ScheduleEngine` — pure Kotlin, no Android deps: `(now, config) → active
   state + status text`. Heavily unit-tested.
-- `ColloquialTimeFormatter` — **pure Kotlin**, per-locale (`Ru`, `En`). Heavily
+- `ColloquialTimeFormatter` — pure Kotlin, per-locale (`Ru`, `En`). Heavily
   unit-tested with case tables.
 - `SettingsActivity` + `SettingsRepository` (Proto DataStore).
 
@@ -45,6 +45,9 @@ the real complexity and get the most test coverage.
 - Kotlin over Java. Newest stable tooling.
 - Scratch/throwaway files go in repo-local `tmp/` (gitignored), never `/tmp`.
 - Design specs live in `docs/superpowers/specs/`.
+- Markdown: no bold/italic for inline emphasis in prose (READMEs, specs, docs).
+  Convey emphasis with sentence structure; reserve markup for headings, lists,
+  and code spans.
 
 ## Current status
 
