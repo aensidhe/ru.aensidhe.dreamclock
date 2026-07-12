@@ -36,3 +36,6 @@ Thumbs.db
 
 # Scratch / temporary files (repo-local, never system /tmp)
 tmp/
+
+# Superpowers subagent-driven-development progress ledger (scratch)
+.superpowers/
