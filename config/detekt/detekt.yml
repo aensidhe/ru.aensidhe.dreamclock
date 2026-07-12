@@ -3,6 +3,9 @@ style:
     active: false
   ReturnCount:
     active: false
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
 complexity:
   CyclomaticComplexMethod:
     threshold: 20
