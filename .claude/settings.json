@@ -11,6 +11,7 @@
       "Bash(head *)",
       "Bash(tail *)",
       "Bash(find *)",
+      "Bash(awk *)",
       "Bash(curl -s *)",
       "Bash(git add *)",
       "Bash(git commit *)",
