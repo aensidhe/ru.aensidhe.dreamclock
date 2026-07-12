@@ -67,6 +67,11 @@ the real complexity and get the most test coverage.
 ## Conventions
 
 - Kotlin over Java. Newest stable tooling.
+- Shell usage: prefer dedicated file tools (read/edit/write, Serena) over shell
+  one-liners. Do not run inline Bash that leans on escaping, quoting gymnastics,
+  variable expansion, heredocs, or multi-line here-strings — these prompt for
+  manual approval and are error-prone. When a script is genuinely unavoidable,
+  write it to a file under `tmp/` (gitignored) and run that file.
 - Scratch/throwaway files go in repo-local `tmp/` (gitignored), never `/tmp`.
 - Design specs live in `docs/superpowers/specs/`.
 - Markdown: no bold/italic for inline emphasis in prose (READMEs, specs, docs).
