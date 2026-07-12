@@ -2,12 +2,14 @@ package ru.aensidhe.dreamclock.settings
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStore
 import kotlinx.coroutines.flow.Flow
 
 private val Context.settingsStore: DataStore<Settings> by dataStore(
     fileName = "settings.pb",
     serializer = SettingsSerializer,
+    corruptionHandler = ReplaceFileCorruptionHandler { SettingsSerializer.defaultValue },
 )
 
 class SettingsRepository internal constructor(

@@ -71,7 +71,7 @@ private fun LanguageSelector(
 ) {
     Column(Modifier.padding(vertical = 12.dp)) {
         Text(stringResource(R.string.settings_language))
-        Language.values().forEach { option ->
+        Language.values().filter { it != Language.UNRECOGNIZED }.forEach { option ->
             OptionRow(option.name, option == selected) { onSelect(option) }
         }
     }
@@ -84,7 +84,7 @@ private fun RenderModeSelector(
 ) {
     Column(Modifier.padding(vertical = 12.dp)) {
         Text(stringResource(R.string.settings_render_mode))
-        ColorRenderModeProto.values().forEach { option ->
+        ColorRenderModeProto.values().filter { it != ColorRenderModeProto.UNRECOGNIZED }.forEach { option ->
             OptionRow(option.name, option == selected) { onSelect(option) }
         }
     }
