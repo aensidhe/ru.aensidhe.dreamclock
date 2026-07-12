@@ -1,0 +1,10 @@
+style:
+  MagicNumber:
+    active: false
+  ReturnCount:
+    active: false
+complexity:
+  CyclomaticComplexMethod:
+    threshold: 20
+  LongMethod:
+    threshold: 80
