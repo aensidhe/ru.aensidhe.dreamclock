@@ -65,9 +65,10 @@ the real logic and carry the bulk of test coverage.
 ### Platform
 
 - Kotlin + Jetpack Compose, latest stable tooling. Kotlin over Java.
-- Target latest stable SDK.
-- `minSdk` chosen to cover Shield + Xiaomi TV Stick — confirm against the actual
-  device OS versions before locking (expected somewhere in API 28–30).
+- `minSdk` 30 — both target devices (Shield and Xiaomi TV Stick) run Android 11.
+- `compileSdk` / `targetSdk` 37 — latest stable (July 2026).
+- Android Gradle Plugin 9.2.0; Gradle pinned via the wrapper; JDK 21 (the
+  existing dev/CI toolchain).
 - TV screensaver registered via manifest `<meta-data>` (Leanback/DreamService).
 
 ## Feature 1 — The clock
@@ -239,8 +240,6 @@ undecided (local setup unsettled). Design deferred until the source is chosen.
 
 ## Open decisions
 
-- `minSdk` — confirm against the real OS versions of the target Shield and Xiaomi
-  TV Stick before locking the manifest.
 - Color render modes — the winning default (and which modes to keep) decided
   after side-by-side testing on real devices.
 
