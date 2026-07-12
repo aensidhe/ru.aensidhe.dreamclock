@@ -49,15 +49,15 @@ State driven by ViewModel / Kotlin Flows (clock ticks, active state)
 
 ### Units (each one job, well-bounded interface)
 
-| Unit | Responsibility | Android deps |
-|------|----------------|--------------|
-| `TvDreamService` | Screensaver entry point; hosts Compose; lifecycle | Yes |
-| `SlideDeck` | Rotation logic; which slide is current | UI only |
-| `ClockOverlay` | Renders digital + colloquial + status; applies color render mode | UI only |
-| `ScheduleEngine` | `(now, config) → active state + status text` | No |
-| `ColloquialTimeFormatter` | Per-locale spoken time (`Ru`, `En`) | No |
-| `SettingsRepository` | Read/write config (Proto DataStore) | Yes |
-| `SettingsActivity` | Configuration UI | Yes |
+| Unit                      | Responsibility                                                   | Android deps |
+| ------------------------- | ---------------------------------------------------------------- | ------------ |
+| `TvDreamService`          | Screensaver entry point; hosts Compose; lifecycle                | Yes          |
+| `SlideDeck`               | Rotation logic; which slide is current                           | UI only      |
+| `ClockOverlay`            | Renders digital + colloquial + status; applies color render mode | UI only      |
+| `ScheduleEngine`          | `(now, config) → active state + status text`                     | No           |
+| `ColloquialTimeFormatter` | Per-locale spoken time (`Ru`, `En`)                              | No           |
+| `SettingsRepository`      | Read/write config (Proto DataStore)                              | Yes          |
+| `SettingsActivity`        | Configuration UI                                                 | Yes          |
 
 The pure-Kotlin units (`ScheduleEngine`, `ColloquialTimeFormatter`) hold most of
 the real logic and carry the bulk of test coverage.
@@ -86,11 +86,11 @@ the real logic and carry the bulk of test coverage.
 
 Fixed times now; the data model supports more (see Schedule).
 
-| State | Meaning | Default color |
-|-------|---------|---------------|
-| `PLAY` | Play is fine | Soft green |
-| `PREPARE` | Time to get ready for sleep | Warm amber |
-| `SLEEP` | Time to sleep | Deep plum |
+| State     | Meaning                     | Default color |
+| --------- | --------------------------- | ------------- |
+| `PLAY`    | Play is fine                | Soft green    |
+| `PREPARE` | Time to get ready for sleep | Warm amber    |
+| `SLEEP`   | Time to sleep               | Deep plum     |
 
 Colors are per-state configurable. See Color palette and Color render modes.
 
@@ -109,9 +109,10 @@ Russian — pivot at 30 minutes; reference the coming hour:
 - 45 min: `без четверти <next-hour cardinal>` — 21:45 → `без четверти десять`.
 - 31–44 and 46–59 min: `без <60−min, genitive> <next-hour cardinal>` — 21:55 →
   `без пяти десять`; 21:35 → `без двадцати пяти десять`.
-- Requires correct minute-noun agreement (минута/минуты/минут) and numeral
-  genitive forms, and ordinal-genitive of the coming hour
-  (первого…двенадцатого). The 12-hour number is used (21 → десятого / десять).
+- Feminine numerals for the minute count (1 → одна, 2 → две) and
+  ordinal-genitive of the coming hour (первого…двенадцатого). The 12-hour number
+  is used (21 → десятого / десять). Minute-noun agreement per the declension
+  rules below.
 - Noon/midnight kept plain: `двенадцать часов` (полдень/полночь may come later).
 
 English — pivot at 30 minutes; `past`/`to`, with `quarter`/`half` words:
@@ -121,6 +122,24 @@ English — pivot at 30 minutes; `past`/`to`, with `quarter`/`half` words:
 - 21:45 → `quarter to ten`; 21:55 → `five to ten`
 - 12:00 → `twelve o'clock`
 - Uses the 12-hour number. No part-of-day suffix.
+
+### Minute-noun declension
+
+Russian минута has three forms, chosen by the minute value m:
+
+- одна минута (one): `m % 10 == 1 and m % 100 != 11` — 1, 21, 31, …
+- две минуты (few): `m % 10 in {2,3,4} and m % 100 not in {12,13,14}` — 2–4,
+  22–24, …
+- минут (many): everything else, including the teens 11–14 and
+  `m % 10 in {0,5,6,7,8,9}` — 5–20, 25–29, …
+
+Numerals are feminine because минута is feminine (одна/две, not один/два). This
+agreement applies only to the "X минут <ordinal>" forms (minutes 1–14 and
+16–29). 15 (четверть), 30 (половина), and the "без …" forms carry no минут noun,
+so no agreement is needed there.
+
+English minute has two forms, used only when the noun is actually spoken (the
+default past/to phrasing omits it): minute for `m == 1`, minutes otherwise.
 
 ### Analog-clock slide
 
@@ -150,12 +169,12 @@ likely keep more than one. Implemented as swappable renderers behind one
 interface; nothing else in the app depends on which is active. Each mode owns its
 own text legibility (adds a readability backing if needed).
 
-| Mode | Digits/text | Where the state color lives |
-|------|-------------|------------------------------|
-| `TEXT_TINT` | colored | digits & status text take the state color |
-| `PANEL_TINT` | near-white | translucent tinted panel behind the text block |
-| `FULL_SCRIM` | near-white | gentle full-screen color wash (doubles as evening dimming) |
-| `ACCENT` | near-white | white text + a thin colored accent/glow, transparent panel |
+| Mode         | Digits/text | Where the state color lives                                |
+| ------------ | ----------- | ---------------------------------------------------------- |
+| `TEXT_TINT`  | colored     | digits & status text take the state color                  |
+| `PANEL_TINT` | near-white  | translucent tinted panel behind the text block             |
+| `FULL_SCRIM` | near-white  | gentle full-screen color wash (doubles as evening dimming) |
+| `ACCENT`     | near-white  | white text + a thin colored accent/glow, transparent panel |
 
 The set is extensible; more modes may be added after on-device comparison.
 
