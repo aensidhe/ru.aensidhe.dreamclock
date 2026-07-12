@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.datastore)
     implementation(libs.protobuf.javalite)
+    implementation(libs.kotlinx.coroutines.core)
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlinx.coroutines.test)
