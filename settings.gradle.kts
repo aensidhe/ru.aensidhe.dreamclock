@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "reverie"
-include(":core")
+include(":core", ":app")
