@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.protobuf)
+    alias(libs.plugins.android.junit5)
 }
 
 android {
@@ -41,6 +43,17 @@ detekt {
     buildUponDefaultConfig = true
 }
 
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:4.28.2" }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") { option("lite") }
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(project(":core"))
     implementation(platform(libs.compose.bom))
@@ -55,4 +68,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.datastore)
     implementation(libs.protobuf.javalite)
+    testImplementation(kotlin("test"))
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

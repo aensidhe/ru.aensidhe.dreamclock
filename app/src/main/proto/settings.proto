@@ -1,0 +1,14 @@
+syntax = "proto3";
+option java_package = "ru.aensidhe.dreamclock.settings";
+option java_multiple_files = true;
+
+enum Language { FOLLOW_SYSTEM = 0; RU = 1; EN = 2; }
+enum ColorRenderModeProto { TEXT_TINT = 0; PANEL_TINT = 1; FULL_SCRIM = 2; ACCENT = 3; }
+
+message Settings {
+  Language language = 1;
+  bool show_colloquial = 2;
+  bool show_seconds = 3;
+  bool show_analog_slide = 4;
+  ColorRenderModeProto color_render_mode = 5;
+}
