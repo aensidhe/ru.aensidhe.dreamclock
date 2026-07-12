@@ -40,6 +40,24 @@ the real complexity and get the most test coverage.
 - Jetpack DataStore (Proto) for config
 - minSdk covers Shield + Xiaomi Stick (confirm against real device OS versions)
 
+## Development workflow
+
+- Commits: Conventional Commits (feat/fix/docs/chore/test/ci/refactor/build),
+  optional scope, imperative summary. Keep the Co-Authored-By trailer.
+- History is linear. Work on short-lived feature branches. Integrate by:
+  `git rebase main` on the branch, push and open a PR so CI runs, then once
+  green `git switch main && git merge --ff-only <branch> && git push`. No
+  squashing, no merge commits. (Interactive history curation is done by hand;
+  this environment cannot run `git rebase -i`.)
+- CI (GitHub Actions), on push and pull_request: `assemble`, unit `test`,
+  `ktlintCheck`, `detekt`, with Gradle caching. Added once the Gradle project
+  exists.
+- Testing: TDD for the pure-logic units (`ScheduleEngine`,
+  `ColloquialTimeFormatter`) with case tables; pragmatic tests elsewhere. May
+  tighten to full TDD later.
+- Tooling: Gradle Kotlin DSL + version catalog (`libs.versions.toml`); ktlint
+  (format) + detekt (static analysis); JUnit + kotlin.test.
+
 ## Conventions
 
 - Kotlin over Java. Newest stable tooling.
