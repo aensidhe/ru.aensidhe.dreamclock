@@ -1,6 +1,7 @@
-# TV Ambient Clock
+# Reverie
 
-> Working title — the final name is not decided yet.
+> The user-facing name is a localized app label: **Reverie** in English,
+> **Грёзы** in Russian.
 
 An **Android TV screensaver** (`DreamService`) for the living-room big screen. It
 shows an always-visible, kid-friendly clock over a rotating deck of slides:

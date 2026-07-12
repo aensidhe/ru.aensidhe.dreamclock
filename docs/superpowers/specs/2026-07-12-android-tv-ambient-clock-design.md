@@ -1,8 +1,8 @@
-# Android TV Ambient Clock — Design
+# Reverie (Грёзы) — Android TV Screensaver — Design
 
 - **Date:** 2026-07-12
 - **Status:** Approved for feature 1 implementation
-- **Working title:** TV Ambient Clock (name provisional)
+- **Name (localized label):** Reverie (EN) / Грёзы (RU)
 - **Package (`applicationId`):** `ru.aensidhe.dreamclock`
 
 ## Overview

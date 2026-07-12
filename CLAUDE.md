@@ -9,8 +9,7 @@ over a rotating slide deck (photos, agenda). Target devices: NVIDIA Shield and
 Xiaomi TV Stick, ≥1080p.
 
 Package (`applicationId`): `ru.aensidhe.dreamclock`. The user-facing app name is
-still a working title ("TV Ambient Clock"). The repo directory is still named
-`ru.aensidhe.tv.calendar` — harmless; the `applicationId` is what matters.
+**Reverie** (Russian: **Грёзы**), shown as a localized app label.
 
 ## Build order (do not skip ahead)
 
