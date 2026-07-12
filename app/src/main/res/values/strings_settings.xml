@@ -1,0 +1,7 @@
+<resources>
+    <string name="settings_colloquial">Spoken time</string>
+    <string name="settings_seconds">Show seconds</string>
+    <string name="settings_analog">Analog clock slide</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_render_mode">Colour style</string>
+</resources>

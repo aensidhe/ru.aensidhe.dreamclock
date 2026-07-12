@@ -1,0 +1,7 @@
+<resources>
+    <string name="settings_colloquial">Время прописью</string>
+    <string name="settings_seconds">Показывать секунды</string>
+    <string name="settings_analog">Слайд с часами</string>
+    <string name="settings_language">Язык</string>
+    <string name="settings_render_mode">Стиль цвета</string>
+</resources>
