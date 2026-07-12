@@ -4,4 +4,24 @@
     <string name="settings_analog">Слайд с часами</string>
     <string name="settings_language">Язык</string>
     <string name="settings_render_mode">Стиль цвета</string>
+
+    <string name="lang_follow_system">Как в системе</string>
+    <string name="lang_ru">Русский</string>
+    <string name="lang_en">English</string>
+
+    <string name="render_text_tint_label">Цветной текст</string>
+    <string name="render_text_tint_desc">Текст часов окрашивается в цвет состояния</string>
+    <string name="render_panel_tint_label">Мягкая панель</string>
+    <string name="render_panel_tint_desc">Светлый текст на полупрозрачной цветной карточке</string>
+    <string name="render_full_scrim_label">Полная заливка</string>
+    <string name="render_full_scrim_desc">Светлый текст поверх цветной заливки экрана</string>
+    <string name="render_accent_label">Яркий значок</string>
+    <string name="render_accent_desc">Светлый текст на почти сплошном цветном блоке</string>
+
+    <string name="state_on">Вкл</string>
+    <string name="state_off">Выкл</string>
+
+    <string name="action_test">Проверить заставку</string>
+    <string name="action_set_screensaver">Выбрать заставку</string>
+    <string name="settings_screensaver_fallback">Откройте Настройки › Настройки устройства › Заставка и выберите Грёзы</string>
 </resources>

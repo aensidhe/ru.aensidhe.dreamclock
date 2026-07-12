@@ -4,4 +4,24 @@
     <string name="settings_analog">Analog clock slide</string>
     <string name="settings_language">Language</string>
     <string name="settings_render_mode">Colour style</string>
+
+    <string name="lang_follow_system">Follow system</string>
+    <string name="lang_ru">Русский</string>
+    <string name="lang_en">English</string>
+
+    <string name="render_text_tint_label">Coloured text</string>
+    <string name="render_text_tint_desc">The clock text takes the state colour</string>
+    <string name="render_panel_tint_label">Soft panel</string>
+    <string name="render_panel_tint_desc">Light text on a translucent coloured card</string>
+    <string name="render_full_scrim_label">Full tint</string>
+    <string name="render_full_scrim_desc">Light text over a full-screen colour wash</string>
+    <string name="render_accent_label">Bold badge</string>
+    <string name="render_accent_desc">Light text on a near-solid colour block</string>
+
+    <string name="state_on">On</string>
+    <string name="state_off">Off</string>
+
+    <string name="action_test">Test screensaver</string>
+    <string name="action_set_screensaver">Set as screensaver</string>
+    <string name="settings_screensaver_fallback">Open Settings › Device Preferences › Screen saver to choose Reverie</string>
 </resources>
