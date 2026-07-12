@@ -14,13 +14,6 @@ fun colloquialFormatter(locale: ClockLocale): ColloquialTimeFormatter =
         ClockLocale.EN -> EnColloquialFormatter
     }
 
-internal object RuColloquialFormatter : ColloquialTimeFormatter {
-    override fun format(
-        hour: Int,
-        minute: Int,
-    ): String = TODO("Task 5")
-}
-
 internal object EnColloquialFormatter : ColloquialTimeFormatter {
     override fun format(
         hour: Int,
