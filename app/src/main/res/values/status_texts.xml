@@ -1,0 +1,5 @@
+<resources>
+    <string name="status_play"></string>
+    <string name="status_prepare">time to get ready for bed</string>
+    <string name="status_sleep">time to sleep</string>
+</resources>
