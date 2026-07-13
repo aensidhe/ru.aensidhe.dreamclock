@@ -2,7 +2,9 @@ package ru.aensidhe.dreamclock.ui
 
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.Locale
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import org.junit.jupiter.api.Test
 import ru.aensidhe.dreamclock.core.schedule.DaySchedule
 import ru.aensidhe.dreamclock.core.schedule.Schedule
@@ -36,6 +38,7 @@ class ClockFormattingTest {
                 LocalDateTime.of(2026, 7, 13, 21, 45, 5),
                 settings,
                 schedule,
+                Locale.ENGLISH,
             ) { _, _ -> "спать" }
         assertEquals("21:45:05", ui.digital)
         assertEquals("без четверти десять", ui.colloquial)
@@ -56,8 +59,25 @@ class ClockFormattingTest {
                 LocalDateTime.of(2026, 7, 13, 21, 45, 5),
                 settings,
                 schedule,
+                Locale.ENGLISH,
             ) { _, _ -> "спать" }
         assertEquals("21:45", ui.digital)
         assertEquals(null, ui.colloquial)
+    }
+
+    @Test
+    fun `follow system picks colloquial language from the system locale`() {
+        val settings =
+            Settings
+                .newBuilder()
+                .setLanguage(Language.FOLLOW_SYSTEM)
+                .setShowColloquial(true)
+                .setShowSeconds(false)
+                .build()
+        val now = LocalDateTime.of(2026, 7, 13, 21, 45, 5)
+        val ru = buildClockUiState(now, settings, schedule, Locale.forLanguageTag("ru")) { _, _ -> "" }.colloquial
+        val en = buildClockUiState(now, settings, schedule, Locale.ENGLISH) { _, _ -> "" }.colloquial
+        assertEquals("без четверти десять", ru)
+        assertNotEquals(ru, en)
     }
 }

@@ -1,27 +1,39 @@
 package ru.aensidhe.dreamclock.settings
 
+import java.util.Locale
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import org.junit.jupiter.api.Test
 
 class LocalizationTest {
+    private val russian = Locale.forLanguageTag("ru")
+
     @Test
-    fun `russian maps to ru locale`() {
-        assertEquals("ru", languageLocale(Language.RU)?.language)
+    fun `explicit russian resolves to ru`() {
+        assertEquals("ru", effectiveLocale(Language.RU, Locale.ENGLISH).language)
     }
 
     @Test
-    fun `english maps to en locale`() {
-        assertEquals("en", languageLocale(Language.EN)?.language)
+    fun `explicit english resolves to en`() {
+        assertEquals("en", effectiveLocale(Language.EN, russian).language)
     }
 
     @Test
-    fun `follow system has no override`() {
-        assertNull(languageLocale(Language.FOLLOW_SYSTEM))
+    fun `follow system on a russian device resolves to ru`() {
+        assertEquals("ru", effectiveLocale(Language.FOLLOW_SYSTEM, russian).language)
     }
 
     @Test
-    fun `unrecognized has no override`() {
-        assertNull(languageLocale(Language.UNRECOGNIZED))
+    fun `follow system on an english device resolves to en`() {
+        assertEquals("en", effectiveLocale(Language.FOLLOW_SYSTEM, Locale.ENGLISH).language)
+    }
+
+    @Test
+    fun `follow system on any other device falls back to en`() {
+        assertEquals("en", effectiveLocale(Language.FOLLOW_SYSTEM, Locale.FRENCH).language)
+    }
+
+    @Test
+    fun `unrecognized on a russian device resolves to ru`() {
+        assertEquals("ru", effectiveLocale(Language.UNRECOGNIZED, russian).language)
     }
 }
