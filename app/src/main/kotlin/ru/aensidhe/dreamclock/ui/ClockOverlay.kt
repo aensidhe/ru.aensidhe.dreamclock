@@ -1,6 +1,6 @@
 package ru.aensidhe.dreamclock.ui
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,16 +20,20 @@ fun ClockOverlay(
     ui: ClockUiState,
     mode: ColorRenderMode,
 ) {
-    Column(
-        Modifier.fillMaxSize().padding(48.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(ui.digital, color = Color.White, fontSize = 96.sp, fontWeight = FontWeight.Bold)
-        mode.RenderOverlay(ui.state) { textColor ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                ui.colloquial?.let { Text(it, color = textColor, fontSize = 40.sp) }
-                ui.statusText?.let { Text(it, color = textColor, fontSize = 32.sp) }
+    Box(Modifier.fillMaxSize().padding(48.dp)) {
+        Text(
+            ui.digital,
+            Modifier.align(Alignment.TopStart),
+            color = Color.White,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Box(Modifier.align(Alignment.BottomCenter)) {
+            mode.RenderOverlay(ui.state) { textColor ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    ui.colloquial?.let { Text(it, color = textColor, fontSize = 24.sp) }
+                    ui.statusText?.let { Text(it, color = textColor, fontSize = 24.sp) }
+                }
             }
         }
     }
