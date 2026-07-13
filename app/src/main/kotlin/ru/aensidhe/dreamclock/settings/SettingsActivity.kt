@@ -7,13 +7,19 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import ru.aensidhe.dreamclock.R
 import ru.aensidhe.dreamclock.dream.DreamPreviewActivity
 
 class SettingsActivity : ComponentActivity() {
+    private val repository by lazy { SettingsRepository.from(this) }
+    private var currentLanguage: Language = Language.FOLLOW_SYSTEM
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val repository = SettingsRepository.from(this)
+        lifecycleScope.launch {
+            repository.settings.collect { currentLanguage = it.language }
+        }
         setContent {
             SettingsScreen(
                 repository = repository,
@@ -30,7 +36,8 @@ class SettingsActivity : ComponentActivity() {
             startActivity(intent)
         } else {
             startActivity(Intent(Settings.ACTION_SETTINGS))
-            Toast.makeText(this, R.string.settings_screensaver_fallback, Toast.LENGTH_LONG).show()
+            val message = localizedFor(currentLanguage).getString(R.string.settings_screensaver_fallback)
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         }
     }
 }

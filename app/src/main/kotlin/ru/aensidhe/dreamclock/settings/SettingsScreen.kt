@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,44 +46,52 @@ fun SettingsScreen(
     val firstRow = remember { FocusRequester() }
     LaunchedEffect(Unit) { firstRow.requestFocus() }
 
-    MaterialTheme(colorScheme = darkColorScheme()) {
-        Surface(Modifier.fillMaxSize()) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 48.dp, vertical = 27.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Text(
-                    stringResource(R.string.app_name),
-                    style = MaterialTheme.typography.headlineMedium,
-                )
+    val baseContext = LocalContext.current
+    val localizedContext = remember(settings.language) { baseContext.localizedFor(settings.language) }
 
-                ToggleRow(firstRow, stringResource(R.string.settings_colloquial), settings.showColloquial) { on ->
-                    scope.launch { repository.update { it.toBuilder().setShowColloquial(on).build() } }
-                }
-                ToggleRow(null, stringResource(R.string.settings_seconds), settings.showSeconds) { on ->
-                    scope.launch { repository.update { it.toBuilder().setShowSeconds(on).build() } }
-                }
-                ToggleRow(null, stringResource(R.string.settings_analog), settings.showAnalogSlide) { on ->
-                    scope.launch { repository.update { it.toBuilder().setShowAnalogSlide(on).build() } }
-                }
-
-                LanguageSection(settings.language) { option ->
-                    scope.launch { repository.update { it.toBuilder().setLanguage(option).build() } }
-                }
-
-                ColorModeSection(settings.colorRenderMode) { option ->
-                    scope.launch { repository.update { it.toBuilder().setColorRenderMode(option).build() } }
-                }
-
-                Row(
-                    Modifier.padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+    CompositionLocalProvider(
+        LocalContext provides localizedContext,
+        LocalConfiguration provides localizedContext.resources.configuration,
+    ) {
+        MaterialTheme(colorScheme = darkColorScheme()) {
+            Surface(Modifier.fillMaxSize()) {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 48.dp, vertical = 27.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Button(onClick = onTest) { Text(stringResource(R.string.action_test)) }
-                    Button(onClick = onSetScreensaver) { Text(stringResource(R.string.action_set_screensaver)) }
+                    Text(
+                        stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+
+                    ToggleRow(firstRow, stringResource(R.string.settings_colloquial), settings.showColloquial) { on ->
+                        scope.launch { repository.update { it.toBuilder().setShowColloquial(on).build() } }
+                    }
+                    ToggleRow(null, stringResource(R.string.settings_seconds), settings.showSeconds) { on ->
+                        scope.launch { repository.update { it.toBuilder().setShowSeconds(on).build() } }
+                    }
+                    ToggleRow(null, stringResource(R.string.settings_analog), settings.showAnalogSlide) { on ->
+                        scope.launch { repository.update { it.toBuilder().setShowAnalogSlide(on).build() } }
+                    }
+
+                    LanguageSection(settings.language) { option ->
+                        scope.launch { repository.update { it.toBuilder().setLanguage(option).build() } }
+                    }
+
+                    ColorModeSection(settings.colorRenderMode) { option ->
+                        scope.launch { repository.update { it.toBuilder().setColorRenderMode(option).build() } }
+                    }
+
+                    Row(
+                        Modifier.padding(top = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Button(onClick = onTest) { Text(stringResource(R.string.action_test)) }
+                        Button(onClick = onSetScreensaver) { Text(stringResource(R.string.action_set_screensaver)) }
+                    }
                 }
             }
         }
