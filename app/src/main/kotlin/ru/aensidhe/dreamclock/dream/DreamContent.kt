@@ -20,8 +20,8 @@ import ru.aensidhe.dreamclock.ui.DreamRoot
 import ru.aensidhe.dreamclock.ui.colorrender.ColorRenderMode
 
 /**
- * Baked default schedule until a schedule-editor UI lands: play through the day, prepare for
- * bed at 21:00, sleep from 22:00 until 07:30. The 00:00 window carries the overnight sleep tail.
+ * Baked default schedule until a schedule-editor UI lands. Four intervals span the full day:
+ * 00:00–07:00 sleep, 07:00–21:00 play, 21:00–22:00 prepare for bed, 22:00–00:00 sleep.
  */
 internal fun defaultSchedule(): Schedule =
     Schedule(
@@ -29,7 +29,7 @@ internal fun defaultSchedule(): Schedule =
             DaySchedule(
                 listOf(
                     Window(LocalTime.MIDNIGHT, StateType.SLEEP),
-                    Window(LocalTime.of(7, 30), StateType.PLAY),
+                    Window(LocalTime.of(7, 0), StateType.PLAY),
                     Window(LocalTime.of(21, 0), StateType.PREPARE),
                     Window(LocalTime.of(22, 0), StateType.SLEEP),
                 ),
