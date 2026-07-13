@@ -2,6 +2,7 @@ package ru.aensidhe.dreamclock.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -20,7 +21,7 @@ fun ClockOverlay(
     ui: ClockUiState,
     mode: ColorRenderMode,
 ) {
-    Box(Modifier.fillMaxSize().padding(48.dp)) {
+    Box(Modifier.fillMaxSize().padding(PaddingValues(start = 48.dp, top = 48.dp, end = 48.dp, bottom = 16.dp))) {
         Text(
             ui.digital,
             Modifier.align(Alignment.TopStart),
