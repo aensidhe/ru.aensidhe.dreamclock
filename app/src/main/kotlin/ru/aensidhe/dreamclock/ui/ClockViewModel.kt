@@ -31,7 +31,7 @@ fun buildClockUiState(
     now: LocalDateTime,
     settings: Settings,
     schedule: Schedule,
-    statusTextFor: (StateType) -> String,
+    statusTextFor: (Language, StateType) -> String,
 ): ClockUiState {
     val active = ScheduleEngine.activeState(now, schedule)
     val digital = now.format(if (settings.showSeconds) withSeconds else withoutSeconds)
@@ -41,7 +41,7 @@ fun buildClockUiState(
         } else {
             null
         }
-    val status = active.textOverride ?: statusTextFor(active.state)
+    val status = active.textOverride ?: statusTextFor(settings.language, active.state)
     return ClockUiState(digital, colloquial, status, active.state)
 }
 
@@ -59,7 +59,7 @@ class ClockViewModel(
     scope: CoroutineScope,
     private val settingsFlow: Flow<Settings>,
     private val schedule: Schedule,
-    private val statusTextFor: (StateType) -> String,
+    private val statusTextFor: (Language, StateType) -> String,
     private val nowProvider: () -> LocalDateTime = LocalDateTime::now,
 ) {
     private val _uiState = MutableStateFlow(initialState())

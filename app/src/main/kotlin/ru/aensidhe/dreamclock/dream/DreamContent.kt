@@ -11,8 +11,10 @@ import ru.aensidhe.dreamclock.core.schedule.Schedule
 import ru.aensidhe.dreamclock.core.schedule.StateType
 import ru.aensidhe.dreamclock.core.schedule.Window
 import ru.aensidhe.dreamclock.settings.ColorRenderModeProto
+import ru.aensidhe.dreamclock.settings.Language
 import ru.aensidhe.dreamclock.settings.SettingsRepository
 import ru.aensidhe.dreamclock.settings.SettingsSerializer
+import ru.aensidhe.dreamclock.settings.localizedFor
 import ru.aensidhe.dreamclock.ui.ClockViewModel
 import ru.aensidhe.dreamclock.ui.DreamRoot
 import ru.aensidhe.dreamclock.ui.colorrender.ColorRenderMode
@@ -35,6 +37,22 @@ internal fun statusTextFor(
         StateType.PREPARE -> context.getString(R.string.status_prepare)
         StateType.SLEEP -> context.getString(R.string.status_sleep)
     }
+
+/**
+ * A status-text lookup that resolves strings in the app's chosen [Language]. The localized
+ * context is rebuilt only when the language changes (collectLatest drives this single-threaded).
+ */
+internal fun Context.localizedStatusText(): (Language, StateType) -> String {
+    var cachedLanguage: Language? = null
+    var cachedContext: Context = this
+    return { language, state ->
+        if (language != cachedLanguage) {
+            cachedLanguage = language
+            cachedContext = localizedFor(language)
+        }
+        statusTextFor(cachedContext, state)
+    }
+}
 
 internal fun ColorRenderModeProto.toColorRenderMode(): ColorRenderMode =
     when (this) {

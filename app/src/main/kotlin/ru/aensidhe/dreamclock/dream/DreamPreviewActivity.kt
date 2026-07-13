@@ -30,7 +30,7 @@ class DreamPreviewActivity : ComponentActivity() {
                 scope = lifecycleScope,
                 settingsFlow = repository.settings,
                 schedule = defaultSchedule(),
-                statusTextFor = { statusTextFor(this, it) },
+                statusTextFor = localizedStatusText(),
             )
         setContent { DreamContent(viewModel, repository) }
     }

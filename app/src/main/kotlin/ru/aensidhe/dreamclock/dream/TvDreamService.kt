@@ -71,7 +71,7 @@ class TvDreamService :
                 scope = lifecycleScope,
                 settingsFlow = repository.settings,
                 schedule = defaultSchedule(),
-                statusTextFor = { statusTextFor(this, it) },
+                statusTextFor = localizedStatusText(),
             )
         return ComposeView(this).apply {
             setViewTreeLifecycleOwner(this@TvDreamService)

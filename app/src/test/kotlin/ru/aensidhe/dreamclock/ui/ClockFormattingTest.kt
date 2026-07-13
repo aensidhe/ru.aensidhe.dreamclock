@@ -36,7 +36,7 @@ class ClockFormattingTest {
                 LocalDateTime.of(2026, 7, 13, 21, 45, 5),
                 settings,
                 schedule,
-            ) { "спать" }
+            ) { _, _ -> "спать" }
         assertEquals("21:45:05", ui.digital)
         assertEquals("без четверти десять", ui.colloquial)
         assertEquals("спать", ui.statusText)
@@ -56,7 +56,7 @@ class ClockFormattingTest {
                 LocalDateTime.of(2026, 7, 13, 21, 45, 5),
                 settings,
                 schedule,
-            ) { "спать" }
+            ) { _, _ -> "спать" }
         assertEquals("21:45", ui.digital)
         assertEquals(null, ui.colloquial)
     }
