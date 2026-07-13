@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Face -->
+    <path
+        android:pathData="M28,54 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0 z"
+        android:fillColor="#FFF6E9" />
+    <!-- Rim -->
+    <path
+        android:pathData="M28,54 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0 z"
+        android:strokeColor="#2A2340"
+        android:strokeWidth="2.5"
+        android:fillColor="#00000000" />
+    <!-- 12/3/6/9 tick marks -->
+    <path android:pathData="M54,32 L54,37" android:strokeColor="#2A2340" android:strokeWidth="2.5" android:strokeLineCap="round" />
+    <path android:pathData="M76,54 L71,54" android:strokeColor="#2A2340" android:strokeWidth="2.5" android:strokeLineCap="round" />
+    <path android:pathData="M54,76 L54,71" android:strokeColor="#2A2340" android:strokeWidth="2.5" android:strokeLineCap="round" />
+    <path android:pathData="M32,54 L37,54" android:strokeColor="#2A2340" android:strokeWidth="2.5" android:strokeLineCap="round" />
+    <!-- Minute hand (to 12) -->
+    <path android:pathData="M54,54 L54,38" android:strokeColor="#2A2340" android:strokeWidth="3" android:strokeLineCap="round" />
+    <!-- Hour hand (to ~2 o'clock) -->
+    <path android:pathData="M54,54 L66,48" android:strokeColor="#2A2340" android:strokeWidth="4" android:strokeLineCap="round" />
+    <!-- Centre pin -->
+    <path
+        android:pathData="M51,54 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 z"
+        android:fillColor="#2A2340" />
+</vector>
