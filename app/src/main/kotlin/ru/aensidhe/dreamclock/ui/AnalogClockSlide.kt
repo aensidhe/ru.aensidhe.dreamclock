@@ -23,6 +23,14 @@ private val handColor = Color(0xFFF2F5FB)
 private val secondColor = Color(0xFFFFB300)
 private val numeralColor = Color(0xFFEEF2F8)
 
+private val numeralPaint =
+    Paint().apply {
+        isAntiAlias = true
+        color = numeralColor.toArgb()
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.DEFAULT_BOLD
+    }
+
 @Composable
 fun AnalogClockSlide(now: LocalDateTime) {
     Canvas(Modifier.fillMaxSize()) {
@@ -77,20 +85,13 @@ private fun DrawScope.drawNumerals(
     center: Offset,
     radius: Float,
 ) {
-    val paint =
-        Paint().apply {
-            isAntiAlias = true
-            color = numeralColor.toArgb()
-            textAlign = Paint.Align.CENTER
-            textSize = radius * 0.15f
-            typeface = Typeface.DEFAULT_BOLD
-        }
+    numeralPaint.textSize = radius * 0.15f
     val numeralRadius = radius * 0.80f
-    val baseline = -(paint.descent() + paint.ascent()) / 2f
+    val baseline = -(numeralPaint.descent() + numeralPaint.ascent()) / 2f
     for (n in 1..12) {
         val angle = (n / 12f * 2f * Math.PI - Math.PI / 2f).toFloat()
         val x = center.x + cos(angle) * numeralRadius
         val y = center.y + sin(angle) * numeralRadius + baseline
-        drawContext.canvas.nativeCanvas.drawText(n.toString(), x, y, paint)
+        drawContext.canvas.nativeCanvas.drawText(n.toString(), x, y, numeralPaint)
     }
 }
