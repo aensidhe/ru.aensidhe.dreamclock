@@ -13,12 +13,14 @@ Reverie (Russian: Грёзы), shown as a localized app label.
 
 ## Build order (do not skip ahead)
 
-Documented goals, built one at a time. Build feature 1 first; features 2 and 3
+Documented goals, built one at a time. Build feature 1 first; features 2–4
 are recorded scope, not yet designed in full.
 
 1. Kid-friendly dual clock (locale time + colloquial spoken form + 3 color states)
 2. Immich photos (±N days around today, across all past years)
-3. Agenda slide every N photos
+3. Schedule editor (D-pad UI over the existing Schedule model: windows,
+   day-of-week, date overrides — model already supports it, no UI yet)
+4. Agenda slide every N photos
 
 ## Architecture
 
