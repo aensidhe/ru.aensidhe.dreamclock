@@ -16,7 +16,8 @@ Reverie (Russian: Грёзы), shown as a localized app label.
 Documented goals, built one at a time. Build feature 1 first; features 2–4
 are recorded scope, not yet designed in full.
 
-1. Kid-friendly dual clock (locale time + colloquial spoken form + 3 color states)
+1. Kid-friendly dual clock (built) — locale time + colloquial spoken form + 3
+   color states, with an analog face and a state-tinted second hand
 2. Immich photos (±N days around today, across all past years)
 3. Schedule editor (D-pad UI over the existing Schedule model: windows,
    day-of-week, date overrides — model already supports it, no UI yet)
@@ -24,14 +25,23 @@ are recorded scope, not yet designed in full.
 
 ## Architecture
 
+Two Gradle modules: a pure-Kotlin `:core` (no Android deps) holds the logic;
+the Android `:app` holds the screensaver, UI, and settings.
+
 - `TvDreamService` — screensaver entry point; hosts a `ComposeView`.
+- `DreamPreviewActivity` — in-app fullscreen preview of the dream.
+- `DreamContent` / `DreamRoot` — shared Compose wiring for both.
 - `SlideDeck` — slide rotation (analog clock / photos / agenda).
+- `AnalogClockSlide` — the analog face (1–12 numerals, minute ticks, hands).
 - `ClockOverlay` — always-on overlay: digital + colloquial + status text.
-- `ScheduleEngine` — pure Kotlin, no Android deps: `(now, config) → active
-  state + status text`. Heavily unit-tested.
-- `ColloquialTimeFormatter` — pure Kotlin, per-locale (`Ru`, `En`). Heavily
+- `ColorRenderMode` / `stateColor` — how the active state tints the overlay
+  (and the second hand); the face itself stays neutral.
+- `ScheduleEngine` (`:core`) — `(now, config) → active state + status text`.
+  Heavily unit-tested.
+- `ColloquialTimeFormatter` (`:core`) — per-locale (`Ru`, `En`). Heavily
   unit-tested with case tables.
-- `SettingsActivity` + `SettingsRepository` (Proto DataStore).
+- `SettingsActivity` + `SettingsScreen` (D-pad TV UI) + `SettingsRepository`
+  (Proto DataStore); `Localization` drives in-app language.
 
 The pure-logic units (`ScheduleEngine`, `ColloquialTimeFormatter`) hold most of
 the real complexity and get the most test coverage.
@@ -57,9 +67,12 @@ the real complexity and get the most test coverage.
   green `git switch main && git merge --ff-only <branch> && git push`. No
   squashing, no merge commits. (Interactive history curation is done by hand;
   this environment cannot run `git rebase -i`.)
-- CI (GitHub Actions), on push and pull_request: `assemble`, unit `test`,
-  `ktlintCheck`, `detekt`, with Gradle caching. Added once the Gradle project
-  exists.
+- `main` is protected by a ruleset: linear history and signed commits.
+  Commits are signed locally, so integrate by the local fast-forward push
+  above — GitHub's server-side rebase/squash merge re-creates commits it
+  cannot sign and is rejected.
+- CI (GitHub Actions, workflow `CI`, job `build`), on push and pull_request:
+  `ktlintCheck detekt test assemble`, with Gradle caching.
 - Testing: TDD for the pure-logic units (`ScheduleEngine`,
   `ColloquialTimeFormatter`) with case tables; pragmatic tests elsewhere. May
   tighten to full TDD later.
@@ -82,5 +95,7 @@ the real complexity and get the most test coverage.
 
 ## Current status
 
-In design. Repo scaffolded with meta files only; no app code yet. See the
-latest spec in `docs/superpowers/specs/`.
+Feature 1 (kid-friendly clock) is built and merged: analog face, colloquial
+time, state colors, D-pad settings screen, dream preview, adaptive launcher
+icon, and TV banner, validated on-device. Features 2–4 are not yet built. See
+the latest specs in `docs/superpowers/specs/`.
