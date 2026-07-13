@@ -13,7 +13,11 @@ fun DreamRoot(
     mode: ColorRenderMode,
 ) {
     Box(Modifier.fillMaxSize()) {
-        SlideDeck(showAnalog = showAnalog, now = java.time.LocalDateTime.now())
+        SlideDeck(
+            showAnalog = showAnalog,
+            now = java.time.LocalDateTime.now(),
+            secondHandColor = stateColor(state.state),
+        )
         ClockOverlay(ui = state, mode = mode)
     }
 }

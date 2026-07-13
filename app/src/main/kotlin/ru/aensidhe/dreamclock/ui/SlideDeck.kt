@@ -12,8 +12,9 @@ import java.time.LocalDateTime
 fun SlideDeck(
     showAnalog: Boolean,
     now: LocalDateTime,
+    secondHandColor: Color,
 ) {
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        if (showAnalog) AnalogClockSlide(now)
+        if (showAnalog) AnalogClockSlide(now, secondHandColor)
     }
 }

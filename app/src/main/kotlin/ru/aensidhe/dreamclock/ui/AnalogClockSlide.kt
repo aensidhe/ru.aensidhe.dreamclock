@@ -20,7 +20,6 @@ import kotlin.math.sin
 
 private val tickColor = Color(0xFF8794AB)
 private val handColor = Color(0xFFF2F5FB)
-private val secondColor = Color(0xFFFFB300)
 private val numeralColor = Color(0xFFEEF2F8)
 
 private val numeralPaint =
@@ -32,7 +31,10 @@ private val numeralPaint =
     }
 
 @Composable
-fun AnalogClockSlide(now: LocalDateTime) {
+fun AnalogClockSlide(
+    now: LocalDateTime,
+    secondHandColor: Color,
+) {
     Canvas(Modifier.fillMaxSize()) {
         val radius = min(size.width, size.height) / 2f * 0.82f
         val center = Offset(size.width / 2f, size.height / 2f)
@@ -57,7 +59,7 @@ fun AnalogClockSlide(now: LocalDateTime) {
         }
         hand((now.hour % 12 + now.minute / 60f) / 12f, 0.50f, handColor, max(6f, radius * 0.026f))
         hand(now.minute / 60f, 0.72f, handColor, max(4f, radius * 0.018f))
-        hand(now.second / 60f, 0.80f, secondColor, max(2f, radius * 0.009f))
+        hand(now.second / 60f, 0.80f, secondHandColor, max(2f, radius * 0.009f))
 
         drawCircle(handColor, radius = max(4f, radius * 0.022f), center = center)
     }
