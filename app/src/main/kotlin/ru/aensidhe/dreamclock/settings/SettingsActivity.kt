@@ -1,9 +1,8 @@
 package ru.aensidhe.dreamclock.settings
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
@@ -31,13 +30,31 @@ class SettingsActivity : ComponentActivity() {
     }
 
     private fun openScreensaverSettings() {
-        val intent = Intent(SCREENSAVER_SETTINGS_ACTION)
-        if (intent.resolveActivity(packageManager) != null) {
+        val dreamSettings = Intent(SCREENSAVER_SETTINGS_ACTION)
+        val daydreamActivity =
+            Intent(Intent.ACTION_MAIN).setClassName(TV_SETTINGS_PACKAGE, DAYDREAM_ACTIVITY)
+        val intent =
+            when {
+                intentAvailable(dreamSettings) -> dreamSettings
+                intentAvailable(daydreamActivity) -> daydreamActivity
+                else -> null
+            }
+        if (intent != null) {
             startActivity(intent)
         } else {
-            startActivity(Intent(Settings.ACTION_SETTINGS))
-            val message = localizedFor(currentLanguage).getString(R.string.settings_screensaver_fallback)
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            showAdbInstructions()
         }
+    }
+
+    private fun intentAvailable(intent: Intent): Boolean = packageManager.queryIntentActivities(intent, 0).isNotEmpty()
+
+    private fun showAdbInstructions() {
+        val localized = localizedFor(currentLanguage)
+        AlertDialog
+            .Builder(this)
+            .setTitle(localized.getString(R.string.screensaver_manual_title))
+            .setMessage(localized.getString(R.string.screensaver_manual_message, ADB_SCREENSAVER_COMMAND))
+            .setPositiveButton(localized.getString(R.string.action_close), null)
+            .show()
     }
 }

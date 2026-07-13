@@ -23,5 +23,8 @@
 
     <string name="action_test">Test screensaver</string>
     <string name="action_set_screensaver">Set as screensaver</string>
-    <string name="settings_screensaver_fallback">Open Settings › Device Preferences › Screen saver to choose Reverie</string>
+
+    <string name="screensaver_manual_title">Screensaver settings unavailable</string>
+    <string name="screensaver_manual_message">This TV hides the screensaver picker. Connect adb and run:\n\n%1$s</string>
+    <string name="action_close">Close</string>
 </resources>

@@ -23,5 +23,8 @@
 
     <string name="action_test">Проверить заставку</string>
     <string name="action_set_screensaver">Выбрать заставку</string>
-    <string name="settings_screensaver_fallback">Откройте Настройки › Настройки устройства › Заставка и выберите Грёзы</string>
+
+    <string name="screensaver_manual_title">Настройки заставки недоступны</string>
+    <string name="screensaver_manual_message">Этот телевизор скрывает выбор заставки. Подключите adb и выполните:\n\n%1$s</string>
+    <string name="action_close">Закрыть</string>
 </resources>

@@ -4,6 +4,11 @@ import androidx.annotation.StringRes
 import ru.aensidhe.dreamclock.R
 
 const val SCREENSAVER_SETTINGS_ACTION: String = "android.settings.DREAM_SETTINGS"
+const val TV_SETTINGS_PACKAGE: String = "com.android.tv.settings"
+const val DAYDREAM_ACTIVITY: String =
+    "com.android.tv.settings.device.display.daydream.DaydreamActivity"
+const val ADB_SCREENSAVER_COMMAND: String =
+    "adb shell settings put secure screensaver_components ru.aensidhe.dreamclock/.dream.TvDreamService"
 
 @StringRes
 fun languageLabel(language: Language): Int =
