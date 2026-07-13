@@ -39,3 +39,4 @@ tmp/
 
 # Superpowers subagent-driven-development progress ledger (scratch)
 .superpowers/
+tmp
