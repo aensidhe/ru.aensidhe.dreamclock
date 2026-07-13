@@ -25,14 +25,14 @@ fun ClockOverlay(
             ui.digital,
             Modifier.align(Alignment.TopStart),
             color = Color.White,
-            fontSize = 24.sp,
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
         )
-        Box(Modifier.align(Alignment.BottomCenter)) {
+        Box(Modifier.align(Alignment.BottomStart)) {
             mode.RenderOverlay(ui.state) { textColor ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(horizontalAlignment = Alignment.Start) {
+                    ui.statusText?.takeIf { it.isNotBlank() }?.let { Text(it, color = textColor, fontSize = 24.sp) }
                     ui.colloquial?.let { Text(it, color = textColor, fontSize = 24.sp) }
-                    ui.statusText?.let { Text(it, color = textColor, fontSize = 24.sp) }
                 }
             }
         }

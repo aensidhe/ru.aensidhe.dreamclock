@@ -1,5 +1,5 @@
 <resources>
     <string name="status_play"></string>
-    <string name="status_prepare">пора готовиться ко сну</string>
-    <string name="status_sleep">пора спать</string>
+    <string name="status_prepare">Пора готовиться ко сну,</string>
+    <string name="status_sleep">Пора спать,</string>
 </resources>
