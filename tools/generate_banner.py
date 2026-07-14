@@ -15,6 +15,8 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 W, H = 320, 180
+SS = 4  # supersample factor: draw at SS× then downscale for crisp edges
+SHIFT = 10  # nudge clock + wordmark left so they aren't stuck to the right edge
 STOPS = [
     (0.00, (0x1F, 0xA9, 0xA0)),
     (0.25, (0x9F, 0xC9, 0x7C)),
@@ -54,25 +56,28 @@ def load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
 
 
 def main() -> None:
-    img = Image.new("RGB", (W, H))
+    s = SS
+    sw, sh = W * s, H * s
+    img = Image.new("RGB", (sw, sh))
     px = img.load()
-    for x in range(W):
-        r, g, b = color_at(x / (W - 1))
-        for y in range(H):
+    for x in range(sw):
+        r, g, b = color_at(x / (sw - 1))
+        for y in range(sh):
             px[x, y] = (r, g, b)
 
     draw = ImageDraw.Draw(img)
     # Clock mark on the left.
-    cx, cy, rad = 78, H // 2, 52
-    draw.ellipse([cx - rad, cy - rad, cx + rad, cy + rad], fill=CREAM, outline=INK, width=4)
-    draw.line([cx, cy, cx, cy - 34], fill=INK, width=5)      # minute hand -> 12
-    draw.line([cx, cy, cx + 26, cy - 13], fill=INK, width=6)  # hour hand -> ~2
-    draw.ellipse([cx - 5, cy - 5, cx + 5, cy + 5], fill=INK)
+    cx, cy, rad = (78 - SHIFT) * s, (H // 2) * s, 52 * s
+    draw.ellipse([cx - rad, cy - rad, cx + rad, cy + rad], fill=CREAM, outline=INK, width=4 * s)
+    draw.line([cx, cy, cx, cy - 34 * s], fill=INK, width=5 * s)      # minute hand -> 12
+    draw.line([cx, cy, cx + 26 * s, cy - 13 * s], fill=INK, width=6 * s)  # hour hand -> ~2
+    draw.ellipse([cx - 5 * s, cy - 5 * s, cx + 5 * s, cy + 5 * s], fill=INK)
 
     # Wordmark on the right.
-    font = load_font(46)
-    draw.text((150, cy), "Reverie", font=font, fill=CREAM, anchor="lm")
+    font = load_font(46 * s)
+    draw.text(((150 - SHIFT) * s, cy), "Reverie", font=font, fill=CREAM, anchor="lm")
 
+    img = img.resize((W, H), Image.LANCZOS)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     img.save(OUT)
     print(f"wrote {OUT}")
