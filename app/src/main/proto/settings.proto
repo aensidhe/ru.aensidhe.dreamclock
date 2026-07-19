@@ -11,4 +11,12 @@ message Settings {
   bool show_seconds = 3;
   bool show_analog_slide = 4;
   ColorRenderModeProto color_render_mode = 5;
+  bool photos_enabled = 6;
+  string immich_host = 7;
+  int32 days_either_side = 8;
+  int32 max_years_back = 9;
+  int32 photo_interval_seconds = 10;
+  int32 analog_every_n_slides = 11;
+  int32 max_clock_gap_seconds = 12;
+  int32 analog_slide_seconds = 13;
 }
