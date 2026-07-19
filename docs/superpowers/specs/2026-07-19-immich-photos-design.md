@@ -43,6 +43,12 @@ not part of this feature.
 - An analog-clock slide is inserted every C photo-slides (the analog cadence, C
   configurable) and is shown for its own duration M, independent of the
   photo-slide interval M2.
+- The analog-clock slide is additionally guaranteed a maximum gap: it appears at
+  least every T minutes (default 5, configurable), whichever comes first with the
+  count cadence. The guarantee is enforced at slide boundaries only — an
+  already-playing video runs to the end of its clip, after which the clock shows
+  next, so a single long video may push one gap past T (accepted). The
+  always-on digital overlay keeps the time visible regardless.
 - Photos are additive: if none are available the deck is just the analog clock,
   behaving like feature 1.
 
@@ -192,6 +198,13 @@ date-time, or the server rejects it with a 400.
     sees.
 - An analog-clock slide is injected every C photo-slides (the analog cadence).
 
+The maximum-gap guarantee (clock at least every T minutes) is not part of the
+pure planner, since it depends on wall-clock time and unknown video durations.
+It is a separate pure decision — given the last-clock time, now, the max gap, and
+the next planned slide, decide whether to force a clock slide — evaluated by
+`SlideDeck` at each slide boundary with an injected clock. An in-flight video is
+never interrupted; the check runs when it ends.
+
 Example: for the stream portrait, landscape, portrait, the planner emits the
 landscape alone, then the two portraits paired (the first portrait waits through
 the landscape).
@@ -255,6 +268,8 @@ Proto additions to `Settings`:
 - `max_years_back` (int, 0 = all available years)
 - `photo_interval_seconds` (M2)
 - `analog_every_n_slides` (C, the analog cadence)
+- `max_clock_gap_seconds` (T, the maximum gap between analog-clock slides,
+  default 300)
 - `analog_slide_seconds` (M)
 - `video_audio_mode` (enum: RESPECT_SCHEDULE, FORCE_MUTE, FORCE_UNMUTE)
 
@@ -281,9 +296,11 @@ example `Connected · <host> · 42 photos today`, or `Not configured`,
 
 - `:core` TDD with case tables: `SimilarTimeWindows` (leap-day and month/year
   boundary crossings); the years-back walk/stop policy; `SlidePlanner` (buffered
-  pairing including carry-over across reshuffle, clock-every-N interleaving, and
-  mixed portrait/landscape/video runs); `PhotoCaption` (every present/absent
-  combination of date and location); orientation classification.
+  pairing including carry-over across reshuffle, clock-every-C interleaving, and
+  mixed portrait/landscape/video runs); the maximum-gap decision function (force
+  a clock slide when the gap since the last clock reaches T, with an injected
+  clock); `PhotoCaption` (every present/absent combination of date and location);
+  orientation classification.
 - `:app` pragmatic tests: Immich search-request construction; seeded pool and
   shuffle; the pairing encrypt/decrypt round-trip; and the fallback decision
   logic. These run against OkHttp `MockWebServer` with canned JSON fixtures — no
@@ -300,5 +317,7 @@ example `Connected · <host> · 42 photos today`, or `Not configured`,
   path does not apply.
 - Held-portrait latency: with a long run of landscapes a pending portrait can
   wait a while before pairing; accepted by design (unbounded hold).
-- Video weight: transcoded playback and full-clip duration can hold the screen
-  and delay the next clock slide; acceptable, revisit if it feels long on-device.
+- Video weight: transcoded playback and full-clip duration can hold the screen;
+  a single clip longer than T delays the next analog-clock slide past the
+  guaranteed gap (accepted, between-slides guarantee). Revisit if it feels long
+  on-device.
