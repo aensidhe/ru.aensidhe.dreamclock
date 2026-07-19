@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.android.junit5)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -73,7 +74,12 @@ dependencies {
     implementation(libs.datastore)
     implementation(libs.protobuf.javalite)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.okhttp)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.okhttp.mockwebserver)
 }
