@@ -49,12 +49,18 @@ class SlidePlannerTest {
     @Test
     fun `clock slide injected every cadence content slides`() {
         val planner = SlidePlanner(analogCadence = 2)
-        assertEquals(listOf(SinglePhotoSlide(photo("l1", Orientation.LANDSCAPE))), planner.offer(photo("l1", Orientation.LANDSCAPE)))
+        assertEquals(
+            listOf(SinglePhotoSlide(photo("l1", Orientation.LANDSCAPE))),
+            planner.offer(photo("l1", Orientation.LANDSCAPE)),
+        )
         assertEquals(
             listOf(SinglePhotoSlide(photo("l2", Orientation.LANDSCAPE)), ClockSlide),
             planner.offer(photo("l2", Orientation.LANDSCAPE)),
         )
-        assertEquals(listOf(SinglePhotoSlide(photo("l3", Orientation.LANDSCAPE))), planner.offer(photo("l3", Orientation.LANDSCAPE)))
+        assertEquals(
+            listOf(SinglePhotoSlide(photo("l3", Orientation.LANDSCAPE))),
+            planner.offer(photo("l3", Orientation.LANDSCAPE)),
+        )
         assertEquals(
             listOf(SinglePhotoSlide(photo("l4", Orientation.LANDSCAPE)), ClockSlide),
             planner.offer(photo("l4", Orientation.LANDSCAPE)),
