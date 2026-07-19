@@ -8,8 +8,9 @@ import ru.aensidhe.dreamclock.core.photos.Orientation
 import ru.aensidhe.dreamclock.core.photos.SlideMediaKind
 
 class AssetPoolTest {
-    private fun asset(id: String) =
-        SlideAsset(id, SlideMediaKind.PHOTO, Orientation.LANDSCAPE, CaptionSource(null, null, null))
+    private val noCaption = CaptionSource(null, null, null)
+
+    private fun asset(id: String) = SlideAsset(id, SlideMediaKind.PHOTO, Orientation.LANDSCAPE, noCaption)
 
     @Test
     fun `cycles deterministically with a seeded random`() {

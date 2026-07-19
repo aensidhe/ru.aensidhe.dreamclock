@@ -2,19 +2,20 @@ package ru.aensidhe.dreamclock.immich
 
 import java.time.Duration
 import java.time.Instant
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import org.junit.jupiter.api.Test
 import ru.aensidhe.dreamclock.core.photos.CaptionSource
 import ru.aensidhe.dreamclock.core.photos.ClockSlide
 import ru.aensidhe.dreamclock.core.photos.Orientation
 import ru.aensidhe.dreamclock.core.photos.SinglePhotoSlide
 import ru.aensidhe.dreamclock.core.photos.SlideMediaKind
 import ru.aensidhe.dreamclock.core.photos.SlidePlanner
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import org.junit.jupiter.api.Test
 
 class SlideDriverTest {
-    private fun landscape(id: String) =
-        SlideAsset(id, SlideMediaKind.PHOTO, Orientation.LANDSCAPE, CaptionSource(null, null, null))
+    private val noCaption = CaptionSource(null, null, null)
+
+    private fun landscape(id: String) = SlideAsset(id, SlideMediaKind.PHOTO, Orientation.LANDSCAPE, noCaption)
 
     private fun idOf(slide: Any): String = (slide as SinglePhotoSlide).asset.id
 

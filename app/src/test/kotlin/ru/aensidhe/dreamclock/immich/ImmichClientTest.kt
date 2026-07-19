@@ -20,7 +20,8 @@ class ImmichClientTest {
             server.start()
             try {
                 val api = ImmichClient.api(server.url("/").toString())
-                val response = api.searchMetadata("secret-key", SearchMetadataRequest(takenAfter = "A", takenBefore = "B"))
+                val request = SearchMetadataRequest(takenAfter = "A", takenBefore = "B")
+                val response = api.searchMetadata("secret-key", request)
                 assertEquals(0, response.assets.total)
 
                 val recorded = server.takeRequest()
