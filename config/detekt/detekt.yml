@@ -3,6 +3,8 @@ style:
     active: false
   ReturnCount:
     active: false
+  MaxLineLength:
+    maxLineLength: 120
 naming:
   FunctionNaming:
     ignoreAnnotated: ['Composable']
