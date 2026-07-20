@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "ru.aensidhe.dreamclock.immich";
+option java_multiple_files = true;
+option java_outer_classname = "PhotoHistoryOuterClass";
+
+message PhotoHistoryProto {
+  map<string, int32> oldest_year_by_host = 1;
+  string last_tested_host = 2;
+}
