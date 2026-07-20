@@ -1,37 +1,36 @@
 package ru.aensidhe.dreamclock.core.photos
 
+import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import org.junit.jupiter.api.Test
 
 class YearWalkTest {
     @Test
-    fun `continues while under cap and streak`() {
-        assertTrue(YearWalk.shouldQueryNextYear(yearsQueried = 3, consecutiveEmptyYears = 2, maxYearsCap = 0))
+    fun yearsAtOrAboveOldestNeverCountEmpties() {
+        assertFalse(YearWalk.countsTowardEmptyStreak(candidateYear = 2010, cachedOldestYear = 2001))
+        assertFalse(YearWalk.countsTowardEmptyStreak(candidateYear = 2001, cachedOldestYear = 2001))
+        assertTrue(YearWalk.countsTowardEmptyStreak(candidateYear = 2000, cachedOldestYear = 2001))
     }
 
     @Test
-    fun `stops at positive cap`() {
-        assertFalse(YearWalk.shouldQueryNextYear(yearsQueried = 10, consecutiveEmptyYears = 0, maxYearsCap = 10))
+    fun alwaysWalkWhileAtOrAboveOldest() {
+        assertTrue(
+            YearWalk.shouldQueryOlderYear(
+                candidateYear = 2005,
+                cachedOldestYear = 2001,
+                consecutiveEmptyBelowOldest = 0,
+                maxEmptyYearsBack = 10,
+            ),
+        )
     }
 
     @Test
-    fun `continues just under positive cap`() {
-        assertTrue(YearWalk.shouldQueryNextYear(yearsQueried = 9, consecutiveEmptyYears = 0, maxYearsCap = 10))
-    }
-
-    @Test
-    fun `cap of zero means unlimited`() {
-        assertTrue(YearWalk.shouldQueryNextYear(yearsQueried = 100, consecutiveEmptyYears = 5, maxYearsCap = 0))
-    }
-
-    @Test
-    fun `stops after twenty consecutive empty years`() {
-        assertFalse(YearWalk.shouldQueryNextYear(yearsQueried = 40, consecutiveEmptyYears = 20, maxYearsCap = 0))
-    }
-
-    @Test
-    fun `continues at nineteen empty years`() {
-        assertTrue(YearWalk.shouldQueryNextYear(yearsQueried = 40, consecutiveEmptyYears = 19, maxYearsCap = 0))
+    fun stopBelowOldestAfterThresholdEmpties() {
+        assertTrue(
+            YearWalk.shouldQueryOlderYear(2000, 2001, consecutiveEmptyBelowOldest = 9, maxEmptyYearsBack = 10),
+        )
+        assertFalse(
+            YearWalk.shouldQueryOlderYear(1991, 2001, consecutiveEmptyBelowOldest = 10, maxEmptyYearsBack = 10),
+        )
     }
 }

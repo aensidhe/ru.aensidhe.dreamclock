@@ -1,15 +1,18 @@
 package ru.aensidhe.dreamclock.core.photos
 
 object YearWalk {
-    const val MAX_EMPTY_STREAK = 20
+    fun countsTowardEmptyStreak(
+        candidateYear: Int,
+        cachedOldestYear: Int,
+    ): Boolean = candidateYear < cachedOldestYear
 
-    fun shouldQueryNextYear(
-        yearsQueried: Int,
-        consecutiveEmptyYears: Int,
-        maxYearsCap: Int,
+    fun shouldQueryOlderYear(
+        candidateYear: Int,
+        cachedOldestYear: Int,
+        consecutiveEmptyBelowOldest: Int,
+        maxEmptyYearsBack: Int,
     ): Boolean {
-        if (maxYearsCap > 0 && yearsQueried >= maxYearsCap) return false
-        if (consecutiveEmptyYears >= MAX_EMPTY_STREAK) return false
-        return true
+        if (candidateYear >= cachedOldestYear) return true
+        return consecutiveEmptyBelowOldest < maxEmptyYearsBack
     }
 }
