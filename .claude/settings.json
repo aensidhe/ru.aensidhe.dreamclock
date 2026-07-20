@@ -5,6 +5,7 @@
       "Bash(ls *)",
       "Bash(cat *)",
       "Bash(grep *)",
+      "Bash(rg *)",
       "Bash(echo *)",
       "Bash(mkdir *)",
       "Bash(sed *)",
