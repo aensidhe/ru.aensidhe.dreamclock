@@ -16,20 +16,27 @@ object ImmichImageLoader {
         apiKey: String,
     ): ImageLoader {
         val client =
-            OkHttpClient.Builder()
+            OkHttpClient
+                .Builder()
                 .addInterceptor { chain ->
-                    chain.proceed(chain.request().newBuilder().header("x-api-key", apiKey).build())
-                }
-                .build()
-        return ImageLoader.Builder(context)
+                    chain.proceed(
+                        chain
+                            .request()
+                            .newBuilder()
+                            .header("x-api-key", apiKey)
+                            .build(),
+                    )
+                }.build()
+        return ImageLoader
+            .Builder(context)
             .components { add(OkHttpNetworkFetcherFactory(callFactory = { client })) }
             .diskCache {
-                DiskCache.Builder()
+                DiskCache
+                    .Builder()
                     .directory(context.cacheDir.resolve("immich_images").toOkioPath())
                     .maxSizeBytes(DISK_CACHE_BYTES)
                     .build()
-            }
-            .crossfade(true)
+            }.crossfade(true)
             .build()
     }
 }

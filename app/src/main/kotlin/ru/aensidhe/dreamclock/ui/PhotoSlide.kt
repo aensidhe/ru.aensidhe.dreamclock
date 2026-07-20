@@ -64,7 +64,12 @@ private fun PhotoImage(
             modifier = Modifier.fillMaxSize(),
         )
         AsyncImage(
-            model = ImageRequest.Builder(context).data(previewUrl).crossfade(true).build(),
+            model =
+                ImageRequest
+                    .Builder(context)
+                    .data(previewUrl)
+                    .crossfade(true)
+                    .build(),
             imageLoader = imageLoader,
             contentDescription = null,
             contentScale = ContentScale.Fit,
