@@ -18,4 +18,5 @@ message Settings {
   int32 photo_interval_seconds = 10;
   int32 shown_every_xth_minute = 11;
   int32 analog_slide_seconds = 13;
+  bytes immich_key_ciphertext = 12;
 }

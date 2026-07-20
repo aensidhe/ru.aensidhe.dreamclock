@@ -8,7 +8,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
-import ru.aensidhe.dreamclock.immich.BuildConfigCredentials
+import ru.aensidhe.dreamclock.immich.KeystoreCipher
+import ru.aensidhe.dreamclock.immich.KeystoreCredentialsStore
+import ru.aensidhe.dreamclock.immich.PhotoHistoryStore
 import ru.aensidhe.dreamclock.settings.SettingsRepository
 import ru.aensidhe.dreamclock.ui.ClockViewModel
 
@@ -33,7 +35,14 @@ class DreamPreviewActivity : ComponentActivity() {
                 schedule = defaultSchedule(),
                 statusTextFor = localizedStatusText(),
             )
-        setContent { DreamContent(viewModel, repository, BuildConfigCredentials.store()) }
+        setContent {
+            DreamContent(
+                viewModel,
+                repository,
+                credentialsStore = KeystoreCredentialsStore(KeystoreCipher()),
+                historyStore = PhotoHistoryStore.from(this),
+            )
+        }
     }
 
     override fun onKeyDown(

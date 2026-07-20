@@ -15,7 +15,9 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import ru.aensidhe.dreamclock.immich.BuildConfigCredentials
+import ru.aensidhe.dreamclock.immich.KeystoreCipher
+import ru.aensidhe.dreamclock.immich.KeystoreCredentialsStore
+import ru.aensidhe.dreamclock.immich.PhotoHistoryStore
 import ru.aensidhe.dreamclock.settings.SettingsRepository
 import ru.aensidhe.dreamclock.ui.ClockViewModel
 
@@ -78,7 +80,14 @@ class TvDreamService :
             setViewTreeLifecycleOwner(this@TvDreamService)
             setViewTreeSavedStateRegistryOwner(this@TvDreamService)
             setViewTreeViewModelStoreOwner(this@TvDreamService)
-            setContent { DreamContent(viewModel, repository, BuildConfigCredentials.store()) }
+            setContent {
+                DreamContent(
+                    viewModel,
+                    repository,
+                    credentialsStore = KeystoreCredentialsStore(KeystoreCipher()),
+                    historyStore = PhotoHistoryStore.from(this@TvDreamService),
+                )
+            }
         }
     }
 }

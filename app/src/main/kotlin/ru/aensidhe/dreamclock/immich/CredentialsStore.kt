@@ -1,15 +1,21 @@
 package ru.aensidhe.dreamclock.immich
 
+import ru.aensidhe.dreamclock.settings.Settings
+
 interface CredentialsStore {
-    fun current(): ImmichCredentials?
+    fun credentials(settings: Settings): ImmichCredentials?
 }
 
 object NoCredentialsStore : CredentialsStore {
-    override fun current(): ImmichCredentials? = null
+    override fun credentials(settings: Settings): ImmichCredentials? = null
 }
 
-class StaticCredentialsStore(
-    private val credentials: ImmichCredentials?,
+class KeystoreCredentialsStore(
+    private val cipher: KeyCipher,
 ) : CredentialsStore {
-    override fun current(): ImmichCredentials? = credentials
+    override fun credentials(settings: Settings): ImmichCredentials? {
+        if (settings.immichHost.isBlank() || settings.immichKeyCiphertext.isEmpty) return null
+        val key = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
+        return ImmichCredentials(settings.immichHost, key)
+    }
 }

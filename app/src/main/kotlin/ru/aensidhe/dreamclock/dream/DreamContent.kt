@@ -119,7 +119,10 @@ internal fun DreamContent(
             initialValue = SettingsSerializer.defaultValue,
         )
     val context = LocalContext.current
-    val credentials = remember(credentialsStore) { credentialsStore.current() }
+    val credentials =
+        remember(credentialsStore, settings.immichHost, settings.immichKeyCiphertext) {
+            credentialsStore.credentials(settings)
+        }
     val httpClient = remember { OkHttpClient() }
     val imageLoader =
         remember(credentials) {
@@ -138,6 +141,8 @@ internal fun DreamContent(
         produceState<SlideDeckModel?>(
             initialValue = null,
             credentials,
+            settings.immichHost,
+            settings.immichKeyCiphertext,
             settings.photosEnabled,
             settings.daysEitherSide,
             settings.maxEmptyYearsBack,

@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -21,14 +19,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
-
-        val immichProps =
-            Properties().apply {
-                val file = rootProject.file("local.properties")
-                if (file.exists()) file.inputStream().use { load(it) }
-            }
-        buildConfigField("String", "IMMICH_HOST", "\"${immichProps.getProperty("immich.host", "")}\"")
-        buildConfigField("String", "IMMICH_KEY", "\"${immichProps.getProperty("immich.key", "")}\"")
     }
 
     buildFeatures {
