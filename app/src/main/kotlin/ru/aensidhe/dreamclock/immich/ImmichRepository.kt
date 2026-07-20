@@ -5,6 +5,11 @@ import java.time.ZoneId
 import ru.aensidhe.dreamclock.core.photos.SimilarTimeWindows
 import ru.aensidhe.dreamclock.core.photos.YearWalk
 
+data class AssetLoad(
+    val assets: List<SlideAsset>,
+    val oldestPopulatedYear: Int?,
+)
+
 class ImmichRepository(
     private val apiFactory: ImmichApiFactory,
     private val today: () -> LocalDate,
@@ -13,19 +18,30 @@ class ImmichRepository(
     suspend fun loadAssets(
         credentials: ImmichCredentials,
         config: PhotoFetchConfig,
-    ): List<SlideAsset> {
+    ): AssetLoad {
         val api = apiFactory.create(credentials.host)
+        val currentYear = today().year
         val all = mutableListOf<SlideAsset>()
-        var yearsQueried = 0
-        var emptyStreak = 0
-        while (true) {
-            val year = fetchYear(api, credentials.apiKey, yearsQueried, config)
+        var oldestPopulatedYear: Int? = null
+        var emptyBelowOldest = 0
+        var candidateYear = currentYear
+        while (YearWalk.shouldQueryOlderYear(
+                candidateYear,
+                config.cachedOldestYear,
+                emptyBelowOldest,
+                config.maxEmptyYearsBack,
+            )
+        ) {
+            val yearOffset = currentYear - candidateYear
+            val year = fetchYear(api, credentials.apiKey, yearOffset, config)
             all += year
-            emptyStreak = if (year.isEmpty()) emptyStreak + 1 else 0
-            yearsQueried += 1
-            if (!YearWalk.shouldQueryNextYear(yearsQueried, emptyStreak, config.maxYearsBack)) break
+            if (year.isNotEmpty()) oldestPopulatedYear = candidateYear
+            if (YearWalk.countsTowardEmptyStreak(candidateYear, config.cachedOldestYear)) {
+                emptyBelowOldest = if (year.isEmpty()) emptyBelowOldest + 1 else 0
+            }
+            candidateYear -= 1
         }
-        return all
+        return AssetLoad(all, oldestPopulatedYear)
     }
 
     private suspend fun fetchYear(

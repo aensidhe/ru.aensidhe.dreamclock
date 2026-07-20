@@ -7,6 +7,7 @@ data class ImmichCredentials(
 
 data class PhotoFetchConfig(
     val daysEitherSide: Int,
-    val maxYearsBack: Int,
+    val maxEmptyYearsBack: Int,
+    val cachedOldestYear: Int,
     val pageSize: Int = 100,
 )

@@ -14,7 +14,7 @@ object SettingsSerializer : Serializer<Settings> {
             .setPhotosEnabled(false)
             .setImmichHost("")
             .setDaysEitherSide(15)
-            .setMaxYearsBack(0)
+            .setMaxEmptyYearsBack(20)
             .setPhotoIntervalSeconds(30)
             .setShownEveryXthMinute(5)
             .setAnalogSlideSeconds(30)

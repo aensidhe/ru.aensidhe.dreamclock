@@ -23,7 +23,7 @@ class SettingsRepositoryTest {
             assertEquals(false, s.photosEnabled)
             assertEquals("", s.immichHost)
             assertEquals(15, s.daysEitherSide)
-            assertEquals(0, s.maxYearsBack)
+            assertEquals(20, s.maxEmptyYearsBack)
             assertEquals(30, s.photoIntervalSeconds)
             assertEquals(5, s.shownEveryXthMinute)
             assertEquals(30, s.analogSlideSeconds)
