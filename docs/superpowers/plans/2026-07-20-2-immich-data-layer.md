@@ -1222,9 +1222,9 @@ git commit -m "style: :robot: apply ktlint formatting to immich package"
 
 ## Subsequent plans (roadmap)
 
-This is phase 2 of 6. The split of the original Plan 2 (data layer vs. rendering) shifts credentials, video, and settings down by one:
+This is phase 2 of 6. Plans 4–6 are ordered so the usable, testable milestone (settings plus manual credentials) comes next, then pairing polish, then video:
 
 3. Photo rendering and deck integration (`:app`): Coil 3 (`preview` + `thumbnail`) `PhotoSlide` / `PairedPhotoSlide` composables with bottom-right captions via `PhotoCaption`, the `SlideDeck` rewrite that renders the `SlideDriver` output with per-slide durations (M2 photo, M analog) and crossfade + Coil preloading, the caption-vs-clock overlay suppression rule, Coil disk caching, and the `DreamContent` wiring behind a `CredentialsStore` interface (a no-credentials default keeps the clock fallback until Plan 4). On-device validation of the photo path.
-4. Credentials and pairing (`:app`): the `CredentialsStore` Keystore-backed implementation, manual host/key entry in `SettingsScreen`, the Ktor local pairing server, `PairingCrypto` (AES-GCM), `QrCode` (ZXing), the served phone page (WebCrypto, two modes), and the email/password key-mint path.
-5. Video and audio (`:app`): add `video_audio_mode` to the proto, broaden the fetch/mapper to videos, Media3 `VideoSlide` full-clip playback, and the schedule-aware three-way audio mode.
-6. Settings surface polish (`:app`): `SettingsScreen` Immich section, steppers for the numeric options, the live health status line (a repository `probe`), and Ru/En labels via `SettingsLabels`.
+4. Settings surface + manual credentials (`:app`): the `SettingsScreen` Immich section (enable toggle, host/key fields, numeric steppers, the live health status line via a repository `probe`, Ru/En labels via `SettingsLabels`) plus a Keystore-backed `CredentialsStore` implementation replacing `BuildConfigCredentials`, so host/key entered in the UI are stored securely (key in Keystore, host in proto). This is the milestone that makes the photo flow usable and on-device testable end to end; add periodic date-rollover refetch here.
+5. Credentials pairing polish (`:app`): local-network QR pairing on top of Plan 4's manual entry — the Ktor `PairingServer`, `PairingCrypto` (AES-GCM), `QrCode` (ZXing), the served phone page (WebCrypto, two modes), and the email/password key-mint path.
+6. Video and audio (`:app`): add `video_audio_mode` to the proto, broaden the fetch/mapper to videos, Media3 `VideoSlide` full-clip playback, and the schedule-aware three-way audio mode.

@@ -13,7 +13,7 @@
 - Kotlin 2.4.0; Compose BOM 2025.09.01; JDK 21; `minSdk` 30, `compileSdk`/`targetSdk` 36.
 - Stay on the Gradle 8 line (Gradle 8.14.5, AGP 8.13.2) — every dependency must be a stable release compatible with it. Coil 3 qualifies.
 - ktlint 14.2.0 and detekt 1.23.8 both enforce `max_line_length = 120`; keep every line ≤ 120. Detekt config: `config/detekt/detekt.yml`. `FunctionNaming` ignores `@Composable`.
-- Images only. This plan renders photos and paired portraits. Videos and audio stay dormant until Plan 5 — the Plan 2 mapper already drops non-`IMAGE` assets, and the resolver maps any stray `VideoSlide` to the clock. Do not add Media3 here.
+- Images only. This plan renders photos and paired portraits. Videos and audio stay dormant until Plan 6 — the Plan 2 mapper already drops non-`IMAGE` assets, and the resolver maps any stray `VideoSlide` to the clock. Do not add Media3 here.
 - Credentials never come from source. The production `CredentialsStore` default returns null (clock fallback). On-device validation reads host and key from a gitignored `local.properties`; the API key is never committed and never logged.
 - Commits: Conventional Commits with a `:robot:` emoji after the type (e.g. `feat: :robot: …`). No `Co-Authored-By` trailer. Imperative summary.
 - Markdown/docs: no bold or italic for inline emphasis in prose.
@@ -1332,9 +1332,9 @@ Expected: BUILD SUCCESSFUL. The branch is ready to rebase onto main and open a P
 
 ## Roadmap after this plan
 
-- Plan 4 — Credentials and pairing: replace `BuildConfigCredentials` with a Keystore-backed `CredentialsStore`; manual host/key entry; Ktor local pairing server; `PairingCrypto` (AES-GCM); `QrCode` (ZXing); phone page (WebCrypto); email/password mint path with least-privilege keys.
-- Plan 5 — Video and audio: add `video_audio_mode` to the proto; broaden the Immich fetch and mapper to videos; a Media3 `VideoSlide` composable replacing the resolver's `VideoSlide -> RenderClock` shortcut; schedule-aware three-way audio.
-- Plan 6 — Settings surface: the `SettingsScreen` Immich section (start-QR-pairing action, host/key fields, numeric steppers, audio-mode switch), a live status line via a repository health probe, Ru/En labels; periodic date-rollover refetch.
+- Plan 4 — Settings surface + manual credentials: the `SettingsScreen` Immich section (enable toggle, host/key fields, numeric steppers, a live status line via a repository health probe, Ru/En labels) plus a Keystore-backed `CredentialsStore` implementation that replaces `BuildConfigCredentials`, so host/key entered in the UI are stored securely (key in Keystore, host in proto). The milestone that makes the photo flow usable and on-device testable end to end; also adds periodic date-rollover refetch.
+- Plan 5 — Credentials pairing polish: local-network QR pairing on top of Plan 4's manual entry — the Ktor `PairingServer`, `PairingCrypto` (AES-GCM), `QrCode` (ZXing), the served phone page (WebCrypto, two modes), and the email/password mint path with least-privilege keys.
+- Plan 6 — Video and audio: add `video_audio_mode` to the proto; broaden the Immich fetch and mapper to videos; a Media3 `VideoSlide` composable replacing the resolver's `VideoSlide -> RenderClock` shortcut; schedule-aware three-way audio.
 
 ## Self-Review
 
