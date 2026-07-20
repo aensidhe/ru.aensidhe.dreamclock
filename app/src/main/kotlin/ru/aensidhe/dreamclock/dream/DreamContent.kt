@@ -15,6 +15,7 @@ import java.time.ZoneId
 import java.util.Locale
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
+import okhttp3.OkHttpClient
 import ru.aensidhe.dreamclock.R
 import ru.aensidhe.dreamclock.core.photos.SlidePlanner
 import ru.aensidhe.dreamclock.core.schedule.DaySchedule
@@ -110,9 +111,10 @@ internal fun DreamContent(
         )
     val context = LocalContext.current
     val credentials = remember(credentialsStore) { credentialsStore.current() }
+    val httpClient = remember { OkHttpClient() }
     val imageLoader =
         remember(credentials) {
-            credentials?.let { ImmichImageLoader.create(context, it.apiKey) }
+            credentials?.let { ImmichImageLoader.create(context, it.host, it.apiKey) }
         }
     val deck by
         produceState<SlideDeckModel?>(
@@ -122,12 +124,10 @@ internal fun DreamContent(
             settings.daysEitherSide,
             settings.maxYearsBack,
             settings.analogEveryNSlides,
-            settings.photoIntervalSeconds,
-            settings.analogSlideSeconds,
             settings.maxClockGapSeconds,
             settings.language,
         ) {
-            value = buildSlideDeck(credentials, settings)
+            value = buildSlideDeck(credentials, settings, httpClient)
         }
     DreamRoot(
         state = uiState,
@@ -135,17 +135,20 @@ internal fun DreamContent(
         mode = settings.colorRenderMode.toColorRenderMode(),
         deck = deck,
         imageLoader = imageLoader,
+        photoSeconds = settings.photoIntervalSeconds,
+        analogSeconds = settings.analogSlideSeconds,
     )
 }
 
 private suspend fun buildSlideDeck(
     credentials: ImmichCredentials?,
     settings: Settings,
+    httpClient: OkHttpClient,
 ): SlideDeckModel? {
     if (credentials == null || !settings.photosEnabled) return null
     val repository =
         ImmichRepository(
-            apiFactory = { host -> ImmichClient.api(host) },
+            apiFactory = { host -> ImmichClient.api(host, httpClient) },
             today = { LocalDate.now() },
             zone = ZoneId.systemDefault(),
         )
@@ -172,5 +175,5 @@ private suspend fun buildSlideDeck(
             lastClockAt = Instant.now(),
         )
     val resolver = SlideResolver(credentials.host, assets.associate { it.id to it.caption }, locale)
-    return SlideDeckModel(driver, resolver, settings.photoIntervalSeconds, settings.analogSlideSeconds)
+    return SlideDeckModel(driver, resolver)
 }

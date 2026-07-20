@@ -13,3 +13,5 @@ complexity:
     threshold: 20
   LongMethod:
     threshold: 80
+  LongParameterList:
+    ignoreAnnotated: ['Composable']

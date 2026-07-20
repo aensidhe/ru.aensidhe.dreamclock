@@ -18,7 +18,6 @@ import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
-import coil3.request.crossfade
 import ru.aensidhe.dreamclock.core.photos.CaptionLines
 import ru.aensidhe.dreamclock.immich.RenderPairedPhoto
 import ru.aensidhe.dreamclock.immich.RenderPhoto
@@ -64,12 +63,7 @@ private fun PhotoImage(
             modifier = Modifier.fillMaxSize(),
         )
         AsyncImage(
-            model =
-                ImageRequest
-                    .Builder(context)
-                    .data(previewUrl)
-                    .crossfade(true)
-                    .build(),
+            model = ImageRequest.Builder(context).data(previewUrl).build(),
             imageLoader = imageLoader,
             contentDescription = null,
             contentScale = ContentScale.Fit,

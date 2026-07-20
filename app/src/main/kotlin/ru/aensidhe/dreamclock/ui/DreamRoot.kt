@@ -18,6 +18,8 @@ fun DreamRoot(
     mode: ColorRenderMode,
     deck: SlideDeckModel?,
     imageLoader: ImageLoader?,
+    photoSeconds: Int,
+    analogSeconds: Int,
 ) {
     var suppressBottomLeft by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
@@ -27,6 +29,8 @@ fun DreamRoot(
             showAnalog = showAnalog,
             now = java.time.LocalDateTime.now(),
             secondHandColor = stateColor(state.state),
+            photoSeconds = photoSeconds,
+            analogSeconds = analogSeconds,
             onSuppressBottomLeft = { suppressBottomLeft = it },
         )
         ClockOverlay(ui = state, mode = mode, suppressBottomLeft = suppressBottomLeft)

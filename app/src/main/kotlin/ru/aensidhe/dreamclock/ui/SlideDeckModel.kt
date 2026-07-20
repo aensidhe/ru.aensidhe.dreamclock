@@ -14,8 +14,6 @@ import ru.aensidhe.dreamclock.immich.SlideResolver
 class SlideDeckModel(
     private val driver: SlideDriver,
     private val resolver: SlideResolver,
-    val photoSeconds: Int,
-    val analogSeconds: Int,
 ) {
     fun nextRender(now: Instant): RenderSlide = resolver.resolve(driver.next(now))
 

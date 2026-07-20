@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,9 +22,9 @@ import ru.aensidhe.dreamclock.immich.OverlaySuppression
 import ru.aensidhe.dreamclock.immich.RenderClock
 import ru.aensidhe.dreamclock.immich.RenderPairedPhoto
 import ru.aensidhe.dreamclock.immich.RenderPhoto
+import ru.aensidhe.dreamclock.immich.RenderSlide
 import ru.aensidhe.dreamclock.immich.SlideTiming
 
-@Suppress("LongParameterList")
 @Composable
 fun SlideDeck(
     deck: SlideDeckModel?,
@@ -31,6 +32,8 @@ fun SlideDeck(
     showAnalog: Boolean,
     now: LocalDateTime,
     secondHandColor: Color,
+    photoSeconds: Int,
+    analogSeconds: Int,
     onSuppressBottomLeft: (Boolean) -> Unit,
 ) {
     Box(Modifier.fillMaxSize().background(Color.Black)) {
@@ -40,14 +43,17 @@ fun SlideDeck(
             return@Box
         }
         val context = LocalPlatformContext.current
-        var current by remember(deck) { mutableStateOf(deck.nextRender(Instant.now())) }
+        val latestPhotoSeconds by rememberUpdatedState(photoSeconds)
+        val latestAnalogSeconds by rememberUpdatedState(analogSeconds)
+        var current by remember(deck) { mutableStateOf<RenderSlide?>(null) }
         LaunchedEffect(deck) {
-            var shown = current
+            var shown = deck.nextRender(Instant.now())
+            current = shown
             while (true) {
                 onSuppressBottomLeft(OverlaySuppression.suppressBottomLeft(shown))
                 val upcoming = deck.nextRender(Instant.now())
                 deck.preload(upcoming, imageLoader, context)
-                delay(SlideTiming.durationFor(shown, deck.photoSeconds, deck.analogSeconds).toMillis())
+                delay(SlideTiming.durationFor(shown, latestPhotoSeconds, latestAnalogSeconds).toMillis())
                 current = upcoming
                 shown = upcoming
             }
@@ -57,6 +63,7 @@ fun SlideDeck(
                 is RenderPhoto -> PhotoSlide(slide, imageLoader, Modifier.fillMaxSize())
                 is RenderPairedPhoto -> PairedPhotoSlide(slide, imageLoader, Modifier.fillMaxSize())
                 RenderClock -> if (showAnalog) AnalogClockSlide(now, secondHandColor)
+                null -> {}
             }
         }
     }
