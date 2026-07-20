@@ -71,8 +71,11 @@ the real complexity and get the most test coverage.
   Commits are signed locally, so integrate by the local fast-forward push
   above — GitHub's server-side rebase/squash merge re-creates commits it
   cannot sign and is rejected.
+- Canonical gate: `./gradlew verify` (root task) runs ktlint, detekt, all unit
+  tests, and assemble across both modules. Use it everywhere — locally, in task
+  gates, and in CI — instead of spelling out the task list.
 - CI (GitHub Actions, workflow `CI`, job `build`), on push and pull_request:
-  `ktlintCheck detekt test assemble`, with Gradle caching.
+  `./gradlew verify`, with Gradle caching.
 - Testing: TDD for the pure-logic units (`ScheduleEngine`,
   `ColloquialTimeFormatter`) with case tables; pragmatic tests elsewhere. May
   tighten to full TDD later.

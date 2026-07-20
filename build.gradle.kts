@@ -8,3 +8,18 @@ plugins {
     alias(libs.plugins.protobuf) apply false
     alias(libs.plugins.android.junit5) apply false
 }
+
+tasks.register("verify") {
+    group = "verification"
+    description = "Canonical project gate (mirrors CI): ktlint, detekt, all unit tests, and assemble."
+    dependsOn(
+        ":core:ktlintCheck",
+        ":core:detekt",
+        ":core:test",
+        ":core:assemble",
+        ":app:ktlintCheck",
+        ":app:detekt",
+        ":app:test",
+        ":app:assemble",
+    )
+}
