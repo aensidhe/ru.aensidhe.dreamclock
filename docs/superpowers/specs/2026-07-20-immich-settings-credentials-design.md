@@ -201,11 +201,13 @@ is reworked to consult the scheduler.
 The backward year walk gains a per-host cache and drops the old hard year cap.
 
 `PhotoHistoryStore` (`:app`), a dedicated DataStore, keeps
-`map<string host, int64 oldestEpochDay>` — the oldest asset date ever observed
-for each host — plus the host of the most recent successful connectivity test.
-`ImmichRepository.loadAssets` reads the cached oldest for the current host to
-bound the walk and writes back the earliest date it observed after each
-successful load.
+`map<string host, int32 oldestYear>` — the oldest year that returned photos for
+each host — plus the host of the most recent successful connectivity test. The
+walk decides termination by year, so the year is all the cache needs to store;
+the oldest year is read directly from the walk loop, without reading per-asset
+dates. `ImmichRepository.loadAssets` reads the cached oldest year for the current
+host to bound the walk and writes back the oldest year that returned photos after
+each successful load.
 
 The cache resets on host change, detected at the connectivity test: when a test
 succeeds against a host that differs from the last successfully tested host, the
@@ -225,7 +227,7 @@ the current year downward, and termination now depends on the cache:
   consecutive empty years stops the walk. A populated year resets the streak and
   becomes the new cached oldest.
 
-After the walk, the cache updates to the earliest asset date actually seen. This
+After the walk, the cache updates to the oldest year that returned photos. This
 lets newly-added older photos push the boundary further back over successive
 runs, and it prevents a run of empty recent years near today from ending the
 walk prematurely — a latent bug in the hardcoded version.
@@ -236,8 +238,8 @@ Worked example: cached oldest 2001, `max_empty_years_back = 10`, nothing below
 continues to about 1985.
 
 `PhotoFetchConfig.maxYearsBack` is renamed to `maxEmptyYearsBack`, and
-`loadAssets` additionally takes the cached oldest year (and reports the earliest
-date seen) so `DreamContent` can persist the cache update.
+`loadAssets` additionally takes the cached oldest year (and reports the oldest
+populated year) so `DreamContent` can persist the cache update.
 
 ## Date-rollover refetch
 

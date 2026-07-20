@@ -565,7 +565,7 @@ green. Do not run `assemble` until Task 5.
 **Interfaces:**
 - Produces: pure object `PhotoHistory` with
   `oldestYear(history: PhotoHistoryProto, host: String, currentYear: Int): Int`,
-  `withObservedOldest(history, host, observedEpochDay: Long): PhotoHistoryProto`,
+  `withObservedOldestYear(history, host, year: Int): PhotoHistoryProto`,
   `resetOnHostChange(history, testedHost: String): PhotoHistoryProto`.
   `PhotoHistoryStore` (Android) wrapping a Proto DataStore.
 
@@ -579,7 +579,7 @@ option java_package = "ru.aensidhe.dreamclock.immich";
 option java_multiple_files = true;
 
 message PhotoHistoryProto {
-  map<string, int64> oldest_epoch_day_by_host = 1;
+  map<string, int32> oldest_year_by_host = 1;
   string last_tested_host = 2;
 }
 ```
@@ -593,8 +593,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PhotoHistoryTest {
-    private val epoch2001 = java.time.LocalDate.of(2001, 6, 1).toEpochDay()
-
     @Test
     fun oldestYearFallsBackToCurrentWhenNoEntry() {
         val h = PhotoHistoryProto.getDefaultInstance()
@@ -603,21 +601,20 @@ class PhotoHistoryTest {
 
     @Test
     fun oldestYearUsesCachedEntry() {
-        val h = PhotoHistory.withObservedOldest(PhotoHistoryProto.getDefaultInstance(), "https://a", epoch2001)
+        val h = PhotoHistory.withObservedOldestYear(PhotoHistoryProto.getDefaultInstance(), "https://a", 2001)
         assertEquals(2001, PhotoHistory.oldestYear(h, "https://a", 2026))
     }
 
     @Test
-    fun withObservedOldestKeepsTheEarliest() {
-        var h = PhotoHistory.withObservedOldest(PhotoHistoryProto.getDefaultInstance(), "https://a", epoch2001)
-        val epoch2010 = java.time.LocalDate.of(2010, 1, 1).toEpochDay()
-        h = PhotoHistory.withObservedOldest(h, "https://a", epoch2010)
+    fun withObservedOldestYearKeepsTheEarliest() {
+        var h = PhotoHistory.withObservedOldestYear(PhotoHistoryProto.getDefaultInstance(), "https://a", 2001)
+        h = PhotoHistory.withObservedOldestYear(h, "https://a", 2010)
         assertEquals(2001, PhotoHistory.oldestYear(h, "https://a", 2026))
     }
 
     @Test
     fun resetOnHostChangeClearsChangedHostButKeepsKeyOnlyChange() {
-        var h = PhotoHistory.withObservedOldest(PhotoHistoryProto.getDefaultInstance(), "https://a", epoch2001)
+        var h = PhotoHistory.withObservedOldestYear(PhotoHistoryProto.getDefaultInstance(), "https://a", 2001)
         h = PhotoHistory.resetOnHostChange(h, "https://a")
         assertEquals(2001, PhotoHistory.oldestYear(h, "https://a", 2026))
         h = PhotoHistory.resetOnHostChange(h, "https://b")
@@ -637,26 +634,21 @@ triggers proto generation for the new message.)
 ```kotlin
 package ru.aensidhe.dreamclock.immich
 
-import java.time.LocalDate
-
 object PhotoHistory {
     fun oldestYear(
         history: PhotoHistoryProto,
         host: String,
         currentYear: Int,
-    ): Int {
-        val epochDay = history.oldestEpochDayByHostMap[host] ?: return currentYear
-        return LocalDate.ofEpochDay(epochDay).year
-    }
+    ): Int = history.oldestYearByHostMap[host] ?: currentYear
 
-    fun withObservedOldest(
+    fun withObservedOldestYear(
         history: PhotoHistoryProto,
         host: String,
-        observedEpochDay: Long,
+        year: Int,
     ): PhotoHistoryProto {
-        val existing = history.oldestEpochDayByHostMap[host]
-        val next = if (existing == null) observedEpochDay else minOf(existing, observedEpochDay)
-        return history.toBuilder().putOldestEpochDayByHost(host, next).build()
+        val existing = history.oldestYearByHostMap[host]
+        val next = if (existing == null) year else minOf(existing, year)
+        return history.toBuilder().putOldestYearByHost(host, next).build()
     }
 
     fun resetOnHostChange(
@@ -665,7 +657,7 @@ object PhotoHistory {
     ): PhotoHistoryProto {
         if (history.lastTestedHost == testedHost) return history
         return history.toBuilder()
-            .removeOldestEpochDayByHost(testedHost)
+            .removeOldestYearByHost(testedHost)
             .setLastTestedHost(testedHost)
             .build()
     }
@@ -764,7 +756,7 @@ adds the date-rollover refetch. Restores `:app` to green.
 - Consumes: `YearWalk` (Task 3), `PhotoHistory`/`PhotoHistoryStore` (Task 4).
 - Produces: `PhotoFetchConfig(daysEitherSide, maxEmptyYearsBack, cachedOldestYear, pageSize = 100)`;
   `ImmichRepository.loadAssets(credentials, config): AssetLoad` where
-  `AssetLoad(assets: List<SlideAsset>, earliestEpochDay: Long?)`.
+  `AssetLoad(assets: List<SlideAsset>, oldestPopulatedYear: Int?)`.
 
 - [ ] **Step 1: Rename proto field 9**
 
@@ -802,7 +794,7 @@ report the earliest date observed:
 ```kotlin
 data class AssetLoad(
     val assets: List<SlideAsset>,
-    val earliestEpochDay: Long?,
+    val oldestPopulatedYear: Int?,
 )
 
 class ImmichRepository(
@@ -817,38 +809,37 @@ class ImmichRepository(
         val api = apiFactory.create(credentials.host)
         val currentYear = today().year
         val all = mutableListOf<SlideAsset>()
+        var oldestPopulatedYear: Int? = null
         var emptyBelowOldest = 0
         var candidateYear = currentYear
         while (YearWalk.shouldQueryOlderYear(candidateYear, config.cachedOldestYear, emptyBelowOldest, config.maxEmptyYearsBack)) {
             val yearOffset = currentYear - candidateYear
             val year = fetchYear(api, credentials.apiKey, yearOffset, config)
             all += year
+            if (year.isNotEmpty()) oldestPopulatedYear = candidateYear
             if (YearWalk.countsTowardEmptyStreak(candidateYear, config.cachedOldestYear)) {
                 emptyBelowOldest = if (year.isEmpty()) emptyBelowOldest + 1 else 0
             }
             candidateYear -= 1
         }
-        return AssetLoad(all, earliestEpochDayOf(all))
+        return AssetLoad(all, oldestPopulatedYear)
     }
-
-    private fun earliestEpochDayOf(assets: List<SlideAsset>): Long? =
-        assets.mapNotNull { it.takenEpochDay }.minOrNull()
     // ... fetchYear unchanged except it takes yearOffset as before ...
 }
 ```
 
-`fetchYear` keeps using `SimilarTimeWindows.windowFor(today(), config.daysEitherSide, yearOffset)`
-and `config.pageSize`. If `SlideAsset` has no date field usable as
-`takenEpochDay`, derive it in the mapper from the asset's `localDateTime` /
-`dateTimeOriginal`; add a `takenEpochDay: Long?` to `SlideAsset` and populate it in
-`AssetMapper`. Confirm the field name against `SlideAsset.kt` before writing.
+Because the walk descends from `currentYear`, the last non-empty year assigned to
+`oldestPopulatedYear` is the smallest one — exactly the new oldest. `fetchYear`
+keeps using `SimilarTimeWindows.windowFor(today(), config.daysEitherSide, yearOffset)`
+and `config.pageSize`. No `SlideAsset` or `AssetMapper` change is needed — the walk
+records the oldest populated year directly, without reading per-asset dates.
 
 - [ ] **Step 5: Extend the repository test**
 
 Add cases to `ImmichRepositoryTest` (or create it) using a fake `ImmichApiFactory`:
 walk stops after `maxEmptyYearsBack` empty years below the cached oldest; empty
-years at or above the cached oldest do not stop it; `earliestEpochDay` reports the
-minimum observed. Run:
+years at or above the cached oldest do not stop it; `oldestPopulatedYear` reports
+the smallest year that returned photos. Run:
 
 `./gradlew :app:testDebugUnitTest --tests "ru.aensidhe.dreamclock.immich.ImmichRepositoryTest"`
 Expected: PASS.
@@ -877,8 +868,8 @@ In `DreamContent`:
   to compute `cachedOldestYear = PhotoHistory.oldestYear(history, credentials.host, today.year)`,
   build `PhotoFetchConfig(settings.daysEitherSide, settings.maxEmptyYearsBack, cachedOldestYear)`,
   and after a successful load call
-  `historyStore.update { PhotoHistory.withObservedOldest(it, credentials.host, load.earliestEpochDay) }`
-  when `earliestEpochDay != null`.
+  `historyStore.update { PhotoHistory.withObservedOldestYear(it, credentials.host, load.oldestPopulatedYear) }`
+  when `oldestPopulatedYear != null`.
 - `buildSlideDeck` now consumes `AssetLoad`: `val load = repository.loadAssets(...)`,
   use `load.assets` for the pool/resolver, `PhotoFallback.shouldShowPhotos(..., assetCount = load.assets.size)`.
 - Use `today` in `ImmichRepository(today = { today }, ...)` so the window centers
@@ -895,7 +886,7 @@ Expected: BUILD SUCCESSFUL. `:app` is green again.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add app/src/main/proto/settings.proto app/src/main/kotlin/ru/aensidhe/dreamclock/settings/SettingsSerializer.kt app/src/main/kotlin/ru/aensidhe/dreamclock/immich/ImmichCredentials.kt app/src/main/kotlin/ru/aensidhe/dreamclock/immich/ImmichRepository.kt app/src/main/kotlin/ru/aensidhe/dreamclock/immich/SlideAsset.kt app/src/main/kotlin/ru/aensidhe/dreamclock/immich/AssetMapper.kt app/src/main/kotlin/ru/aensidhe/dreamclock/dream/DreamContent.kt app/src/test/kotlin/ru/aensidhe/dreamclock/immich/ImmichRepositoryTest.kt
+git add app/src/main/proto/settings.proto app/src/main/kotlin/ru/aensidhe/dreamclock/settings/SettingsSerializer.kt app/src/main/kotlin/ru/aensidhe/dreamclock/immich/ImmichCredentials.kt app/src/main/kotlin/ru/aensidhe/dreamclock/immich/ImmichRepository.kt app/src/main/kotlin/ru/aensidhe/dreamclock/dream/DreamContent.kt app/src/test/kotlin/ru/aensidhe/dreamclock/immich/ImmichRepositoryTest.kt
 git commit -m "feat: :robot: walk years from the cached oldest and refetch on date rollover"
 ```
 
@@ -1540,12 +1531,9 @@ successful test (Tasks 4, 11); probe with surfaced ~100-char server error (Task 
 Type consistency: `PredictableClock` signatures match between Tasks 1 and 2;
 `TimedSlide`/`TimedRender(slide, duration)` match across the driver, deck model,
 and `SlideDeck` loop; `PhotoFetchConfig(daysEitherSide, maxEmptyYearsBack,
-cachedOldestYear, pageSize)` and `AssetLoad(assets, earliestEpochDay)` match
-between Tasks 5's repository and `DreamContent`; `KeyCipher.encrypt/decrypt` match
-between Tasks 6, 7, 10, 11; `CredentialsStore.credentials(settings)` matches
-Tasks 7 and its call sites; `ProbeResult` and `PhotoHistory` helper signatures
+cachedOldestYear, pageSize)` and `AssetLoad(assets, oldestPopulatedYear)` match
+between Tasks 5's repository and `DreamContent`; `PhotoHistory.oldestYear` /
+`withObservedOldestYear` are year-based across Tasks 4 and 5; `KeyCipher.encrypt/decrypt`
+match between Tasks 6, 7, 10, 11; `CredentialsStore.credentials(settings)` matches
+Task 7 and its call sites; `ProbeResult` and `PhotoHistory` helper signatures
 match between their defining tasks and their consumers.
-
-Open dependency to verify during execution: `SlideAsset`'s date field name for
-`earliestEpochDay` (Task 5, Step 4) — confirm against `SlideAsset.kt`/`AssetMapper.kt`
-before writing, and add `takenEpochDay` if absent.
