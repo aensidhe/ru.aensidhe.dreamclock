@@ -1,31 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(./gradlew *)",
-      "Bash(ls *)",
-      "Bash(cat *)",
-      "Bash(grep *)",
-      "Bash(rg *)",
-      "Bash(echo *)",
-      "Bash(mkdir *)",
-      "Bash(sed *)",
-      "Bash(head *)",
-      "Bash(tail *)",
-      "Bash(find *)",
-      "Bash(awk *)",
-      "Bash(curl -s *)",
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(git status*)",
-      "Bash(git log *)",
-      "Bash(git diff *)",
-      "Bash(git show *)",
-      "Bash(git rev-parse *)",
-      "Bash(git switch *)",
-      "Bash(git restore *)",
-      "Bash(gh *)",
-      "Bash(/home/aensidhe/.claude/plugins/cache/claude-plugins-official/superpowers/*)",
-      "mcp__serena__*"
+      "Bash(./gradlew *)"
     ]
   }
 }

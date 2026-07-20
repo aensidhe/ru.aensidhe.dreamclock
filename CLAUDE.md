@@ -82,6 +82,10 @@ the real complexity and get the most test coverage.
 ## Conventions
 
 - Kotlin over Java. Newest stable tooling.
+- Code navigation: Serena's symbolic tools are the default for symbol-shaped
+  questions (definitions, references, file structure, symbol edits). Use
+  grep/rg only for non-symbolic sweeps (string literals, resource IDs, config
+  keys).
 - Shell usage: prefer dedicated file tools (read/edit/write, Serena) over shell
   one-liners. Do not run inline Bash that leans on escaping, quoting gymnastics,
   variable expansion, heredocs, or multi-line here-strings — these prompt for
