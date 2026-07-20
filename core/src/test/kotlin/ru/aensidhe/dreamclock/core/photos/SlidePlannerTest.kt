@@ -13,7 +13,7 @@ class SlidePlannerTest {
 
     @Test
     fun `two consecutive portraits pair`() {
-        val planner = SlidePlanner(analogCadence = 100)
+        val planner = SlidePlanner()
         assertEquals(emptyList(), planner.offer(photo("a", Orientation.PORTRAIT)))
         assertEquals(
             listOf(PairedPhotoSlide(photo("a", Orientation.PORTRAIT), photo("b", Orientation.PORTRAIT))),
@@ -23,7 +23,7 @@ class SlidePlannerTest {
 
     @Test
     fun `landscape between portraits is emitted alone and portraits still pair`() {
-        val planner = SlidePlanner(analogCadence = 100)
+        val planner = SlidePlanner()
         assertEquals(emptyList(), planner.offer(photo("p1", Orientation.PORTRAIT)))
         assertEquals(
             listOf(SinglePhotoSlide(photo("l", Orientation.LANDSCAPE))),
@@ -37,7 +37,7 @@ class SlidePlannerTest {
 
     @Test
     fun `video is emitted alone and does not consume a pending portrait`() {
-        val planner = SlidePlanner(analogCadence = 100)
+        val planner = SlidePlanner()
         assertEquals(emptyList(), planner.offer(photo("p1", Orientation.PORTRAIT)))
         assertEquals(listOf(VideoSlide(video("v"))), planner.offer(video("v")))
         assertEquals(
@@ -47,35 +47,24 @@ class SlidePlannerTest {
     }
 
     @Test
-    fun `clock slide injected every cadence content slides`() {
-        val planner = SlidePlanner(analogCadence = 2)
+    fun `single landscape photos are emitted one at a time with no clock injection`() {
+        val planner = SlidePlanner()
         assertEquals(
             listOf(SinglePhotoSlide(photo("l1", Orientation.LANDSCAPE))),
             planner.offer(photo("l1", Orientation.LANDSCAPE)),
         )
         assertEquals(
-            listOf(SinglePhotoSlide(photo("l2", Orientation.LANDSCAPE)), ClockSlide),
+            listOf(SinglePhotoSlide(photo("l2", Orientation.LANDSCAPE))),
             planner.offer(photo("l2", Orientation.LANDSCAPE)),
-        )
-        assertEquals(
-            listOf(SinglePhotoSlide(photo("l3", Orientation.LANDSCAPE))),
-            planner.offer(photo("l3", Orientation.LANDSCAPE)),
-        )
-        assertEquals(
-            listOf(SinglePhotoSlide(photo("l4", Orientation.LANDSCAPE)), ClockSlide),
-            planner.offer(photo("l4", Orientation.LANDSCAPE)),
         )
     }
 
     @Test
-    fun `a paired slide counts as one content slide toward cadence`() {
-        val planner = SlidePlanner(analogCadence = 1)
+    fun `a paired slide is emitted with no clock injection`() {
+        val planner = SlidePlanner()
         assertEquals(emptyList(), planner.offer(photo("p1", Orientation.PORTRAIT)))
         assertEquals(
-            listOf(
-                PairedPhotoSlide(photo("p1", Orientation.PORTRAIT), photo("p2", Orientation.PORTRAIT)),
-                ClockSlide,
-            ),
+            listOf(PairedPhotoSlide(photo("p1", Orientation.PORTRAIT), photo("p2", Orientation.PORTRAIT))),
             planner.offer(photo("p2", Orientation.PORTRAIT)),
         )
     }

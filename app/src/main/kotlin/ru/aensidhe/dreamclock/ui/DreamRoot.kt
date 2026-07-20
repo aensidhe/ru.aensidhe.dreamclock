@@ -18,6 +18,7 @@ fun DreamRoot(
     mode: ColorRenderMode,
     deck: SlideDeckModel?,
     imageLoader: ImageLoader?,
+    everyXthMinute: Int,
     photoSeconds: Int,
     analogSeconds: Int,
 ) {
@@ -29,6 +30,7 @@ fun DreamRoot(
             showAnalog = showAnalog,
             now = java.time.LocalDateTime.now(),
             secondHandColor = stateColor(state.state),
+            everyXthMinute = everyXthMinute,
             photoSeconds = photoSeconds,
             analogSeconds = analogSeconds,
             onSuppressBottomLeft = { suppressBottomLeft = it },

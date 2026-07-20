@@ -1,54 +1,63 @@
 package ru.aensidhe.dreamclock.immich
 
 import java.time.Duration
-import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertIs
 import org.junit.jupiter.api.Test
 import ru.aensidhe.dreamclock.core.photos.CaptionSource
 import ru.aensidhe.dreamclock.core.photos.ClockSlide
 import ru.aensidhe.dreamclock.core.photos.Orientation
+import ru.aensidhe.dreamclock.core.photos.PredictableClock
 import ru.aensidhe.dreamclock.core.photos.SinglePhotoSlide
 import ru.aensidhe.dreamclock.core.photos.SlideMediaKind
 import ru.aensidhe.dreamclock.core.photos.SlidePlanner
 
 class SlideDriverTest {
+    private val zone: ZoneId = ZoneId.of("UTC")
     private val noCaption = CaptionSource(null, null, null)
+    private val everyXthMinute = 5
+    private val photoSeconds = 30
+    private val analogSeconds = 20
 
     private fun landscape(id: String) = SlideAsset(id, SlideMediaKind.PHOTO, Orientation.LANDSCAPE, noCaption)
 
-    private fun idOf(slide: Any): String = (slide as SinglePhotoSlide).asset.id
+    private fun instantOf(local: LocalDateTime) = local.atZone(zone).toInstant()
 
     @Test
-    fun `forces a clock slide once the gap since the last clock is reached`() {
-        val base = Instant.parse("2026-07-20T10:00:00Z")
+    fun `outside the clock lead window returns a content slide timed by photoSeconds`() {
         val driver =
             SlideDriver(
-                assets = listOf(landscape("l1"), landscape("l2"), landscape("l3")).iterator(),
-                planner = SlidePlanner(analogCadence = 100),
-                maxGap = Duration.ofMinutes(5),
-                lastClockAt = base,
+                assets = listOf(landscape("l1"), landscape("l2")).iterator(),
+                planner = SlidePlanner(),
+                zone = zone,
             )
-        assertEquals("l1", idOf(driver.next(base)))
-        assertEquals("l2", idOf(driver.next(base.plus(Duration.ofMinutes(1)))))
-        assertTrue(driver.next(base.plus(Duration.ofMinutes(6))) is ClockSlide)
-        // Clock just fired at +6m, so the gap resets and the next slide is content again.
-        assertEquals("l3", idOf(driver.next(base.plus(Duration.ofMinutes(7)))))
+        // 10:02:00 is 3 minutes before the next 5-minute mark at 10:05:00, well outside the 60s lead.
+        val now = instantOf(LocalDateTime.of(2026, 7, 20, 10, 2, 0))
+
+        val timed = driver.next(now, everyXthMinute, photoSeconds, analogSeconds)
+
+        assertIs<SinglePhotoSlide>(timed.slide)
+        assertEquals("l1", timed.slide.asset.id)
+        assertEquals(Duration.ofSeconds(photoSeconds.toLong()), timed.duration)
     }
 
     @Test
-    fun `count cadence clock also resets the gap timer`() {
-        val base = Instant.parse("2026-07-20T10:00:00Z")
+    fun `inside the clock lead window returns a clock slide timed by PredictableClock`() {
         val driver =
             SlideDriver(
-                assets = listOf(landscape("l1"), landscape("l2"), landscape("l3")).iterator(),
-                planner = SlidePlanner(analogCadence = 1),
-                maxGap = Duration.ofMinutes(5),
-                lastClockAt = base,
+                assets = listOf(landscape("l1"), landscape("l2")).iterator(),
+                planner = SlidePlanner(),
+                zone = zone,
             )
-        assertEquals("l1", idOf(driver.next(base)))
-        // analogCadence = 1 means a clock is queued after each content slide.
-        assertTrue(driver.next(base.plus(Duration.ofMinutes(1))) is ClockSlide)
-        assertEquals("l2", idOf(driver.next(base.plus(Duration.ofMinutes(2)))))
+        // 10:04:30 is 30 seconds before the next 5-minute mark at 10:05:00, inside the 60s lead.
+        val local = LocalDateTime.of(2026, 7, 20, 10, 4, 30)
+        val now = instantOf(local)
+
+        val timed = driver.next(now, everyXthMinute, photoSeconds, analogSeconds)
+
+        assertEquals(ClockSlide, timed.slide)
+        assertEquals(PredictableClock.clockDuration(local, everyXthMinute, analogSeconds), timed.duration)
     }
 }

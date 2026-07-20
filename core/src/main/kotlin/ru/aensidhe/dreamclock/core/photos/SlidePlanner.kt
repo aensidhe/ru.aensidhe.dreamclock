@@ -25,44 +25,21 @@ data class VideoSlide(
 
 data object ClockSlide : PlannedSlide
 
-class SlidePlanner(
-    private val analogCadence: Int,
-) {
-    init {
-        require(analogCadence >= 1) { "analogCadence must be >= 1" }
-    }
-
+class SlidePlanner {
     private var pendingPortrait: PlannerAsset? = null
-    private var contentSinceClock = 0
 
     fun offer(asset: PlannerAsset): List<PlannedSlide> {
-        val out = mutableListOf<PlannedSlide>()
         val isPortraitPhoto = asset.kind == SlideMediaKind.PHOTO && asset.orientation == Orientation.PORTRAIT
         if (isPortraitPhoto) {
             val held = pendingPortrait
-            if (held == null) {
+            return if (held == null) {
                 pendingPortrait = asset
+                emptyList()
             } else {
                 pendingPortrait = null
-                emitContent(PairedPhotoSlide(held, asset), out)
+                listOf(PairedPhotoSlide(held, asset))
             }
-        } else if (asset.kind == SlideMediaKind.VIDEO) {
-            emitContent(VideoSlide(asset), out)
-        } else {
-            emitContent(SinglePhotoSlide(asset), out)
         }
-        return out
-    }
-
-    private fun emitContent(
-        slide: PlannedSlide,
-        out: MutableList<PlannedSlide>,
-    ) {
-        out.add(slide)
-        contentSinceClock++
-        if (contentSinceClock >= analogCadence) {
-            out.add(ClockSlide)
-            contentSinceClock = 0
-        }
+        return if (asset.kind == SlideMediaKind.VIDEO) listOf(VideoSlide(asset)) else listOf(SinglePhotoSlide(asset))
     }
 }

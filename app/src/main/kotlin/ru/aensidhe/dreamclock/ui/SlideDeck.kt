@@ -23,7 +23,6 @@ import ru.aensidhe.dreamclock.immich.RenderClock
 import ru.aensidhe.dreamclock.immich.RenderPairedPhoto
 import ru.aensidhe.dreamclock.immich.RenderPhoto
 import ru.aensidhe.dreamclock.immich.RenderSlide
-import ru.aensidhe.dreamclock.immich.SlideTiming
 
 @Composable
 fun SlideDeck(
@@ -32,6 +31,7 @@ fun SlideDeck(
     showAnalog: Boolean,
     now: LocalDateTime,
     secondHandColor: Color,
+    everyXthMinute: Int,
     photoSeconds: Int,
     analogSeconds: Int,
     onSuppressBottomLeft: (Boolean) -> Unit,
@@ -43,19 +43,23 @@ fun SlideDeck(
             return@Box
         }
         val context = LocalPlatformContext.current
+        val latestEveryX by rememberUpdatedState(everyXthMinute)
         val latestPhotoSeconds by rememberUpdatedState(photoSeconds)
         val latestAnalogSeconds by rememberUpdatedState(analogSeconds)
         var current by remember(deck) { mutableStateOf<RenderSlide?>(null) }
         LaunchedEffect(deck) {
-            var shown = deck.nextRender(Instant.now())
-            current = shown
+            var shownAt = Instant.now()
+            var shown = deck.next(shownAt, latestEveryX, latestPhotoSeconds, latestAnalogSeconds)
+            current = shown.slide
             while (true) {
-                onSuppressBottomLeft(OverlaySuppression.suppressBottomLeft(shown))
-                val upcoming = deck.nextRender(Instant.now())
-                deck.preload(upcoming, imageLoader, context)
-                delay(SlideTiming.durationFor(shown, latestPhotoSeconds, latestAnalogSeconds).toMillis())
-                current = upcoming
+                onSuppressBottomLeft(OverlaySuppression.suppressBottomLeft(shown.slide))
+                val boundary = shownAt.plus(shown.duration)
+                val upcoming = deck.next(boundary, latestEveryX, latestPhotoSeconds, latestAnalogSeconds)
+                deck.preload(upcoming.slide, imageLoader, context)
+                delay(shown.duration.toMillis())
+                current = upcoming.slide
                 shown = upcoming
+                shownAt = boundary
             }
         }
         Crossfade(targetState = current, label = "slide") { slide ->

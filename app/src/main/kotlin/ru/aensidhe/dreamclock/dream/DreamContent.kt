@@ -7,8 +7,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.time.Duration
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -123,8 +121,6 @@ internal fun DreamContent(
             settings.photosEnabled,
             settings.daysEitherSide,
             settings.maxYearsBack,
-            settings.analogEveryNSlides,
-            settings.maxClockGapSeconds,
             settings.language,
         ) {
             value = buildSlideDeck(credentials, settings, httpClient)
@@ -135,6 +131,7 @@ internal fun DreamContent(
         mode = settings.colorRenderMode.toColorRenderMode(),
         deck = deck,
         imageLoader = imageLoader,
+        everyXthMinute = settings.shownEveryXthMinute,
         photoSeconds = settings.photoIntervalSeconds,
         analogSeconds = settings.analogSlideSeconds,
     )
@@ -166,13 +163,12 @@ private suspend fun buildSlideDeck(
             ClockLocale.EN
         }
     val pool = AssetPool(assets, Random(System.nanoTime()))
-    val planner = SlidePlanner(settings.analogEveryNSlides.coerceAtLeast(1))
+    val planner = SlidePlanner()
     val driver =
         SlideDriver(
             assets = pool.endlessSequence().iterator(),
             planner = planner,
-            maxGap = Duration.ofSeconds(settings.maxClockGapSeconds.toLong()),
-            lastClockAt = Instant.now(),
+            zone = ZoneId.systemDefault(),
         )
     val resolver = SlideResolver(credentials.host, assets.associate { it.id to it.caption }, locale)
     return SlideDeckModel(driver, resolver)

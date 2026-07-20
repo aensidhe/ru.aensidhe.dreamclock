@@ -16,7 +16,6 @@ message Settings {
   int32 days_either_side = 8;
   int32 max_years_back = 9;
   int32 photo_interval_seconds = 10;
-  int32 analog_every_n_slides = 11;
-  int32 max_clock_gap_seconds = 12;
+  int32 shown_every_xth_minute = 11;
   int32 analog_slide_seconds = 13;
 }

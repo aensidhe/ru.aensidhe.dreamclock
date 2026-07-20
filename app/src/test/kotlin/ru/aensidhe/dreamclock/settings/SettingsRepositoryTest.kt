@@ -22,12 +22,11 @@ class SettingsRepositoryTest {
             val s = SettingsRepository.inMemory().settings.first()
             assertEquals(false, s.photosEnabled)
             assertEquals("", s.immichHost)
-            assertEquals(3, s.daysEitherSide)
+            assertEquals(15, s.daysEitherSide)
             assertEquals(0, s.maxYearsBack)
-            assertEquals(8, s.photoIntervalSeconds)
-            assertEquals(5, s.analogEveryNSlides)
-            assertEquals(300, s.maxClockGapSeconds)
-            assertEquals(10, s.analogSlideSeconds)
+            assertEquals(30, s.photoIntervalSeconds)
+            assertEquals(5, s.shownEveryXthMinute)
+            assertEquals(30, s.analogSlideSeconds)
         }
 
     @Test

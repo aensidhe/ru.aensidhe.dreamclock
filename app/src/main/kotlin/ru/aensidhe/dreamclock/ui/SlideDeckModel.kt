@@ -3,6 +3,7 @@ package ru.aensidhe.dreamclock.ui
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.request.ImageRequest
+import java.time.Duration
 import java.time.Instant
 import ru.aensidhe.dreamclock.immich.RenderClock
 import ru.aensidhe.dreamclock.immich.RenderPairedPhoto
@@ -15,7 +16,15 @@ class SlideDeckModel(
     private val driver: SlideDriver,
     private val resolver: SlideResolver,
 ) {
-    fun nextRender(now: Instant): RenderSlide = resolver.resolve(driver.next(now))
+    fun next(
+        now: Instant,
+        everyXthMinute: Int,
+        photoSeconds: Int,
+        analogSeconds: Int,
+    ): TimedRender {
+        val timed = driver.next(now, everyXthMinute, photoSeconds, analogSeconds)
+        return TimedRender(resolver.resolve(timed.slide), timed.duration)
+    }
 
     fun preload(
         slide: RenderSlide,
@@ -32,3 +41,8 @@ class SlideDeckModel(
             RenderClock -> emptyList()
         }
 }
+
+data class TimedRender(
+    val slide: RenderSlide,
+    val duration: Duration,
+)
