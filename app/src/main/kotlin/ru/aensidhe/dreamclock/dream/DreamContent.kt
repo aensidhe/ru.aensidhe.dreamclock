@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Locale
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
 import ru.aensidhe.dreamclock.R
 import ru.aensidhe.dreamclock.core.photos.SlidePlanner
@@ -150,7 +151,8 @@ private suspend fun buildSlideDeck(
         )
     val config = PhotoFetchConfig(settings.daysEitherSide, settings.maxYearsBack)
     val assets =
-        runCatching { repository.loadAssets(credentials, config) }.getOrDefault(emptyList())
+        runCatching { repository.loadAssets(credentials, config) }
+            .getOrElse { if (it is CancellationException) throw it else emptyList() }
     if (!PhotoFallback.shouldShowPhotos(enabled = true, hasCredentials = true, assetCount = assets.size)) {
         return null
     }
