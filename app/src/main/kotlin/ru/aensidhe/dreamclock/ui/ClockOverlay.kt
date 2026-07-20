@@ -20,6 +20,7 @@ import ru.aensidhe.dreamclock.ui.colorrender.RenderOverlay
 fun ClockOverlay(
     ui: ClockUiState,
     mode: ColorRenderMode,
+    suppressBottomLeft: Boolean = false,
 ) {
     Box(Modifier.fillMaxSize().padding(PaddingValues(start = 48.dp, top = 48.dp, end = 48.dp, bottom = 16.dp))) {
         Text(
@@ -29,11 +30,13 @@ fun ClockOverlay(
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
         )
-        Box(Modifier.align(Alignment.BottomStart)) {
-            mode.RenderOverlay(ui.state) { textColor ->
-                Column(horizontalAlignment = Alignment.Start) {
-                    ui.statusText?.takeIf { it.isNotBlank() }?.let { Text(it, color = textColor, fontSize = 24.sp) }
-                    ui.colloquial?.let { Text(it, color = textColor, fontSize = 24.sp) }
+        if (!suppressBottomLeft) {
+            Box(Modifier.align(Alignment.BottomStart)) {
+                mode.RenderOverlay(ui.state) { textColor ->
+                    Column(horizontalAlignment = Alignment.Start) {
+                        ui.statusText?.takeIf { it.isNotBlank() }?.let { Text(it, color = textColor, fontSize = 24.sp) }
+                        ui.colloquial?.let { Text(it, color = textColor, fontSize = 24.sp) }
+                    }
                 }
             }
         }
