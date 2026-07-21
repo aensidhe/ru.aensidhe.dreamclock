@@ -24,6 +24,8 @@ import ru.aensidhe.dreamclock.immich.RenderPairedPhoto
 import ru.aensidhe.dreamclock.immich.RenderPhoto
 import ru.aensidhe.dreamclock.immich.RenderSlide
 
+private const val MILLIS_PER_SECOND = 1000L
+
 @Composable
 fun SlideDeck(
     deck: SlideDeckModel?,
@@ -48,18 +50,24 @@ fun SlideDeck(
         val latestAnalogSeconds by rememberUpdatedState(analogSeconds)
         var current by remember(deck) { mutableStateOf<RenderSlide?>(null) }
         LaunchedEffect(deck) {
-            var shownAt = Instant.now()
-            var shown = deck.next(shownAt, latestEveryX, latestPhotoSeconds, latestAnalogSeconds)
-            current = shown.slide
+            // One media slide is kept loaded ahead. A clock slot never consumes it: the clock
+            // simply takes the turn, and the same photo is still waiting afterwards.
+            var upcoming = deck.nextMedia()
+            deck.preload(upcoming, imageLoader, context)
             while (true) {
-                onSuppressBottomLeft(OverlaySuppression.suppressBottomLeft(shown.slide))
-                val boundary = shownAt.plus(shown.duration)
-                val upcoming = deck.next(boundary, latestEveryX, latestPhotoSeconds, latestAnalogSeconds)
-                deck.preload(upcoming.slide, imageLoader, context)
-                delay(shown.duration.toMillis())
-                current = upcoming.slide
-                shown = upcoming
-                shownAt = Instant.now()
+                val clock = deck.clockSlot(Instant.now(), latestEveryX, latestPhotoSeconds, latestAnalogSeconds)
+                if (clock != null) {
+                    current = RenderClock
+                    onSuppressBottomLeft(OverlaySuppression.suppressBottomLeft(RenderClock))
+                    delay(clock.toMillis())
+                } else {
+                    current = upcoming
+                    onSuppressBottomLeft(OverlaySuppression.suppressBottomLeft(upcoming))
+                    val following = deck.nextMedia()
+                    deck.preload(following, imageLoader, context)
+                    delay(latestPhotoSeconds.toLong() * MILLIS_PER_SECOND)
+                    upcoming = following
+                }
             }
         }
         Crossfade(targetState = current, label = "slide") { slide ->

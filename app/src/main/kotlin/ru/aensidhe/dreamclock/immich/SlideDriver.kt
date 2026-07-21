@@ -4,15 +4,9 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import ru.aensidhe.dreamclock.core.photos.ClockSlide
 import ru.aensidhe.dreamclock.core.photos.PlannedSlide
 import ru.aensidhe.dreamclock.core.photos.PredictableClock
 import ru.aensidhe.dreamclock.core.photos.SlidePlanner
-
-data class TimedSlide(
-    val slide: PlannedSlide,
-    val duration: Duration,
-)
 
 class SlideDriver(
     private val assets: Iterator<SlideAsset>,
@@ -21,19 +15,23 @@ class SlideDriver(
 ) {
     private val buffer = ArrayDeque<PlannedSlide>()
 
-    fun next(
+    /** The next photo or video slide. Independent of the clock, so a clock slot never consumes one. */
+    fun nextMedia(): PlannedSlide {
+        while (buffer.isEmpty()) {
+            buffer.addAll(planner.offer(assets.next().toPlannerAsset()))
+        }
+        return buffer.removeFirst()
+    }
+
+    /** How long to show the clock if it is due at [now], or null to show media instead. */
+    fun clockSlot(
         now: Instant,
         everyXthMinute: Int,
         photoSeconds: Int,
         analogSeconds: Int,
-    ): TimedSlide {
+    ): Duration? {
         val local = LocalDateTime.ofInstant(now, zone)
-        if (PredictableClock.clockDue(local, everyXthMinute, photoSeconds)) {
-            return TimedSlide(ClockSlide, PredictableClock.clockDuration(local, everyXthMinute, analogSeconds))
-        }
-        while (buffer.isEmpty()) {
-            buffer.addAll(planner.offer(assets.next().toPlannerAsset()))
-        }
-        return TimedSlide(buffer.removeFirst(), Duration.ofSeconds(photoSeconds.toLong()))
+        if (!PredictableClock.clockDue(local, everyXthMinute, photoSeconds)) return null
+        return PredictableClock.clockDuration(local, everyXthMinute, analogSeconds)
     }
 }

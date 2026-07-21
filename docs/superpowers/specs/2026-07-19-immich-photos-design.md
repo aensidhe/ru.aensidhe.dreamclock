@@ -216,6 +216,13 @@ the landscape).
 - Video slide: until the clip ends, then advance.
 - Crossfade between slides; the next image is preloaded via Coil so the swap is
   smooth.
+- Exactly one media slide is kept preloaded ahead. The clock never consumes it:
+  at each boundary the deck asks whether a clock slot is due, and if so shows the
+  clock while the loaded photo waits its turn. `SlideDriver.nextMedia` pulls media
+  and `SlideDriver.clockSlot` answers the clock question; the two are independent.
+- A clock slot is due when a photo starting now would still be on screen at the
+  next mark — the lead is the photo interval itself, not a fixed minute. See
+  `PredictableClock.clockDue`.
 
 ### Image variant
 

@@ -16,15 +16,14 @@ class SlideDeckModel(
     private val driver: SlideDriver,
     private val resolver: SlideResolver,
 ) {
-    fun next(
+    fun nextMedia(): RenderSlide = resolver.resolve(driver.nextMedia())
+
+    fun clockSlot(
         now: Instant,
         everyXthMinute: Int,
         photoSeconds: Int,
         analogSeconds: Int,
-    ): TimedRender {
-        val timed = driver.next(now, everyXthMinute, photoSeconds, analogSeconds)
-        return TimedRender(resolver.resolve(timed.slide), timed.duration)
-    }
+    ): Duration? = driver.clockSlot(now, everyXthMinute, photoSeconds, analogSeconds)
 
     fun preload(
         slide: RenderSlide,
@@ -41,8 +40,3 @@ class SlideDeckModel(
             RenderClock -> emptyList()
         }
 }
-
-data class TimedRender(
-    val slide: RenderSlide,
-    val duration: Duration,
-)
