@@ -45,4 +45,6 @@
     <string name="screensaver_manual_title">Screensaver settings unavailable</string>
     <string name="screensaver_manual_message">This TV hides the screensaver picker. Connect adb and run:\n\n%1$s</string>
     <string name="action_close">Close</string>
+
+    <string name="settings_advanced_debugging">Advanced debugging</string>
 </resources>

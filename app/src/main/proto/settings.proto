@@ -19,4 +19,5 @@ message Settings {
   int32 shown_every_xth_minute = 11;
   bytes immich_key_ciphertext = 12;
   int32 analog_slide_seconds = 13;
+  bool advanced_debugging = 14;
 }

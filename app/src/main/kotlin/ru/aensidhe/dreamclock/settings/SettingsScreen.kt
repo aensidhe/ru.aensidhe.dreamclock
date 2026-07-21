@@ -103,6 +103,14 @@ fun SettingsScreen(
                         scope.launch { repository.update { it.toBuilder().setColorRenderMode(option).build() } }
                     }
 
+                    ToggleRow(
+                        null,
+                        stringResource(R.string.settings_advanced_debugging),
+                        settings.advancedDebugging,
+                    ) { on ->
+                        scope.launch { repository.update { it.toBuilder().setAdvancedDebugging(on).build() } }
+                    }
+
                     ImmichSection(settings, cipher, repository, scope, historyStore)
 
                     Row(

@@ -30,6 +30,13 @@ class SettingsRepositoryTest {
         }
 
     @Test
+    fun `advanced debugging defaults to off`() =
+        runTest {
+            val s = SettingsRepository.inMemory().settings.first()
+            assertEquals(false, s.advancedDebugging)
+        }
+
+    @Test
     fun `photos enabled round-trips`() =
         runTest {
             val repo = SettingsRepository.inMemory()

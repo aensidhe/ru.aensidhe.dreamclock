@@ -45,4 +45,6 @@
     <string name="screensaver_manual_title">Настройки заставки недоступны</string>
     <string name="screensaver_manual_message">Этот телевизор скрывает выбор заставки. Подключите adb и выполните:\n\n%1$s</string>
     <string name="action_close">Закрыть</string>
+
+    <string name="settings_advanced_debugging">Расширенная диагностика</string>
 </resources>
