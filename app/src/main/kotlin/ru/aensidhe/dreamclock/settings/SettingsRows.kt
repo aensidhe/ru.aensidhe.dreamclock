@@ -18,10 +18,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -52,6 +54,15 @@ fun StepperRow(
     downFocus: FocusRequester? = null,
     onChange: (Int) -> Unit,
 ) {
+    // Set on the buttons themselves: an override on the enclosing Row does not reach them,
+    // and without it a Down press falls back to the geometrically nearest focusable, which is
+    // the rightmost button of the action row far below.
+    val downOverride =
+        if (downFocus == null) {
+            Modifier
+        } else {
+            Modifier.focusProperties { down = downFocus }
+        }
     Row(
         Modifier
             .fillMaxWidth()
@@ -61,17 +72,22 @@ fun StepperRow(
     ) {
         Text(label)
         Row(
-            Modifier.focusProperties { if (downFocus != null) down = downFocus },
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Button(onClick = { onChange(clampStepper(value - step, min, max)) }) { Text("-") }
+            Button(
+                onClick = { onChange(clampStepper(value - step, min, max)) },
+                modifier = downOverride,
+            ) { Text("-") }
             Text(
                 value.toString(),
                 Modifier.width(STEPPER_VALUE_WIDTH),
                 textAlign = TextAlign.Center,
             )
-            Button(onClick = { onChange(clampStepper(value + step, min, max)) }) { Text("+") }
+            Button(
+                onClick = { onChange(clampStepper(value + step, min, max)) },
+                modifier = downOverride,
+            ) { Text("+") }
         }
     }
 }
@@ -91,6 +107,7 @@ fun TextFieldRow(
         }
     var hadFocus by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
     ComposeMaterialTheme(colorScheme = composeDarkColorScheme()) {
         OutlinedTextField(
             value = text,
@@ -103,7 +120,10 @@ fun TextFieldRow(
                 KeyboardActions(
                     onDone = {
                         onCommit(text)
-                        focusManager.clearFocus()
+                        // moveFocus, not clearFocus: clearing returns focus to the root, which
+                        // resolves upwards. Moving down closes the IME and lands on the next row.
+                        keyboard?.hide()
+                        focusManager.moveFocus(FocusDirection.Down)
                     },
                 ),
             modifier =

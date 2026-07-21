@@ -241,15 +241,9 @@ private fun ImmichSection(
         style = MaterialTheme.typography.bodySmall,
     )
 
-    if (!settings.immichKeyCiphertext.isEmpty) {
-        Button(
-            onClick = {
-                scope.launch { repository.update { it.toBuilder().clearImmichKeyCiphertext().build() } }
-            },
-        ) { Text(stringResource(R.string.settings_immich_clear_key)) }
+    ImmichConnectionTest(settings, cipher, historyStore, scope) {
+        scope.launch { repository.update { it.toBuilder().clearImmichKeyCiphertext().build() } }
     }
-
-    ImmichConnectionTest(settings, cipher, historyStore, scope)
 
     val steppers =
         listOf(
@@ -290,6 +284,7 @@ private fun ImmichConnectionTest(
     cipher: KeyCipher,
     historyStore: PhotoHistoryStore,
     scope: CoroutineScope,
+    onClearKey: () -> Unit,
 ) {
     var status by remember { mutableStateOf<ProbeResult?>(null) }
     var diagnostic by remember { mutableStateOf<String?>(null) }
@@ -297,42 +292,48 @@ private fun ImmichConnectionTest(
     val statusContext = LocalContext.current
     val debugging = settings.advancedDebugging
 
-    Button(
-        onClick = {
-            scope.launch {
-                status = ProbeResult.Checking
-                diagnostic = null
-                val outcome =
-                    runCatching {
-                        val result =
-                            withContext(Dispatchers.Default) {
-                                val api = ImmichClient.api(settings.immichHost)
-                                val apiKey = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
-                                val window =
-                                    SimilarTimeWindows.windowFor(LocalDate.now(), settings.daysEitherSide, 0)
-                                ImmichHealth.probe(api, apiKey, window, ZoneId.systemDefault())
+    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Button(
+            onClick = {
+                scope.launch {
+                    status = ProbeResult.Checking
+                    diagnostic = null
+                    val outcome =
+                        runCatching {
+                            val result =
+                                withContext(Dispatchers.Default) {
+                                    val api = ImmichClient.api(settings.immichHost)
+                                    val apiKey = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
+                                    val window =
+                                        SimilarTimeWindows.windowFor(LocalDate.now(), settings.daysEitherSide, 0)
+                                    ImmichHealth.probe(api, apiKey, window, ZoneId.systemDefault())
+                                }
+                            if (result is ProbeResult.Reachable) {
+                                historyStore.update { PhotoHistory.resetOnHostChange(it, settings.immichHost) }
                             }
-                        if (result is ProbeResult.Reachable) {
-                            historyStore.update { PhotoHistory.resetOnHostChange(it, settings.immichHost) }
+                            result
                         }
-                        result
-                    }
-                outcome
-                    .onSuccess { status = it }
-                    .onFailure { error ->
-                        if (error is CancellationException) throw error
-                        Log.e(PROBE_TAG, "connection test failed", error)
-                        diagnostic = formatDiagnostic("connection test", error)
-                        status =
-                            ProbeResult.Error(
-                                ImmichHealth.truncateDetail(error.message ?: error.javaClass.simpleName),
-                            )
-                        if (debugging) dialogOpen = true
-                    }
-            }
-        },
-        enabled = settings.immichHost.isNotBlank() && !settings.immichKeyCiphertext.isEmpty,
-    ) { Text(stringResource(R.string.settings_immich_test)) }
+                    outcome
+                        .onSuccess { status = it }
+                        .onFailure { error ->
+                            if (error is CancellationException) throw error
+                            Log.e(PROBE_TAG, "connection test failed", error)
+                            diagnostic = formatDiagnostic("connection test", error)
+                            status =
+                                ProbeResult.Error(
+                                    ImmichHealth.truncateDetail(error.message ?: error.javaClass.simpleName),
+                                )
+                            if (debugging) dialogOpen = true
+                        }
+                }
+            },
+            enabled = settings.immichHost.isNotBlank() && !settings.immichKeyCiphertext.isEmpty,
+        ) { Text(stringResource(R.string.settings_immich_test)) }
+
+        if (!settings.immichKeyCiphertext.isEmpty) {
+            Button(onClick = onClearKey) { Text(stringResource(R.string.settings_immich_clear_key)) }
+        }
+    }
 
     status?.let { Text(probeStatusLabel(statusContext, it)) }
 
