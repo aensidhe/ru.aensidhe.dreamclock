@@ -18,6 +18,9 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
 
+/** Minute tick length as a fraction of the radius. The face is inset by this much. */
+private const val MINUTE_TICK_FRACTION = 0.045f
+
 private val tickColor = Color(0xFF8794AB)
 private val handColor = Color(0xFFF2F5FB)
 private val numeralColor = Color(0xFFEEF2F8)
@@ -36,7 +39,7 @@ fun AnalogClockSlide(
     secondHandColor: Color,
 ) {
     Canvas(Modifier.fillMaxSize()) {
-        val radius = min(size.width, size.height) / 2f * 0.82f
+        val radius = min(size.width, size.height) / 2f * 0.82f * (1f - MINUTE_TICK_FRACTION)
         val center = Offset(size.width / 2f, size.height / 2f)
 
         drawTicks(center, radius)
@@ -72,7 +75,7 @@ private fun DrawScope.drawTicks(
     for (i in 0 until 60) {
         val angle = (i / 60f * 2f * Math.PI - Math.PI / 2f).toFloat()
         val hour = i % 5 == 0
-        val inner = radius - if (hour) radius * 0.09f else radius * 0.045f
+        val inner = radius - if (hour) radius * 0.09f else radius * MINUTE_TICK_FRACTION
         drawLine(
             color = tickColor,
             start = Offset(center.x + cos(angle) * inner, center.y + sin(angle) * inner),
