@@ -32,6 +32,7 @@ import androidx.tv.material3.darkColorScheme
 import com.google.protobuf.ByteString
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -252,11 +253,16 @@ private fun ImmichConnectionTest(
             scope.launch {
                 status = ProbeResult.Checking
                 val result =
-                    withContext(Dispatchers.Default) {
-                        val api = ImmichClient.api(settings.immichHost)
-                        val apiKey = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
-                        val window = SimilarTimeWindows.windowFor(LocalDate.now(), settings.daysEitherSide, 0)
-                        ImmichHealth.probe(api, apiKey, window, ZoneId.systemDefault())
+                    runCatching {
+                        withContext(Dispatchers.Default) {
+                            val api = ImmichClient.api(settings.immichHost)
+                            val apiKey = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
+                            val window = SimilarTimeWindows.windowFor(LocalDate.now(), settings.daysEitherSide, 0)
+                            ImmichHealth.probe(api, apiKey, window, ZoneId.systemDefault())
+                        }
+                    }.getOrElse {
+                        if (it is CancellationException) throw it
+                        ProbeResult.Error(ImmichHealth.truncateDetail(it.message ?: it.javaClass.simpleName))
                     }
                 if (result is ProbeResult.Reachable) {
                     historyStore.update { PhotoHistory.resetOnHostChange(it, settings.immichHost) }
