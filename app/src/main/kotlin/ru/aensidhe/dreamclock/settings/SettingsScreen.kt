@@ -205,6 +205,11 @@ private fun ImmichSection(
             repository.update { it.toBuilder().setImmichKeyCiphertext(ByteString.copyFrom(blob)).build() }
         }
     }
+    Text(
+        stringResource(R.string.settings_immich_key_hint),
+        style = MaterialTheme.typography.bodySmall,
+    )
+
     if (!settings.immichKeyCiphertext.isEmpty) {
         Button(
             onClick = {
