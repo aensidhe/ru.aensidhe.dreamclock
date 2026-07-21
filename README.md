@@ -22,9 +22,12 @@ Built feature by feature, in priority order:
    current state color.
 2. Immich photos (planned) — slides drawn from an [Immich](https://immich.app)
    server, showing photos within ±N days of today across every past year.
-3. Schedule editor (planned) — a D-pad UI over the existing schedule model
+3. Tick colours (planned) — every tick on the analog face takes the colour of
+   the state the schedule assigns to the time it marks, so the whole day is
+   readable at a glance around the dial.
+4. Schedule editor (planned) — a D-pad UI over the existing schedule model
    (time windows, day-of-week, date overrides).
-4. Agenda (planned) — tomorrow's agenda rendered as a slide every N photos.
+5. Agenda (planned) — tomorrow's agenda rendered as a slide every N photos.
 
 A companion settings screen, navigable by TV remote, configures language and
 display options and hands off to the system screensaver picker.
@@ -32,7 +35,7 @@ display options and hands off to the system screensaver picker.
 ## Status
 
 Feature 1 is built and running on-device: the clock, the analog face, the
-D-pad settings screen, an adaptive launcher icon, and a TV banner. Features 2–4
+D-pad settings screen, an adaptive launcher icon, and a TV banner. Features 2–5
 are planned. See the design specs under
 [`docs/superpowers/specs/`](docs/superpowers/specs/).
 

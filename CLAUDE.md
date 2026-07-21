@@ -16,6 +16,11 @@ Reverie (Russian: Грёзы), shown as a localized app label.
 Documented goals, built one at a time. Build feature 1 first; features 2–5
 are recorded scope, not yet designed in full.
 
+This list is mirrored in `README.md` under `## Features`, with the same numbering
+and a user-facing wording, plus a feature range quoted in each file's status
+section. Adding, removing, or reordering a feature means editing both files and
+both status lines in the same commit.
+
 1. Kid-friendly dual clock (built) — locale time + colloquial spoken form + 3
    color states, with an analog face and a state-tinted second hand
 2. Immich photos (±N days around today, across all past years)
