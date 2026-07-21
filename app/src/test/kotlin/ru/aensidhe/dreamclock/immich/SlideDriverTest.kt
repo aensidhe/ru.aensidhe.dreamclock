@@ -33,7 +33,7 @@ class SlideDriverTest {
                 planner = SlidePlanner(),
                 zone = zone,
             )
-        // 10:02:00 is 3 minutes before the next 5-minute mark at 10:05:00, well outside the 60s lead.
+        // 10:02:00 leaves 3 minutes to the 10:05:00 mark, far more than a 30s photo needs.
         val now = instantOf(LocalDateTime.of(2026, 7, 20, 10, 2, 0))
 
         val timed = driver.next(now, everyXthMinute, photoSeconds, analogSeconds)
@@ -51,8 +51,8 @@ class SlideDriverTest {
                 planner = SlidePlanner(),
                 zone = zone,
             )
-        // 10:04:30 is 30 seconds before the next 5-minute mark at 10:05:00, inside the 60s lead.
-        val local = LocalDateTime.of(2026, 7, 20, 10, 4, 30)
+        // 10:04:40 leaves 20s to the 10:05:00 mark, less than the 30s a photo would occupy.
+        val local = LocalDateTime.of(2026, 7, 20, 10, 4, 40)
         val now = instantOf(local)
 
         val timed = driver.next(now, everyXthMinute, photoSeconds, analogSeconds)

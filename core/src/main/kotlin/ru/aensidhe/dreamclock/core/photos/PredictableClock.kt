@@ -4,8 +4,6 @@ import java.time.Duration
 import java.time.LocalDateTime
 
 object PredictableClock {
-    private val CLOCK_LEAD: Duration = Duration.ofSeconds(60)
-
     fun nextMark(
         from: LocalDateTime,
         everyXthMinute: Int,
@@ -26,10 +24,15 @@ object PredictableClock {
         }
     }
 
+    /**
+     * True when a photo starting now would still be on screen at the next mark. The clock takes
+     * the slot instead, so it is already up when the mark arrives rather than arriving late.
+     */
     fun clockDue(
         now: LocalDateTime,
         everyXthMinute: Int,
-    ): Boolean = Duration.between(now, nextMark(now, everyXthMinute)) < CLOCK_LEAD
+        photoSeconds: Int,
+    ): Boolean = Duration.between(now, nextMark(now, everyXthMinute)) < Duration.ofSeconds(photoSeconds.toLong())
 
     fun clockDuration(
         now: LocalDateTime,

@@ -43,10 +43,22 @@ class PredictableClockTest {
     }
 
     @Test
-    fun clockDueWithinLeadWindow() {
-        assertTrue(PredictableClock.clockDue(t(12, 4, 30), 5))
-        assertTrue(PredictableClock.clockDue(t(12, 5), 5))
-        assertFalse(PredictableClock.clockDue(t(12, 3), 5))
+    fun clockDueWhenAPhotoWouldOverrunTheMark() {
+        assertTrue(PredictableClock.clockDue(t(12, 4, 30), 5, 60))
+        assertTrue(PredictableClock.clockDue(t(12, 5), 5, 60))
+        assertFalse(PredictableClock.clockDue(t(12, 3), 5, 60))
+    }
+
+    @Test
+    fun clockDueFollowsThePhotoInterval() {
+        // 40s to the mark: a 60s photo would overrun it, a 30s photo fits.
+        assertTrue(PredictableClock.clockDue(t(12, 4, 20), 5, 60))
+        assertFalse(PredictableClock.clockDue(t(12, 4, 20), 5, 30))
+    }
+
+    @Test
+    fun clockDueTreatsAnExactFitAsRoomForThePhoto() {
+        assertFalse(PredictableClock.clockDue(t(12, 4, 30), 5, 30))
     }
 
     @Test

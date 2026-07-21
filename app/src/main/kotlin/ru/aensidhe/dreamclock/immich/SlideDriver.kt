@@ -28,7 +28,7 @@ class SlideDriver(
         analogSeconds: Int,
     ): TimedSlide {
         val local = LocalDateTime.ofInstant(now, zone)
-        if (PredictableClock.clockDue(local, everyXthMinute)) {
+        if (PredictableClock.clockDue(local, everyXthMinute, photoSeconds)) {
             return TimedSlide(ClockSlide, PredictableClock.clockDuration(local, everyXthMinute, analogSeconds))
         }
         while (buffer.isEmpty()) {
