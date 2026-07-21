@@ -1,20 +1,3 @@
 <resources>
     <string name="app_name">Грёзы</string>
-
-    <string name="settings_immich_section">Фото из Immich</string>
-    <string name="settings_immich_enable">Показывать фото</string>
-    <string name="settings_immich_host">Адрес сервера</string>
-    <string name="settings_immich_key">Ключ API</string>
-    <string name="settings_immich_test">Проверить соединение</string>
-    <string name="settings_days_either_side">Дней вокруг сегодня</string>
-    <string name="settings_max_empty_years_back">Пустых лет для поиска</string>
-    <string name="settings_photo_interval">Секунд на фото</string>
-    <string name="settings_shown_every_xth_minute">Часы каждые N минут</string>
-    <string name="settings_analog_slide_seconds">Секунд на слайд часов</string>
-    <string name="probe_checking">Проверка…</string>
-    <string name="probe_connected">Подключено</string>
-    <string name="probe_connected_count">Подключено — %1$d фото на сегодня</string>
-    <string name="probe_unauthorized">Ошибка авторизации</string>
-    <string name="probe_unreachable">Сервер недоступен</string>
-    <string name="probe_error">Ошибка: %1$s</string>
 </resources>

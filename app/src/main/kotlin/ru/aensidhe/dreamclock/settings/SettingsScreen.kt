@@ -27,9 +27,12 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import androidx.tv.material3.darkColorScheme
+import com.google.protobuf.ByteString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.aensidhe.dreamclock.R
+import ru.aensidhe.dreamclock.immich.KeyCipher
+import ru.aensidhe.dreamclock.immich.KeystoreCipher
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -38,6 +41,7 @@ fun SettingsScreen(
     scope: CoroutineScope,
     onTest: () -> Unit,
     onSetScreensaver: () -> Unit,
+    cipher: KeyCipher = KeystoreCipher(),
 ) {
     val settings by
         repository.settings.collectAsStateWithLifecycle(
@@ -85,6 +89,8 @@ fun SettingsScreen(
                         scope.launch { repository.update { it.toBuilder().setColorRenderMode(option).build() } }
                     }
 
+                    ImmichSection(settings, cipher, repository, scope)
+
                     Row(
                         Modifier.padding(top = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -127,6 +133,90 @@ private fun ColorModeSection(
             description = stringResource(colorModeDescription(option)),
             selected = option == selected,
         ) { onSelect(option) }
+    }
+}
+
+private const val KEY_PLACEHOLDER = "••••••"
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ImmichSection(
+    settings: Settings,
+    cipher: KeyCipher,
+    repository: SettingsRepository,
+    scope: CoroutineScope,
+) {
+    SectionHeader(stringResource(R.string.settings_immich_section))
+    ToggleRow(null, stringResource(R.string.settings_immich_enable), settings.photosEnabled) { on ->
+        scope.launch { repository.update { it.toBuilder().setPhotosEnabled(on).build() } }
+    }
+    if (!settings.photosEnabled) return
+
+    TextFieldRow(
+        label = stringResource(R.string.settings_immich_host),
+        value = settings.immichHost,
+        isSecret = false,
+    ) { text ->
+        scope.launch { repository.update { it.toBuilder().setImmichHost(text.trim()).build() } }
+    }
+
+    val keyDisplay = if (!settings.immichKeyCiphertext.isEmpty) KEY_PLACEHOLDER else ""
+    TextFieldRow(
+        label = stringResource(R.string.settings_immich_key),
+        value = keyDisplay,
+        isSecret = true,
+    ) { text ->
+        if (text.isBlank() || text == KEY_PLACEHOLDER) return@TextFieldRow
+        val blob = cipher.encrypt(text)
+        scope.launch {
+            repository.update { it.toBuilder().setImmichKeyCiphertext(ByteString.copyFrom(blob)).build() }
+        }
+    }
+
+    StepperRow(
+        label = stringResource(R.string.settings_days_either_side),
+        value = settings.daysEitherSide,
+        min = 0,
+        max = 30,
+        step = 1,
+    ) { newValue ->
+        scope.launch { repository.update { it.toBuilder().setDaysEitherSide(newValue).build() } }
+    }
+    StepperRow(
+        label = stringResource(R.string.settings_max_empty_years_back),
+        value = settings.maxEmptyYearsBack,
+        min = 1,
+        max = 50,
+        step = 1,
+    ) { newValue ->
+        scope.launch { repository.update { it.toBuilder().setMaxEmptyYearsBack(newValue).build() } }
+    }
+    StepperRow(
+        label = stringResource(R.string.settings_photo_interval),
+        value = settings.photoIntervalSeconds,
+        min = 3,
+        max = 60,
+        step = 1,
+    ) { newValue ->
+        scope.launch { repository.update { it.toBuilder().setPhotoIntervalSeconds(newValue).build() } }
+    }
+    StepperRow(
+        label = stringResource(R.string.settings_shown_every_xth_minute),
+        value = settings.shownEveryXthMinute,
+        min = 1,
+        max = 60,
+        step = 1,
+    ) { newValue ->
+        scope.launch { repository.update { it.toBuilder().setShownEveryXthMinute(newValue).build() } }
+    }
+    StepperRow(
+        label = stringResource(R.string.settings_analog_slide_seconds),
+        value = settings.analogSlideSeconds,
+        min = 3,
+        max = 60,
+        step = 1,
+    ) { newValue ->
+        scope.launch { repository.update { it.toBuilder().setAnalogSlideSeconds(newValue).build() } }
     }
 }
 

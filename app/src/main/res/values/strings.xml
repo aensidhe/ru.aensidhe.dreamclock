@@ -1,20 +1,3 @@
 <resources>
     <string name="app_name">Reverie</string>
-
-    <string name="settings_immich_section">Immich photos</string>
-    <string name="settings_immich_enable">Show photos</string>
-    <string name="settings_immich_host">Server address</string>
-    <string name="settings_immich_key">API key</string>
-    <string name="settings_immich_test">Test connection</string>
-    <string name="settings_days_either_side">Days around today</string>
-    <string name="settings_max_empty_years_back">Empty years to explore</string>
-    <string name="settings_photo_interval">Seconds per photo</string>
-    <string name="settings_shown_every_xth_minute">Clock every N minutes</string>
-    <string name="settings_analog_slide_seconds">Clock seconds</string>
-    <string name="probe_checking">Checking…</string>
-    <string name="probe_connected">Connected</string>
-    <string name="probe_connected_count">Connected — %1$d photos for today</string>
-    <string name="probe_unauthorized">Authorization failed</string>
-    <string name="probe_unreachable">Host unreachable</string>
-    <string name="probe_error">Error: %1$s</string>
 </resources>
