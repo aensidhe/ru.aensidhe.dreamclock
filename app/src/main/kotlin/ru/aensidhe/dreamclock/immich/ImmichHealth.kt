@@ -32,7 +32,6 @@ object ImmichHealth {
     ): ProbeResult =
         when {
             status == 401 || status == 403 -> ProbeResult.Unauthorized
-            status in 200..299 -> ProbeResult.Reachable(null)
             else -> ProbeResult.Error(truncateDetail(body))
         }
 
@@ -58,14 +57,14 @@ object ImmichHealth {
                 )
             ProbeResult.Reachable(response.assets.total)
         } catch (e: HttpException) {
-            classify(
-                e.code(),
-                e
-                    .response()
-                    ?.errorBody()
-                    ?.string()
-                    .orEmpty(),
-            )
+            val body =
+                runCatching {
+                    e
+                        .response()
+                        ?.errorBody()
+                        ?.string()
+                }.getOrNull().orEmpty()
+            classify(e.code(), body)
         } catch (e: IOException) {
             ProbeResult.Unreachable
         }
