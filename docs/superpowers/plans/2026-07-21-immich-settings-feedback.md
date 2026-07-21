@@ -8,6 +8,12 @@
 
 **Tech Stack:** Kotlin 2.4.0, Jetpack Compose + androidx.tv material3, Proto DataStore, Retrofit, JUnit + kotlin.test.
 
+## Status
+
+Tasks 1 through 7 are implemented and committed on `feat/immich-photo-rendering`, each gated
+by a green `./gradlew verify`. Tasks 8 and 9 are blocked until the TV is attached: the crash is
+contained but not yet root-caused, and the UI changes are unverified on a real D-pad.
+
 ## Global Constraints
 
 - Canonical gate: `./gradlew verify` (ktlint, detekt, unit tests, assemble on both modules). Run it before every commit.
