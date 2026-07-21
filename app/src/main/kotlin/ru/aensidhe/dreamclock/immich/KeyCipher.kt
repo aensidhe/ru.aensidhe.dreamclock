@@ -26,6 +26,7 @@ class KeystoreCipher(
     }
 
     override fun decrypt(blob: ByteArray): String {
+        require(blob.size >= IV_BYTES) { "ciphertext blob is shorter than the IV" }
         val iv = blob.copyOfRange(0, IV_BYTES)
         val ciphertext = blob.copyOfRange(IV_BYTES, blob.size)
         val cipher = Cipher.getInstance(TRANSFORMATION)
@@ -33,6 +34,7 @@ class KeystoreCipher(
         return String(cipher.doFinal(ciphertext), Charsets.UTF_8)
     }
 
+    @Synchronized
     private fun secretKey(): SecretKey {
         val store = KeyStore.getInstance(KEYSTORE).apply { load(null) }
         (store.getEntry(alias, null) as? KeyStore.SecretKeyEntry)?.let { return it.secretKey }
