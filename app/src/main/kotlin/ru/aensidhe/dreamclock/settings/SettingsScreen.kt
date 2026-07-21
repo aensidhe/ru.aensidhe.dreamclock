@@ -213,6 +213,8 @@ private fun ImmichSection(
         ) { Text(stringResource(R.string.settings_immich_clear_key)) }
     }
 
+    ImmichConnectionTest(settings, cipher, historyStore, scope)
+
     val steppers =
         listOf(
             ImmichStepper(R.string.settings_days_either_side, settings.daysEitherSide, 0, 30) { b, v ->
@@ -242,8 +244,6 @@ private fun ImmichSection(
             scope.launch { repository.update { spec.setter(it.toBuilder(), newValue).build() } }
         }
     }
-
-    ImmichConnectionTest(settings, cipher, historyStore, scope)
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
