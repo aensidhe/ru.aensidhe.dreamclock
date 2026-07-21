@@ -52,4 +52,6 @@
     <string name="action_copy">Copy</string>
     <string name="action_details">Details</string>
     <string name="diagnostic_copied">Copied to clipboard</string>
+    <string name="crash_report_available">Last crash report</string>
+    <string name="action_clear">Clear</string>
 </resources>

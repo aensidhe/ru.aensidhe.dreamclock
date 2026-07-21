@@ -112,6 +112,7 @@ fun SettingsScreen(
                     ) { on ->
                         scope.launch { repository.update { it.toBuilder().setAdvancedDebugging(on).build() } }
                     }
+                    if (settings.advancedDebugging) CrashReportRow()
 
                     ImmichSection(settings, cipher, repository, scope, historyStore, testButton)
 
@@ -129,6 +130,31 @@ fun SettingsScreen(
             }
         }
     }
+}
+
+/**
+ * Offers the stack trace of the last fatal crash, saved by [CrashLog] before the process died.
+ * This TV has no adb, so a crash leaves no other trace.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun CrashReportRow() {
+    val context = LocalContext.current
+    var report by remember { mutableStateOf(CrashLog.read(context)) }
+    var open by remember { mutableStateOf(false) }
+    val text = report ?: return
+
+    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Button(onClick = { open = true }) { Text(stringResource(R.string.crash_report_available)) }
+        Button(
+            onClick = {
+                CrashLog.clear(context)
+                report = null
+                open = false
+            },
+        ) { Text(stringResource(R.string.action_clear)) }
+    }
+    if (open) DiagnosticDialog(text) { open = false }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

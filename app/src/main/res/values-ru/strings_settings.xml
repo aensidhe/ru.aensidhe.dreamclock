@@ -52,4 +52,6 @@
     <string name="action_copy">Копировать</string>
     <string name="action_details">Подробности</string>
     <string name="diagnostic_copied">Скопировано в буфер обмена</string>
+    <string name="crash_report_available">Отчёт о последнем сбое</string>
+    <string name="action_clear">Очистить</string>
 </resources>

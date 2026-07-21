@@ -48,7 +48,9 @@ fun DiagnosticDialog(
     val context = LocalContext.current
     var copied by remember { mutableStateOf(false) }
     val closeFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { closeFocus.requestFocus() }
+    // The requester's node is not guaranteed to be attached yet inside a dialog window, and an
+    // unattached requestFocus throws. A diagnostic surface must never be the thing that crashes.
+    LaunchedEffect(Unit) { runCatching { closeFocus.requestFocus() } }
 
     Dialog(
         onDismissRequest = onDismiss,
