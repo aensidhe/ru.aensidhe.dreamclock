@@ -33,4 +33,21 @@ class KeystoreCredentialsStoreTest {
         val creds = KeystoreCredentialsStore(cipher).credentials(settings("https://a", "secret"))
         assertEquals(ImmichCredentials("https://a", "secret"), creds)
     }
+
+    @Test
+    fun nullWhenDecryptThrows() {
+        val throwingCipher =
+            object : KeyCipher {
+                override fun encrypt(plaintext: String): ByteArray = plaintext.toByteArray()
+
+                override fun decrypt(blob: ByteArray): String = throw java.security.GeneralSecurityException("bad key")
+            }
+        val settings =
+            Settings
+                .newBuilder()
+                .setImmichHost("https://a")
+                .setImmichKeyCiphertext(ByteString.copyFrom(byteArrayOf(1, 2, 3)))
+                .build()
+        assertNull(KeystoreCredentialsStore(throwingCipher).credentials(settings))
+    }
 }

@@ -75,7 +75,12 @@ fun TextFieldRow(
     isSecret: Boolean,
     onCommit: (String) -> Unit,
 ) {
-    var text by rememberSaveable(value) { mutableStateOf(value) }
+    var text by
+        if (isSecret) {
+            remember(value) { mutableStateOf(value) }
+        } else {
+            rememberSaveable(value) { mutableStateOf(value) }
+        }
     var hadFocus by remember { mutableStateOf(false) }
     ComposeMaterialTheme(colorScheme = composeDarkColorScheme()) {
         OutlinedTextField(

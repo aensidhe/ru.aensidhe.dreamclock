@@ -15,7 +15,7 @@ class KeystoreCredentialsStore(
 ) : CredentialsStore {
     override fun credentials(settings: Settings): ImmichCredentials? {
         if (settings.immichHost.isBlank() || settings.immichKeyCiphertext.isEmpty) return null
-        val key = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
+        val key = runCatching { cipher.decrypt(settings.immichKeyCiphertext.toByteArray()) }.getOrNull() ?: return null
         return ImmichCredentials(settings.immichHost, key)
     }
 }
