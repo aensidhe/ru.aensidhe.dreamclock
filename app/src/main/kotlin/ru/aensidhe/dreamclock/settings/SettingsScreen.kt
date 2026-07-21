@@ -29,7 +29,9 @@ import androidx.tv.material3.Text
 import androidx.tv.material3.darkColorScheme
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.aensidhe.dreamclock.R
 import ru.aensidhe.dreamclock.immich.KeyCipher
 import ru.aensidhe.dreamclock.immich.KeystoreCipher
@@ -167,8 +169,8 @@ private fun ImmichSection(
         isSecret = true,
     ) { text ->
         if (text.isBlank() || text == KEY_PLACEHOLDER) return@TextFieldRow
-        val blob = cipher.encrypt(text)
         scope.launch {
+            val blob = withContext(Dispatchers.Default) { cipher.encrypt(text) }
             repository.update { it.toBuilder().setImmichKeyCiphertext(ByteString.copyFrom(blob)).build() }
         }
     }

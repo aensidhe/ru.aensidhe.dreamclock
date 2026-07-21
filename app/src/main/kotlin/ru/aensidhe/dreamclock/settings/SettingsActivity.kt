@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import ru.aensidhe.dreamclock.R
 import ru.aensidhe.dreamclock.dream.DreamPreviewActivity
+import ru.aensidhe.dreamclock.immich.KeystoreCipher
 
 class SettingsActivity : ComponentActivity() {
     private val repository by lazy { SettingsRepository.from(this) }
@@ -22,6 +23,7 @@ class SettingsActivity : ComponentActivity() {
         setContent {
             SettingsScreen(
                 repository = repository,
+                cipher = KeystoreCipher(),
                 scope = lifecycleScope,
                 onTest = { startActivity(Intent(this, DreamPreviewActivity::class.java)) },
                 onSetScreensaver = ::openScreensaverSettings,
