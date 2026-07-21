@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme as ComposeMaterialTheme
@@ -22,10 +23,14 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
+
+/** Fits three digits at body text size; the largest configured stepper maximum is 60. */
+private val STEPPER_VALUE_WIDTH = 48.dp
 
 /** Clamps a stepper value to `[min, max]`. Pure so it can be unit-tested without Compose. */
 fun clampStepper(
@@ -34,11 +39,6 @@ fun clampStepper(
     max: Int,
 ): Int = value.coerceIn(min, max)
 
-/**
- * A row showing [label] and the current [value], with two buttons that nudge the value down/up
- * by [step] (clamped to `[min, max]`) and report the result via [onChange]. Only the two buttons
- * are D-pad-focusable — the row itself is a plain layout, not a focusable/clickable list item.
- */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun StepperRow(
@@ -57,9 +57,16 @@ fun StepperRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Button(onClick = { onChange(clampStepper(value - step, min, max)) }) { Text("-") }
-            Text(value.toString(), Modifier.padding(horizontal = 8.dp))
+            Text(
+                value.toString(),
+                Modifier.width(STEPPER_VALUE_WIDTH),
+                textAlign = TextAlign.Center,
+            )
             Button(onClick = { onChange(clampStepper(value + step, min, max)) }) { Text("+") }
         }
     }
