@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import ru.aensidhe.dreamclock.R
 import ru.aensidhe.dreamclock.dream.DreamPreviewActivity
 import ru.aensidhe.dreamclock.immich.KeystoreCipher
+import ru.aensidhe.dreamclock.immich.PhotoHistoryStore
 
 class SettingsActivity : ComponentActivity() {
     private val repository by lazy { SettingsRepository.from(this) }
@@ -27,6 +28,7 @@ class SettingsActivity : ComponentActivity() {
                 scope = lifecycleScope,
                 onTest = { startActivity(Intent(this, DreamPreviewActivity::class.java)) },
                 onSetScreensaver = ::openScreensaverSettings,
+                historyStore = PhotoHistoryStore.from(this),
             )
         }
     }

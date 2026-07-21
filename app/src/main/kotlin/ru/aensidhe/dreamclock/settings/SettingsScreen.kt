@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -28,13 +30,21 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import androidx.tv.material3.darkColorScheme
 import com.google.protobuf.ByteString
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.aensidhe.dreamclock.R
+import ru.aensidhe.dreamclock.core.photos.SimilarTimeWindows
+import ru.aensidhe.dreamclock.immich.ImmichClient
+import ru.aensidhe.dreamclock.immich.ImmichHealth
 import ru.aensidhe.dreamclock.immich.KeyCipher
 import ru.aensidhe.dreamclock.immich.KeystoreCipher
+import ru.aensidhe.dreamclock.immich.PhotoHistory
+import ru.aensidhe.dreamclock.immich.PhotoHistoryStore
+import ru.aensidhe.dreamclock.immich.ProbeResult
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -43,6 +53,7 @@ fun SettingsScreen(
     scope: CoroutineScope,
     onTest: () -> Unit,
     onSetScreensaver: () -> Unit,
+    historyStore: PhotoHistoryStore,
     cipher: KeyCipher = KeystoreCipher(),
 ) {
     val settings by
@@ -91,7 +102,7 @@ fun SettingsScreen(
                         scope.launch { repository.update { it.toBuilder().setColorRenderMode(option).build() } }
                     }
 
-                    ImmichSection(settings, cipher, repository, scope)
+                    ImmichSection(settings, cipher, repository, scope, historyStore)
 
                     Row(
                         Modifier.padding(top = 16.dp),
@@ -147,6 +158,7 @@ private fun ImmichSection(
     cipher: KeyCipher,
     repository: SettingsRepository,
     scope: CoroutineScope,
+    historyStore: PhotoHistoryStore,
 ) {
     SectionHeader(stringResource(R.string.settings_immich_section))
     ToggleRow(null, stringResource(R.string.settings_immich_enable), settings.photosEnabled) { on ->
@@ -220,6 +232,42 @@ private fun ImmichSection(
     ) { newValue ->
         scope.launch { repository.update { it.toBuilder().setAnalogSlideSeconds(newValue).build() } }
     }
+
+    ImmichConnectionTest(settings, cipher, historyStore, scope)
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ImmichConnectionTest(
+    settings: Settings,
+    cipher: KeyCipher,
+    historyStore: PhotoHistoryStore,
+    scope: CoroutineScope,
+) {
+    var status by remember { mutableStateOf<ProbeResult?>(null) }
+    val statusContext = LocalContext.current
+
+    Button(
+        onClick = {
+            scope.launch {
+                status = ProbeResult.Checking
+                val result =
+                    withContext(Dispatchers.Default) {
+                        val api = ImmichClient.api(settings.immichHost)
+                        val apiKey = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
+                        val window = SimilarTimeWindows.windowFor(LocalDate.now(), settings.daysEitherSide, 0)
+                        ImmichHealth.probe(api, apiKey, window, ZoneId.systemDefault())
+                    }
+                if (result is ProbeResult.Reachable) {
+                    historyStore.update { PhotoHistory.resetOnHostChange(it, settings.immichHost) }
+                }
+                status = result
+            }
+        },
+        enabled = settings.immichHost.isNotBlank() && !settings.immichKeyCiphertext.isEmpty,
+    ) { Text(stringResource(R.string.settings_immich_test)) }
+
+    status?.let { Text(probeStatusLabel(statusContext, it)) }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
