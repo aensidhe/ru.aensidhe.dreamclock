@@ -18,6 +18,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -47,6 +49,7 @@ fun StepperRow(
     min: Int,
     max: Int,
     step: Int,
+    downFocus: FocusRequester? = null,
     onChange: (Int) -> Unit,
 ) {
     Row(
@@ -58,6 +61,7 @@ fun StepperRow(
     ) {
         Text(label)
         Row(
+            Modifier.focusProperties { if (downFocus != null) down = downFocus },
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

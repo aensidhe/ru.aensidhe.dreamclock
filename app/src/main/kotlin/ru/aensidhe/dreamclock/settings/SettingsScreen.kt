@@ -63,6 +63,7 @@ fun SettingsScreen(
             initialValue = SettingsSerializer.defaultValue,
         )
     val firstRow = remember { FocusRequester() }
+    val testButton = remember { FocusRequester() }
     LaunchedEffect(Unit) { firstRow.requestFocus() }
 
     val baseContext = LocalContext.current
@@ -112,13 +113,16 @@ fun SettingsScreen(
                         scope.launch { repository.update { it.toBuilder().setAdvancedDebugging(on).build() } }
                     }
 
-                    ImmichSection(settings, cipher, repository, scope, historyStore)
+                    ImmichSection(settings, cipher, repository, scope, historyStore, testButton)
 
                     Row(
                         Modifier.padding(top = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        Button(onClick = onTest) { Text(stringResource(R.string.action_test)) }
+                        Button(
+                            onClick = onTest,
+                            modifier = Modifier.focusRequester(testButton),
+                        ) { Text(stringResource(R.string.action_test)) }
                         Button(onClick = onSetScreensaver) { Text(stringResource(R.string.action_set_screensaver)) }
                     }
                 }
@@ -178,6 +182,7 @@ private fun ImmichSection(
     repository: SettingsRepository,
     scope: CoroutineScope,
     historyStore: PhotoHistoryStore,
+    lastStepperDownFocus: FocusRequester,
 ) {
     SectionHeader(stringResource(R.string.settings_immich_section))
     ToggleRow(null, stringResource(R.string.settings_immich_enable), settings.photosEnabled) { on ->
@@ -238,13 +243,14 @@ private fun ImmichSection(
                 b.setAnalogSlideSeconds(v)
             },
         )
-    steppers.forEach { spec ->
+    steppers.forEachIndexed { index, spec ->
         StepperRow(
             label = stringResource(spec.labelRes),
             value = spec.value,
             min = spec.min,
             max = spec.max,
             step = 1,
+            downFocus = if (index == steppers.lastIndex) lastStepperDownFocus else null,
         ) { newValue ->
             scope.launch { repository.update { spec.setter(it.toBuilder(), newValue).build() } }
         }
