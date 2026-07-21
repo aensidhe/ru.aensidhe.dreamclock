@@ -1281,7 +1281,7 @@ git commit -m "feat: :robot: build the photo deck behind a credentials store"
 
 ---
 
-## Task 12: Gate and on-device validation
+## Task 12: Gate
 
 **Files:** none (verification only).
 
@@ -1297,33 +1297,10 @@ git commit -m "style: :robot: satisfy linters for the photo rendering deck"
 
 (Skip the commit if nothing changed.)
 
-- [ ] **Step 2: Validate the clock fallback with no credentials**
+On-device photo validation moved to Plan 4's Task 12, which owns the settings
+surface and manual credentials needed to exercise the flow end to end.
 
-Ensure `local.properties` has no `immich.*` entries. Install and open the dream (or `DreamPreviewActivity`). Expected: the feature-1 clock behaves exactly as before — analog face when the analog slide is on, digital overlay always present, no crash. This proves the null-deck path.
-
-- [ ] **Step 3: Validate the photo path with real credentials**
-
-Add to the gitignored `local.properties` (never commit these):
-
-```properties
-immich.host=https://your-immich-host
-immich.key=your-read-only-api-key
-```
-
-Set `photos_enabled = true` in settings (or temporarily default it true in `SettingsSerializer` for the test run, then revert). Rebuild and open the dream. Verify on-device:
-- Photos load (preview sharp, brief thumbnail placeholder), one landscape per slide.
-- Two portraits pair side by side, each with its own bottom-right caption (date/time over city, country in the selected language).
-- On a paired slide whose left photo has a caption, the overlay's bottom-left status/colloquial group disappears while the top-left digital time stays.
-- The analog clock slide appears on the count cadence and at least every `max_clock_gap_seconds`.
-- Slides crossfade; the next image is already loaded when it appears.
-- Captions omit missing parts; a photo with no EXIF shows no caption.
-
-- [ ] **Step 4: Confirm no secrets are staged**
-
-Run: `git status --porcelain` and `git diff --cached`
-Expected: `local.properties` is untracked/ignored and never staged. If `photos_enabled` was flipped in `SettingsSerializer` for the test, revert it.
-
-- [ ] **Step 5: Final gate**
+- [ ] **Step 2: Final gate**
 
 Run: `./gradlew ktlintCheck detekt :core:test :app:testDebugUnitTest assemble`
 Expected: BUILD SUCCESSFUL. The branch is ready to rebase onto main and open a PR.
