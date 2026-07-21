@@ -47,4 +47,8 @@
     <string name="action_close">Close</string>
 
     <string name="settings_advanced_debugging">Advanced debugging</string>
+    <string name="diagnostic_title">Diagnostic</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_details">Details</string>
+    <string name="diagnostic_copied">Copied to clipboard</string>
 </resources>

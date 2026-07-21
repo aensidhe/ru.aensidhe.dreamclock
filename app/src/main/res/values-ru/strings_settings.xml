@@ -47,4 +47,8 @@
     <string name="action_close">Закрыть</string>
 
     <string name="settings_advanced_debugging">Расширенная диагностика</string>
+    <string name="diagnostic_title">Диагностика</string>
+    <string name="action_copy">Копировать</string>
+    <string name="action_details">Подробности</string>
+    <string name="diagnostic_copied">Скопировано в буфер обмена</string>
 </resources>

@@ -1,5 +1,6 @@
 package ru.aensidhe.dreamclock.settings
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -159,6 +160,7 @@ private fun ColorModeSection(
 }
 
 private const val KEY_PLACEHOLDER = "••••••"
+private const val PROBE_TAG = "DreamClockProbe"
 
 private class ImmichStepper(
     val labelRes: Int,
@@ -253,34 +255,55 @@ private fun ImmichConnectionTest(
     scope: CoroutineScope,
 ) {
     var status by remember { mutableStateOf<ProbeResult?>(null) }
+    var diagnostic by remember { mutableStateOf<String?>(null) }
+    var dialogOpen by remember { mutableStateOf(false) }
     val statusContext = LocalContext.current
+    val debugging = settings.advancedDebugging
 
     Button(
         onClick = {
             scope.launch {
                 status = ProbeResult.Checking
-                val result =
+                diagnostic = null
+                val outcome =
                     runCatching {
-                        withContext(Dispatchers.Default) {
-                            val api = ImmichClient.api(settings.immichHost)
-                            val apiKey = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
-                            val window = SimilarTimeWindows.windowFor(LocalDate.now(), settings.daysEitherSide, 0)
-                            ImmichHealth.probe(api, apiKey, window, ZoneId.systemDefault())
+                        val result =
+                            withContext(Dispatchers.Default) {
+                                val api = ImmichClient.api(settings.immichHost)
+                                val apiKey = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
+                                val window =
+                                    SimilarTimeWindows.windowFor(LocalDate.now(), settings.daysEitherSide, 0)
+                                ImmichHealth.probe(api, apiKey, window, ZoneId.systemDefault())
+                            }
+                        if (result is ProbeResult.Reachable) {
+                            historyStore.update { PhotoHistory.resetOnHostChange(it, settings.immichHost) }
                         }
-                    }.getOrElse {
-                        if (it is CancellationException) throw it
-                        ProbeResult.Error(ImmichHealth.truncateDetail(it.message ?: it.javaClass.simpleName))
+                        result
                     }
-                if (result is ProbeResult.Reachable) {
-                    historyStore.update { PhotoHistory.resetOnHostChange(it, settings.immichHost) }
-                }
-                status = result
+                outcome
+                    .onSuccess { status = it }
+                    .onFailure { error ->
+                        if (error is CancellationException) throw error
+                        Log.e(PROBE_TAG, "connection test failed", error)
+                        diagnostic = formatDiagnostic("connection test", error)
+                        status =
+                            ProbeResult.Error(
+                                ImmichHealth.truncateDetail(error.message ?: error.javaClass.simpleName),
+                            )
+                        if (debugging) dialogOpen = true
+                    }
             }
         },
         enabled = settings.immichHost.isNotBlank() && !settings.immichKeyCiphertext.isEmpty,
     ) { Text(stringResource(R.string.settings_immich_test)) }
 
     status?.let { Text(probeStatusLabel(statusContext, it)) }
+
+    val detail = diagnostic
+    if (debugging && detail != null) {
+        Button(onClick = { dialogOpen = true }) { Text(stringResource(R.string.action_details)) }
+        if (dialogOpen) DiagnosticDialog(detail) { dialogOpen = false }
+    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
