@@ -13,15 +13,17 @@ Reverie (Russian: Грёзы), shown as a localized app label.
 
 ## Build order (do not skip ahead)
 
-Documented goals, built one at a time. Build feature 1 first; features 2–4
+Documented goals, built one at a time. Build feature 1 first; features 2–5
 are recorded scope, not yet designed in full.
 
 1. Kid-friendly dual clock (built) — locale time + colloquial spoken form + 3
    color states, with an analog face and a state-tinted second hand
 2. Immich photos (±N days around today, across all past years)
-3. Schedule editor (D-pad UI over the existing Schedule model: windows,
+3. Tick colours by schedule — each tick on the analog face takes the colour of
+   the state the schedule assigns to the time it marks
+4. Schedule editor (D-pad UI over the existing Schedule model: windows,
    day-of-week, date overrides — model already supports it, no UI yet)
-4. Agenda slide every N photos
+5. Agenda slide every N photos
 
 ## Architecture
 
@@ -109,5 +111,5 @@ the real complexity and get the most test coverage.
 
 Feature 1 (kid-friendly clock) is built and merged: analog face, colloquial
 time, state colors, D-pad settings screen, dream preview, adaptive launcher
-icon, and TV banner, validated on-device. Features 2–4 are not yet built. See
+icon, and TV banner, validated on-device. Features 2–5 are not yet built. See
 the latest specs in `docs/superpowers/specs/`.
