@@ -11,8 +11,12 @@
 ## Status
 
 Tasks 1 through 7 are implemented and committed on `feat/immich-photo-rendering`, each gated
-by a green `./gradlew verify`. Tasks 8 and 9 are blocked until the TV is attached: the crash is
+by a green `./gradlew verify`. Tasks 8 and 9 need a manual sideload round trip: the crash is
 contained but not yet root-caused, and the UI changes are unverified on a real D-pad.
+
+The TV is never connected to this workstation. Builds reach it as an APK carried over by
+LocalSend and installed by hand, and diagnostics come back the same way through the clipboard.
+No step in this plan may assume adb.
 
 ## Global Constraints
 
@@ -857,21 +861,24 @@ This task cannot be completed without the TV attached. It is the point of Tasks 
 - Consumes: `formatDiagnostic` and `DiagnosticDialog` from Task 2, the `advancedDebugging` toggle from Task 1.
 - Produces: nothing for later tasks.
 
-- [ ] **Step 1: Install and reproduce**
+The TV is not reachable over adb and never will be. Every device step is manual: the APK is
+built here, carried across with LocalSend, and installed by hand. There is no logcat, which is
+why the diagnostic dialog in Task 2 is the only channel out of the device.
+
+- [ ] **Step 1: Build and transfer the APK**
 
 ```bash
-./gradlew :app:installDebug
+./gradlew :app:assembleDebug
 ```
 
-On the TV: open settings, turn "Advanced debugging" on, enter the working host and key, press "Test connection".
+The APK lands at `app/build/outputs/apk/debug/app-debug.apk`. Send it to the TV with LocalSend
+and install it from the TV's file manager.
 
-- [ ] **Step 2: Capture the trace**
+- [ ] **Step 2: Reproduce and capture the trace**
 
-Press "Copy" in the diagnostic dialog, then transfer the clipboard contents to the workstation with LocalSend and save it to `tmp/probe-trace.txt`. If the device is reachable over adb instead, the same text is in logcat:
-
-```bash
-adb logcat -d -s DreamClockProbe
-```
+On the TV: open settings, turn "Advanced debugging" on, enter the working host and key, press
+"Test connection". Press "Copy" in the diagnostic dialog, then send the clipboard contents back
+to the workstation with LocalSend and save them to `tmp/probe-trace.txt`.
 
 - [ ] **Step 3: Identify the root cause**
 
@@ -895,7 +902,9 @@ Expected: BUILD SUCCESSFUL.
 
 - [ ] **Step 7: Re-verify on device**
 
-Reinstall and press "Test connection" again with a valid host and key. Expected: the connected status line appears, no dialog, no crash.
+Rebuild with `./gradlew :app:assembleDebug`, carry the APK over with LocalSend, install it by
+hand, and press "Test connection" again with a valid host and key. Expected: the connected
+status line appears, no dialog, no crash.
 
 - [ ] **Step 8: Commit**
 
@@ -917,11 +926,13 @@ Confirms every item on the feedback list, including the one the reporter never t
 - Consumes: all previous tasks.
 - Produces: nothing.
 
-- [ ] **Step 1: Install the finished build**
+- [ ] **Step 1: Build and install the finished build**
 
 ```bash
-./gradlew :app:installDebug
+./gradlew :app:assembleDebug
 ```
+
+Send `app/build/outputs/apk/debug/app-debug.apk` to the TV with LocalSend and install it by hand.
 
 - [ ] **Step 2: Walk the checklist on the TV**
 

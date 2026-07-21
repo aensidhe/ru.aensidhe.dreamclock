@@ -81,6 +81,11 @@ the real complexity and get the most test coverage.
   tighten to full TDD later.
 - Tooling: Gradle Kotlin DSL + version catalog (`libs.versions.toml`); ktlint
   (format) + detekt (static analysis); JUnit + kotlin.test.
+- The TV is never connected to the workstation: no adb, no `installDebug`, no
+  logcat. On-device testing is manual — `./gradlew :app:assembleDebug`, carry
+  `app/build/outputs/apk/debug/app-debug.apk` over with LocalSend, install by
+  hand. Anything the device must report back has to be visible on screen and
+  copyable to the clipboard, because the clipboard is the only channel out.
 
 ## Conventions
 
