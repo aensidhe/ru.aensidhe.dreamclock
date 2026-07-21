@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -64,10 +65,6 @@ fun StepperRow(
     }
 }
 
-/**
- * A D-pad-focusable text field for [label]. Masks input with dots when [isSecret]. Commits the
- * current text via [onCommit] on the keyboard Done action and when focus is lost.
- */
 @Composable
 fun TextFieldRow(
     label: String,
@@ -82,6 +79,7 @@ fun TextFieldRow(
             rememberSaveable(value) { mutableStateOf(value) }
         }
     var hadFocus by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     ComposeMaterialTheme(colorScheme = composeDarkColorScheme()) {
         OutlinedTextField(
             value = text,
@@ -90,12 +88,21 @@ fun TextFieldRow(
             singleLine = true,
             visualTransformation = if (isSecret) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { onCommit(text) }),
+            keyboardActions =
+                KeyboardActions(
+                    onDone = {
+                        onCommit(text)
+                        focusManager.clearFocus()
+                    },
+                ),
             modifier =
-                Modifier.onFocusChanged { focusState ->
-                    if (hadFocus && !focusState.isFocused) onCommit(text)
-                    hadFocus = focusState.isFocused
-                },
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .onFocusChanged { focusState ->
+                        if (hadFocus && !focusState.isFocused) onCommit(text)
+                        hadFocus = focusState.isFocused
+                    },
         )
     }
 }
