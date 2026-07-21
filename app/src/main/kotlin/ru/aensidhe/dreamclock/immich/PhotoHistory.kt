@@ -12,8 +12,7 @@ object PhotoHistory {
         host: String,
         year: Int,
     ): PhotoHistoryProto {
-        val existing = history.oldestYearByHostMap[host]
-        val next = if (existing == null) year else minOf(existing, year)
+        val next = history.oldestYearByHostMap[host]?.coerceAtMost(year) ?: year
         return history.toBuilder().putOldestYearByHost(host, next).build()
     }
 

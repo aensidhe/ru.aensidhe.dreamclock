@@ -30,10 +30,7 @@ object ImmichHealth {
         status: Int,
         body: String,
     ): ProbeResult =
-        when {
-            status == 401 || status == 403 -> ProbeResult.Unauthorized
-            else -> ProbeResult.Error(truncateDetail(body))
-        }
+        if (status == 401 || status == 403) ProbeResult.Unauthorized else ProbeResult.Error(truncateDetail(body))
 
     @Suppress("SwallowedException")
     suspend fun probe(

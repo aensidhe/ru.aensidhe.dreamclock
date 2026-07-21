@@ -38,8 +38,8 @@ object PhotoCaption {
             listOfNotNull(source.city, source.country)
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
-                .takeIf { it.isNotEmpty() }
-                ?.joinToString(", ")
+                .joinToString(", ")
+                .ifEmpty { null }
         return if (dateTime == null && location == null) null else CaptionLines(dateTime, location)
     }
 }
