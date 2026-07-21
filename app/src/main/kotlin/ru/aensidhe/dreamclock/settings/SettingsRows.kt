@@ -52,16 +52,17 @@ fun StepperRow(
     max: Int,
     step: Int,
     downFocus: FocusRequester? = null,
+    upFocus: FocusRequester? = null,
     onChange: (Int) -> Unit,
 ) {
-    // Set on the buttons themselves: an override on the enclosing Row does not reach them,
-    // and without it a Down press falls back to the geometrically nearest focusable, which is
-    // the rightmost button of the action row far below.
-    val downOverride =
-        if (downFocus == null) {
-            Modifier
-        } else {
-            Modifier.focusProperties { down = downFocus }
+    // Set on the buttons themselves: an override on the enclosing Row does not reach them, and
+    // without it a vertical press falls back to the geometrically nearest focusable. The steppers
+    // sit at the right edge while the buttons above and below sit at the left, so that fallback
+    // picks the wrong target.
+    val overrides =
+        Modifier.focusProperties {
+            if (downFocus != null) down = downFocus
+            if (upFocus != null) up = upFocus
         }
     Row(
         Modifier
@@ -77,7 +78,7 @@ fun StepperRow(
         ) {
             Button(
                 onClick = { onChange(clampStepper(value - step, min, max)) },
-                modifier = downOverride,
+                modifier = overrides,
             ) { Text("-") }
             Text(
                 value.toString(),
@@ -86,7 +87,7 @@ fun StepperRow(
             )
             Button(
                 onClick = { onChange(clampStepper(value + step, min, max)) },
-                modifier = downOverride,
+                modifier = overrides,
             ) { Text("+") }
         }
     }
@@ -97,6 +98,7 @@ fun TextFieldRow(
     label: String,
     value: String,
     isSecret: Boolean,
+    downFocus: FocusRequester? = null,
     onCommit: (String) -> Unit,
 ) {
     var text by
@@ -121,7 +123,7 @@ fun TextFieldRow(
                     onDone = {
                         onCommit(text)
                         // moveFocus, not clearFocus: clearing returns focus to the root, which
-                        // resolves upwards. Moving down closes the IME and lands on the next row.
+                        // resolves upwards. Down honours the override below when there is one.
                         keyboard?.hide()
                         focusManager.moveFocus(FocusDirection.Down)
                     },
@@ -130,7 +132,9 @@ fun TextFieldRow(
                 Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
-                    .onFocusChanged { focusState ->
+                    .then(
+                        if (downFocus == null) Modifier else Modifier.focusProperties { down = downFocus },
+                    ).onFocusChanged { focusState ->
                         if (hadFocus && !focusState.isFocused) onCommit(text)
                         hadFocus = focusState.isFocused
                     },

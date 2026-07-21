@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -210,8 +211,17 @@ private fun ImmichSection(
     historyStore: PhotoHistoryStore,
     lastStepperDownFocus: FocusRequester,
 ) {
+    val testConnection = remember { FocusRequester() }
+
     SectionHeader(stringResource(R.string.settings_immich_section))
-    ToggleRow(null, stringResource(R.string.settings_immich_enable), settings.photosEnabled) { on ->
+    ToggleRow(
+        null,
+        stringResource(R.string.settings_immich_enable),
+        settings.photosEnabled,
+        // With photos off the rest of the section is gone, so down would otherwise fall through
+        // to whichever bottom button happens to be nearest.
+        downFocus = if (settings.photosEnabled) null else lastStepperDownFocus,
+    ) { on ->
         scope.launch { repository.update { it.toBuilder().setPhotosEnabled(on).build() } }
     }
     if (!settings.photosEnabled) return
@@ -229,6 +239,7 @@ private fun ImmichSection(
         label = stringResource(R.string.settings_immich_key),
         value = keyDisplay,
         isSecret = true,
+        downFocus = testConnection,
     ) { text ->
         if (text.isBlank() || text == KEY_PLACEHOLDER) return@TextFieldRow
         scope.launch {
@@ -241,7 +252,7 @@ private fun ImmichSection(
         style = MaterialTheme.typography.bodySmall,
     )
 
-    ImmichConnectionTest(settings, cipher, historyStore, scope) {
+    ImmichConnectionTest(settings, cipher, historyStore, scope, testConnection) {
         scope.launch { repository.update { it.toBuilder().clearImmichKeyCiphertext().build() } }
     }
 
@@ -271,6 +282,7 @@ private fun ImmichSection(
             max = spec.max,
             step = 1,
             downFocus = if (index == steppers.lastIndex) lastStepperDownFocus else null,
+            upFocus = if (index == 0) testConnection else null,
         ) { newValue ->
             scope.launch { repository.update { spec.setter(it.toBuilder(), newValue).build() } }
         }
@@ -284,6 +296,7 @@ private fun ImmichConnectionTest(
     cipher: KeyCipher,
     historyStore: PhotoHistoryStore,
     scope: CoroutineScope,
+    testFocus: FocusRequester,
     onClearKey: () -> Unit,
 ) {
     var status by remember { mutableStateOf<ProbeResult?>(null) }
@@ -328,6 +341,7 @@ private fun ImmichConnectionTest(
                 }
             },
             enabled = settings.immichHost.isNotBlank() && !settings.immichKeyCiphertext.isEmpty,
+            modifier = Modifier.focusRequester(testFocus),
         ) { Text(stringResource(R.string.settings_immich_test)) }
 
         if (!settings.immichKeyCiphertext.isEmpty) {
@@ -350,9 +364,11 @@ private fun ToggleRow(
     focusRequester: FocusRequester?,
     label: String,
     checked: Boolean,
+    downFocus: FocusRequester? = null,
     onToggle: (Boolean) -> Unit,
 ) {
-    val modifier = if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
+    var modifier = if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
+    if (downFocus != null) modifier = modifier.focusProperties { down = downFocus }
     ListItem(
         selected = false,
         onClick = { onToggle(!checked) },
