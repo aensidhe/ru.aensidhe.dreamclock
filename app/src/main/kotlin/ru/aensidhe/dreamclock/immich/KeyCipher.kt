@@ -34,21 +34,21 @@ class KeystoreCipher(
         return String(cipher.doFinal(ciphertext), Charsets.UTF_8)
     }
 
-    @Synchronized
-    private fun secretKey(): SecretKey {
-        val store = KeyStore.getInstance(KEYSTORE).apply { load(null) }
-        (store.getEntry(alias, null) as? KeyStore.SecretKeyEntry)?.let { return it.secretKey }
-        val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE)
-        generator.init(
-            KeyGenParameterSpec
-                .Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setKeySize(KEY_BITS)
-                .build(),
-        )
-        return generator.generateKey()
-    }
+    private fun secretKey(): SecretKey =
+        synchronized(KEY_LOCK) {
+            val store = KeyStore.getInstance(KEYSTORE).apply { load(null) }
+            (store.getEntry(alias, null) as? KeyStore.SecretKeyEntry)?.let { return@synchronized it.secretKey }
+            val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE)
+            generator.init(
+                KeyGenParameterSpec
+                    .Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setKeySize(KEY_BITS)
+                    .build(),
+            )
+            generator.generateKey()
+        }
 
     private companion object {
         const val KEYSTORE = "AndroidKeyStore"
@@ -56,5 +56,9 @@ class KeystoreCipher(
         const val IV_BYTES = 12
         const val TAG_BITS = 128
         const val KEY_BITS = 256
+
+        // Process-wide: the keystore entry is global to the alias, so guard
+        // lookup-or-generate across every KeystoreCipher instance, not just one.
+        val KEY_LOCK = Any()
     }
 }
