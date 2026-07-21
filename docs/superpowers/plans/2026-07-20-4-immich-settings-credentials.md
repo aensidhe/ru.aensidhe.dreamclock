@@ -33,6 +33,12 @@ AndroidKeyStore (AES-GCM), Retrofit + kotlinx.serialization, JUnit + kotlin.test
 - The proto reuses freed field numbers in place: field 9 → `max_empty_years_back`
   (`int32`), field 11 → `shown_every_xth_minute` (`int32`), field 12 →
   `immich_key_ciphertext` (`bytes`). No `reserved`, no appended numbers.
+  Field 12 also changes wire type at the same number (`int32 max_clock_gap_seconds`
+  → `bytes immich_key_ciphertext`). This is safe only because the app is unreleased
+  (`versionCode` 1, no persisted store carries the old varint value) and
+  protobuf-lite drops a known field whose wire type mismatches to the unknown-field
+  set rather than throwing. Once the app ships, reusing a live field number with a
+  new wire type would corrupt existing stores and must not be done.
 - Stepper bounds/defaults: `days_either_side` 0–30 (15), `max_empty_years_back`
   1–50 (20), `photo_interval_seconds` 3–60 (30), `shown_every_xth_minute` 1–60
   (5), `analog_slide_seconds` 3–60 (30).
