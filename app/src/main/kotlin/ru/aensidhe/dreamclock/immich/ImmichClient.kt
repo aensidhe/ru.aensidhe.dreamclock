@@ -6,9 +6,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 object ImmichClient {
+    fun defaultClient(): OkHttpClient = OkHttpClient.Builder().addInterceptor(FatalToIoInterceptor).build()
+
     fun api(
         host: String,
-        client: OkHttpClient = OkHttpClient(),
+        client: OkHttpClient = defaultClient(),
     ): ImmichApi =
         Retrofit
             .Builder()
