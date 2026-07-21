@@ -59,7 +59,7 @@ fun SlideDeck(
                 delay(shown.duration.toMillis())
                 current = upcoming.slide
                 shown = upcoming
-                shownAt = boundary
+                shownAt = Instant.now()
             }
         }
         Crossfade(targetState = current, label = "slide") { slide ->
