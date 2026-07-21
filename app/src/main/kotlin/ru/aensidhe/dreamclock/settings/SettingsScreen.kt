@@ -152,6 +152,14 @@ private fun ColorModeSection(
 
 private const val KEY_PLACEHOLDER = "••••••"
 
+private class ImmichStepper(
+    val labelRes: Int,
+    val value: Int,
+    val min: Int,
+    val max: Int,
+    val setter: (Settings.Builder, Int) -> Settings.Builder,
+)
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ImmichSection(
@@ -187,51 +195,42 @@ private fun ImmichSection(
             repository.update { it.toBuilder().setImmichKeyCiphertext(ByteString.copyFrom(blob)).build() }
         }
     }
+    if (!settings.immichKeyCiphertext.isEmpty) {
+        Button(
+            onClick = {
+                scope.launch { repository.update { it.toBuilder().clearImmichKeyCiphertext().build() } }
+            },
+        ) { Text(stringResource(R.string.settings_immich_clear_key)) }
+    }
 
-    StepperRow(
-        label = stringResource(R.string.settings_days_either_side),
-        value = settings.daysEitherSide,
-        min = 0,
-        max = 30,
-        step = 1,
-    ) { newValue ->
-        scope.launch { repository.update { it.toBuilder().setDaysEitherSide(newValue).build() } }
-    }
-    StepperRow(
-        label = stringResource(R.string.settings_max_empty_years_back),
-        value = settings.maxEmptyYearsBack,
-        min = 1,
-        max = 50,
-        step = 1,
-    ) { newValue ->
-        scope.launch { repository.update { it.toBuilder().setMaxEmptyYearsBack(newValue).build() } }
-    }
-    StepperRow(
-        label = stringResource(R.string.settings_photo_interval),
-        value = settings.photoIntervalSeconds,
-        min = 3,
-        max = 60,
-        step = 1,
-    ) { newValue ->
-        scope.launch { repository.update { it.toBuilder().setPhotoIntervalSeconds(newValue).build() } }
-    }
-    StepperRow(
-        label = stringResource(R.string.settings_shown_every_xth_minute),
-        value = settings.shownEveryXthMinute,
-        min = 1,
-        max = 60,
-        step = 1,
-    ) { newValue ->
-        scope.launch { repository.update { it.toBuilder().setShownEveryXthMinute(newValue).build() } }
-    }
-    StepperRow(
-        label = stringResource(R.string.settings_analog_slide_seconds),
-        value = settings.analogSlideSeconds,
-        min = 3,
-        max = 60,
-        step = 1,
-    ) { newValue ->
-        scope.launch { repository.update { it.toBuilder().setAnalogSlideSeconds(newValue).build() } }
+    val steppers =
+        listOf(
+            ImmichStepper(R.string.settings_days_either_side, settings.daysEitherSide, 0, 30) { b, v ->
+                b.setDaysEitherSide(v)
+            },
+            ImmichStepper(R.string.settings_max_empty_years_back, settings.maxEmptyYearsBack, 1, 50) { b, v ->
+                b.setMaxEmptyYearsBack(v)
+            },
+            ImmichStepper(R.string.settings_photo_interval, settings.photoIntervalSeconds, 3, 60) { b, v ->
+                b.setPhotoIntervalSeconds(v)
+            },
+            ImmichStepper(R.string.settings_shown_every_xth_minute, settings.shownEveryXthMinute, 1, 60) { b, v ->
+                b.setShownEveryXthMinute(v)
+            },
+            ImmichStepper(R.string.settings_analog_slide_seconds, settings.analogSlideSeconds, 3, 60) { b, v ->
+                b.setAnalogSlideSeconds(v)
+            },
+        )
+    steppers.forEach { spec ->
+        StepperRow(
+            label = stringResource(spec.labelRes),
+            value = spec.value,
+            min = spec.min,
+            max = spec.max,
+            step = 1,
+        ) { newValue ->
+            scope.launch { repository.update { spec.setter(it.toBuilder(), newValue).build() } }
+        }
     }
 
     ImmichConnectionTest(settings, cipher, historyStore, scope)

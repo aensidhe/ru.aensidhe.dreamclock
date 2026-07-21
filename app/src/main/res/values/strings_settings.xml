@@ -9,6 +9,7 @@
     <string name="settings_immich_enable">Show photos</string>
     <string name="settings_immich_host">Server address</string>
     <string name="settings_immich_key">API key</string>
+    <string name="settings_immich_clear_key">Clear key</string>
     <string name="settings_immich_test">Test connection</string>
     <string name="settings_days_either_side">Days around today</string>
     <string name="settings_max_empty_years_back">Empty years to explore</string>
