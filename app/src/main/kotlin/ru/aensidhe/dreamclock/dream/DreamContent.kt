@@ -26,7 +26,6 @@ import ru.aensidhe.dreamclock.core.schedule.DaySchedule
 import ru.aensidhe.dreamclock.core.schedule.Schedule
 import ru.aensidhe.dreamclock.core.schedule.StateType
 import ru.aensidhe.dreamclock.core.schedule.Window
-import ru.aensidhe.dreamclock.core.time.ClockLocale
 import ru.aensidhe.dreamclock.immich.AssetLoad
 import ru.aensidhe.dreamclock.immich.AssetPool
 import ru.aensidhe.dreamclock.immich.CredentialsStore
@@ -34,7 +33,6 @@ import ru.aensidhe.dreamclock.immich.ImmichClient
 import ru.aensidhe.dreamclock.immich.ImmichCredentials
 import ru.aensidhe.dreamclock.immich.ImmichRepository
 import ru.aensidhe.dreamclock.immich.NoCredentialsStore
-import ru.aensidhe.dreamclock.immich.PhotoFallback
 import ru.aensidhe.dreamclock.immich.PhotoFetchConfig
 import ru.aensidhe.dreamclock.immich.PhotoHistory
 import ru.aensidhe.dreamclock.immich.PhotoHistoryProto
@@ -46,7 +44,7 @@ import ru.aensidhe.dreamclock.settings.Language
 import ru.aensidhe.dreamclock.settings.Settings
 import ru.aensidhe.dreamclock.settings.SettingsRepository
 import ru.aensidhe.dreamclock.settings.SettingsSerializer
-import ru.aensidhe.dreamclock.settings.effectiveLocale
+import ru.aensidhe.dreamclock.settings.clockLocale
 import ru.aensidhe.dreamclock.settings.localizedFor
 import ru.aensidhe.dreamclock.ui.ClockViewModel
 import ru.aensidhe.dreamclock.ui.DreamRoot
@@ -183,19 +181,12 @@ private suspend fun buildSlideDeck(
     val load =
         runCatching { repository.loadAssets(credentials, config) }
             .getOrElse { if (it is CancellationException) throw it else AssetLoad(emptyList(), null) }
-    if (!PhotoFallback.shouldShowPhotos(enabled = true, hasCredentials = true, assetCount = load.assets.size)) {
-        return null
-    }
+    if (load.assets.isEmpty()) return null
     val observed = load.oldestPopulatedYear
     if (observed != null) {
         historyStore?.update { PhotoHistory.withObservedOldestYear(it, credentials.host, observed) }
     }
-    val locale =
-        if (effectiveLocale(settings.language, Locale.getDefault()).language == "ru") {
-            ClockLocale.RU
-        } else {
-            ClockLocale.EN
-        }
+    val locale = clockLocale(settings.language, Locale.getDefault())
     val pool = AssetPool(load.assets, Random(System.nanoTime()))
     val planner = SlidePlanner()
     val driver =

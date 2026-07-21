@@ -13,11 +13,10 @@ import kotlinx.coroutines.launch
 import ru.aensidhe.dreamclock.core.schedule.Schedule
 import ru.aensidhe.dreamclock.core.schedule.ScheduleEngine
 import ru.aensidhe.dreamclock.core.schedule.StateType
-import ru.aensidhe.dreamclock.core.time.ClockLocale
 import ru.aensidhe.dreamclock.core.time.colloquialFormatter
 import ru.aensidhe.dreamclock.settings.Language
 import ru.aensidhe.dreamclock.settings.Settings
-import ru.aensidhe.dreamclock.settings.effectiveLocale
+import ru.aensidhe.dreamclock.settings.clockLocale
 
 data class ClockUiState(
     val digital: String,
@@ -47,11 +46,6 @@ fun buildClockUiState(
     val status = active.textOverride ?: statusTextFor(settings.language, active.state)
     return ClockUiState(digital, colloquial, status, active.state)
 }
-
-private fun clockLocale(
-    language: Language,
-    systemLocale: Locale,
-): ClockLocale = if (effectiveLocale(language, systemLocale).language == "ru") ClockLocale.RU else ClockLocale.EN
 
 /**
  * Ticking clock view model: recomputes [ClockUiState] once per second from the
