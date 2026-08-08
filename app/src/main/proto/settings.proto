@@ -4,6 +4,7 @@ option java_multiple_files = true;
 
 enum Language { FOLLOW_SYSTEM = 0; RU = 1; EN = 2; }
 enum ColorRenderModeProto { TEXT_TINT = 0; PANEL_TINT = 1; FULL_SCRIM = 2; ACCENT = 3; }
+enum AddressFamilyProto { IPV4 = 0; IPV6 = 1; }
 
 message Settings {
   Language language = 1;
@@ -20,4 +21,6 @@ message Settings {
   bytes immich_key_ciphertext = 12;
   int32 analog_slide_seconds = 13;
   bool advanced_debugging = 14;
+  string pairing_interface_name = 15;
+  AddressFamilyProto pairing_address_family = 16;
 }
