@@ -69,16 +69,24 @@ document.getElementById('tabLogin').onclick = () => show('login');
 
 function payloadFor(mode) {
   if (mode === 'key') {
-    return { mode, host: keyHost.value.trim(), apiKey: keyValue.value.trim() };
+    return {
+      mode,
+      host: document.getElementById('keyHost').value.trim(),
+      apiKey: document.getElementById('keyValue').value.trim(),
+    };
   }
   return {
-    mode, host: loginHost.value.trim(),
-    email: loginEmail.value.trim(), password: loginPassword.value,
+    mode,
+    host: document.getElementById('loginHost').value.trim(),
+    email: document.getElementById('loginEmail').value.trim(),
+    password: document.getElementById('loginPassword').value,
   };
 }
 
 async function send(mode) {
   status.textContent = 'Sending…';
+  const buttons = document.querySelectorAll('button[data-mode]');
+  for (const b of buttons) b.disabled = true;
   try {
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const plaintext = new TextEncoder().encode(JSON.stringify(payloadFor(mode)));
@@ -88,9 +96,13 @@ async function send(mode) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ iv: bytesToB64url(iv), ciphertext: bytesToB64url(ciphertext) }),
     });
-    status.textContent = res.ok ? 'Paired! You can close this page.' : 'Pairing failed. Check the details on the TV.';
+    status.textContent = res.ok
+      ? 'Paired! You can close this page.'
+      : 'Pairing failed (HTTP ' + res.status + '). Check the details on the TV.';
   } catch (e) {
     status.textContent = 'Error: ' + e.message;
+  } finally {
+    for (const b of buttons) b.disabled = false;
   }
 }
 for (const b of document.querySelectorAll('button[data-mode]')) {

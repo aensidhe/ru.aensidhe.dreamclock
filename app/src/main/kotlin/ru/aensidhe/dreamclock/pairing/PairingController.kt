@@ -60,10 +60,14 @@ class PairingController(
         if (apiKey.isNullOrBlank()) return PairingOutcome.Failed("missing key")
         val window = SimilarTimeWindows.windowFor(today, daysEitherSide, 0)
         return when (ImmichHealth.probe(api, apiKey, window, zone)) {
-            is ProbeResult.Reachable -> {
-                save(ImmichCredentials(host, apiKey))
-                PairingOutcome.Saved
-            }
+            is ProbeResult.Reachable ->
+                runCatching {
+                    save(ImmichCredentials(host, apiKey))
+                    PairingOutcome.Saved
+                }.getOrElse { error ->
+                    if (error is CancellationException) throw error
+                    PairingOutcome.Failed("save")
+                }
             else -> PairingOutcome.Failed("validate")
         }
     }

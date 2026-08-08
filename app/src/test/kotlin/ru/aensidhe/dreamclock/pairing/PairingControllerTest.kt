@@ -54,24 +54,28 @@ class PairingControllerTest {
     fun login_mode_mints_then_saves() =
         runBlocking {
             val server = MockWebServer()
-            server.enqueue(MockResponse().setBody("""{"accessToken":"tok"}"""))
-            server.enqueue(MockResponse().setBody("""{"secret":"minted"}"""))
-            var saved: ImmichCredentials? = null
-            val host = server.url("/").toString()
-            val controller =
-                PairingController(key, { ImmichClient.api(it) }, ZoneId.of("UTC")) { saved = it }
+            try {
+                server.enqueue(MockResponse().setBody("""{"accessToken":"tok"}"""))
+                server.enqueue(MockResponse().setBody("""{"secret":"minted"}"""))
+                var saved: ImmichCredentials? = null
+                val host = server.url("/").toString()
+                val controller =
+                    PairingController(key, { ImmichClient.api(it) }, ZoneId.of("UTC")) { saved = it }
 
-            val outcome =
-                controller.receive(
-                    envelope("""{"mode":"login","host":"$host","email":"a@b.c","password":"pw"}"""),
-                    today = LocalDate.of(2026, 8, 8),
-                    daysEitherSide = 3,
-                )
+                val outcome =
+                    controller.receive(
+                        envelope("""{"mode":"login","host":"$host","email":"a@b.c","password":"pw"}"""),
+                        today = LocalDate.of(2026, 8, 8),
+                        daysEitherSide = 3,
+                    )
 
-            assertEquals(PairingOutcome.Saved, outcome)
-            assertEquals("minted", saved?.apiKey)
-            assertEquals("/api/auth/login", server.takeRequest().path)
-            assertEquals("/api/api-keys", server.takeRequest().path)
+                assertEquals(PairingOutcome.Saved, outcome)
+                assertEquals("minted", saved?.apiKey)
+                assertEquals("/api/auth/login", server.takeRequest().path)
+                assertEquals("/api/api-keys", server.takeRequest().path)
+            } finally {
+                server.shutdown()
+            }
         }
 
     @Test

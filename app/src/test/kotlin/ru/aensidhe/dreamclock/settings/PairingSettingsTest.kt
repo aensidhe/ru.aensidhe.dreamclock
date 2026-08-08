@@ -15,4 +15,11 @@ class PairingSettingsTest {
         assertEquals("eth0", settings.pairingInterfaceName)
         assertEquals(AddressFamilyProto.IPV6, settings.pairingAddressFamily)
     }
+
+    @Test
+    fun defaults_address_family_to_ipv4_and_blank_interface() {
+        val settings = Settings.getDefaultInstance()
+        assertEquals(AddressFamilyProto.IPV4, settings.pairingAddressFamily)
+        assertEquals("", settings.pairingInterfaceName)
+    }
 }
