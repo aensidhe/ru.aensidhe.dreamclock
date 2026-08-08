@@ -20,8 +20,9 @@ Built feature by feature, in priority order:
    pre-literate children a glanceable cue. Behind the overlay an analog-clock
    slide renders a full 1–12 face with minute ticks; its second hand carries the
    current state color.
-2. Immich photos (planned) — slides drawn from an [Immich](https://immich.app)
-   server, showing photos within ±N days of today across every past year.
+2. Immich photos (built) — slides drawn from an [Immich](https://immich.app)
+   server, showing photos within ±N days of today across every past year. Video
+   playback and local-network pairing are deferred.
 3. People names (planned) — photo slides captioned with the names of the people
    Immich recognised in them.
 4. Tick colours (planned) — every tick on the analog face takes the colour of
@@ -37,9 +38,10 @@ display options and hands off to the system screensaver picker.
 ## Status
 
 Feature 1 is built and running on-device: the clock, the analog face, the
-D-pad settings screen, an adaptive launcher icon, and a TV banner. Features 2–6
-are planned. See the design specs under
-[`docs/superpowers/specs/`](docs/superpowers/specs/).
+D-pad settings screen, an adaptive launcher icon, and a TV banner. Feature 2's
+Immich photo deck and settings are built and validated on-device; video playback
+and local-network pairing are deferred. Features 3–6 are planned. See the design
+specs under [`docs/superpowers/specs/`](docs/superpowers/specs/).
 
 ## Tech stack
 
