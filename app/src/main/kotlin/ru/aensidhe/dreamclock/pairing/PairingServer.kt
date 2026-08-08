@@ -3,6 +3,7 @@ package ru.aensidhe.dreamclock.pairing
 import android.content.Context
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
@@ -24,6 +25,40 @@ object PairingAssets {
     ): ByteArray? = runCatching { context.assets.open("pairing/$name").use { it.readBytes() } }.getOrNull()
 }
 
+internal fun Application.pairingRoutes(
+    assets: (String) -> ByteArray?,
+    onEnvelope: suspend (String) -> Boolean,
+) {
+    routing {
+        get("/") { serveAsset("index.html", assets) }
+        get("/{name}") { serveAsset(call.parameters["name"].orEmpty(), assets) }
+        post("/pair") {
+            val ok = onEnvelope(call.receiveText())
+            call.respondText(
+                if (ok) "ok" else "no",
+                status = if (ok) HttpStatusCode.OK else HttpStatusCode.BadRequest,
+            )
+        }
+    }
+}
+
+private suspend fun ApplicationCall.serveAssetImpl(
+    name: String,
+    assets: (String) -> ByteArray?,
+) {
+    val bytes = assets(name)
+    if (bytes == null) {
+        respondText("not found", status = HttpStatusCode.NotFound)
+    } else {
+        respondBytes(bytes, ContentType.parse(PairingServer.contentTypeFor(name)))
+    }
+}
+
+private suspend fun RoutingContext.serveAsset(
+    name: String,
+    assets: (String) -> ByteArray?,
+) = call.serveAssetImpl(name, assets)
+
 class PairingServer(
     private val address: String,
     private val assets: (String) -> ByteArray?,
@@ -38,17 +73,7 @@ class PairingServer(
         val port = ServerSocket(0).use { it.localPort }
         val server =
             embeddedServer(CIO, host = address, port = port) {
-                routing {
-                    get("/") { serveAsset("index.html") }
-                    get("/{name}") { serveAsset(call.parameters["name"].orEmpty()) }
-                    post("/pair") {
-                        val ok = onEnvelope(call.receiveText())
-                        call.respondText(
-                            if (ok) "ok" else "no",
-                            status = if (ok) HttpStatusCode.OK else HttpStatusCode.BadRequest,
-                        )
-                    }
-                }
+                pairingRoutes(assets, onEnvelope)
             }
         server.start(wait = false)
         engine = server
@@ -59,17 +84,6 @@ class PairingServer(
         engine?.stop(0, 0)
         engine = null
     }
-
-    private suspend fun ApplicationCall.serveAssetImpl(name: String) {
-        val bytes = assets(name)
-        if (bytes == null) {
-            respondText("not found", status = HttpStatusCode.NotFound)
-        } else {
-            respondBytes(bytes, ContentType.parse(contentTypeFor(name)))
-        }
-    }
-
-    private suspend fun RoutingContext.serveAsset(name: String) = call.serveAssetImpl(name)
 
     companion object {
         fun contentTypeFor(name: String): String =
