@@ -49,3 +49,27 @@ data class ExifInfo(
     val exifImageHeight: Int? = null,
     val orientation: String? = null,
 )
+
+@Serializable
+data class LoginRequest(
+    val email: String,
+    val password: String,
+)
+
+@Serializable
+data class LoginResponse(
+    val accessToken: String,
+)
+
+@Serializable
+data class CreateApiKeyRequest(
+    val name: String,
+    val permissions: List<String>,
+)
+
+@Serializable
+data class CreateApiKeyResponse(
+    val secret: String,
+)
+
+val MINT_PERMISSIONS: List<String> = listOf("asset.read", "asset.view", "asset.download")
