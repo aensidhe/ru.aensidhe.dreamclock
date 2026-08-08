@@ -52,10 +52,16 @@ class InterfaceSelectionTest {
 
     @Test
     fun resolve_requires_family_match_not_name_alone() {
-        val records = listOf(up("wlan0", "10.0.0.9"))
+        val records =
+            listOf(
+                up("eth0", "10.0.0.9"), // IPv4 site-local -> top candidate (rank 0)
+                up("wlan0", "fd00::1"), // IPv6 ULA (rank 2)
+            )
+        // saved name "wlan0" matches an entry, but saved family IPV4 does not match
+        // that entry's IPV6 -> must fall through to the top candidate, not match on name alone.
         assertEquals(
             "10.0.0.9",
-            InterfaceSelection.resolve(records, "wlan0", AddressFamily.IPV6)?.address,
+            InterfaceSelection.resolve(records, "wlan0", AddressFamily.IPV4)?.address,
         )
     }
 
