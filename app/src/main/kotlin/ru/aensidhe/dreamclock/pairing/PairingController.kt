@@ -2,6 +2,7 @@ package ru.aensidhe.dreamclock.pairing
 
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlin.coroutines.cancellation.CancellationException
 import ru.aensidhe.dreamclock.core.pairing.PairingCrypto
 import ru.aensidhe.dreamclock.core.photos.SimilarTimeWindows
 import ru.aensidhe.dreamclock.immich.CreateApiKeyRequest
@@ -40,7 +41,8 @@ class PairingController(
                 PairingCodec.parsePayload(String(PairingCrypto.decrypt(key, iv, ciphertext)))
             }.getOrElse { return PairingOutcome.Failed("decrypt") }
 
-        val api = apiFactory(payload.host)
+        if (payload.host.isBlank()) return PairingOutcome.Failed("host")
+        val api = runCatching { apiFactory(payload.host) }.getOrElse { return PairingOutcome.Failed("host") }
         return when (payload.mode) {
             PairingPayload.MODE_KEY -> saveValidatedKey(api, payload.host, payload.apiKey, today, daysEitherSide)
             PairingPayload.MODE_LOGIN -> mintAndSave(api, payload.host, payload.email, payload.password)
@@ -79,6 +81,9 @@ class PairingController(
                 api.createApiKey("Bearer $token", CreateApiKeyRequest("Reverie TV", MINT_PERMISSIONS)).secret
             save(ImmichCredentials(host, secret))
             PairingOutcome.Saved
-        }.getOrElse { PairingOutcome.Failed("mint") }
+        }.getOrElse { error ->
+            if (error is CancellationException) throw error
+            PairingOutcome.Failed("mint")
+        }
     }
 }

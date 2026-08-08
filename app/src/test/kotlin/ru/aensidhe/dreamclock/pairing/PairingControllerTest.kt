@@ -89,4 +89,23 @@ class PairingControllerTest {
             assertTrue(outcome is PairingOutcome.Failed)
             assertEquals(null, saved)
         }
+
+    @Test
+    fun a_corrupted_ciphertext_byte_fails_without_saving() =
+        runBlocking {
+            var saved: ImmichCredentials? = null
+            val controller =
+                PairingController(key, { ImmichClient.api(it) }, ZoneId.of("UTC")) { saved = it }
+            val valid = envelope("""{"mode":"key","host":"http://x","apiKey":"k"}""")
+            val env = PairingCodec.parseEnvelope(valid)
+            val ct = PairingCodec.decodeBase64Url(env.ciphertext)
+            ct[ct.lastIndex] = (ct.last() + 1).toByte()
+            val enc = Base64.getUrlEncoder().withoutPadding()
+            val tampered = """{"iv":"${env.iv}","ciphertext":"${enc.encodeToString(ct)}"}"""
+
+            val outcome = controller.receive(tampered, LocalDate.of(2026, 8, 8), 3)
+
+            assertTrue(outcome is PairingOutcome.Failed)
+            assertEquals(null, saved)
+        }
 }
