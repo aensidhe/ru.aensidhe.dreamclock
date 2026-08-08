@@ -42,11 +42,18 @@ internal fun Application.pairingRoutes(
     }
 }
 
+/**
+ * True for anything that could escape the flat `assets/pairing/` directory: path
+ * separators or a `..` segment. This is an unauthenticated LAN endpoint, so the
+ * `{name}` path segment is treated as untrusted input.
+ */
+private fun isUnsafeAssetName(name: String): Boolean = name.contains('/') || name.contains('\\') || name.contains("..")
+
 private suspend fun ApplicationCall.serveAssetImpl(
     name: String,
     assets: (String) -> ByteArray?,
 ) {
-    val bytes = assets(name)
+    val bytes = if (isUnsafeAssetName(name)) null else assets(name)
     if (bytes == null) {
         respondText("not found", status = HttpStatusCode.NotFound)
     } else {
@@ -67,6 +74,7 @@ class PairingServer(
     private var engine: EmbeddedServer<*, *>? = null
 
     fun start(): Int {
+        check(engine == null) { "PairingServer already started" }
         // Ktor 3.2.0's CIO engine does not reliably surface the OS-assigned port when
         // bound with port = 0, so an ephemeral port is chosen up front and used both to
         // start the engine and as the returned value.
@@ -81,11 +89,16 @@ class PairingServer(
     }
 
     fun stop() {
-        engine?.stop(0, 0)
+        // Stop immediately: no grace period for in-flight requests to finish, no extra
+        // wait beyond that before the engine is torn down.
+        engine?.stop(STOP_GRACE_MS, STOP_TIMEOUT_MS)
         engine = null
     }
 
     companion object {
+        private const val STOP_GRACE_MS = 0L
+        private const val STOP_TIMEOUT_MS = 0L
+
         fun contentTypeFor(name: String): String =
             when {
                 name.endsWith(".html") -> "text/html; charset=utf-8"

@@ -9,6 +9,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 private val KNOWN_ASSETS =
     mapOf(
@@ -49,6 +50,22 @@ class PairingServerRoutesTest {
             val response = client.get("/does-not-exist.bin")
 
             assertEquals(HttpStatusCode.NotFound, response.status)
+        }
+
+    @Test
+    fun path_traversal_attempt_is_rejected_without_touching_assets() =
+        testApplication {
+            var assetsCalled = false
+            val trackingAssets: (String) -> ByteArray? = { name ->
+                assetsCalled = true
+                fakeAssets(name)
+            }
+            application { pairingRoutes(trackingAssets) { true } }
+
+            val response = client.get("/a..b")
+
+            assertEquals(HttpStatusCode.NotFound, response.status)
+            assertFalse(assetsCalled, "assets lookup must not run for a name containing '..'")
         }
 
     @Test
