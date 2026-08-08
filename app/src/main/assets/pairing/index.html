@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reverie pairing</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+  input, button { font-size: 18px; padding: 12px; width: 100%; box-sizing: border-box; margin: 6px 0; }
+  .tab { display: none; } .tab.active { display: block; }
+  nav button { width: 48%; display: inline-block; }
+  #status { margin-top: 16px; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Pair with your TV</h1>
+<nav>
+  <button id="tabKey">Paste API key</button>
+  <button id="tabLogin">Email &amp; password</button>
+</nav>
+<section id="key" class="tab active">
+  <input id="keyHost" placeholder="Immich URL (https://immich.example)" />
+  <input id="keyValue" placeholder="API key" />
+  <button data-mode="key">Send key</button>
+</section>
+<section id="login" class="tab">
+  <input id="loginHost" placeholder="Immich URL (https://immich.example)" />
+  <input id="loginEmail" placeholder="Email" />
+  <input id="loginPassword" type="password" placeholder="Password" />
+  <button data-mode="login">Log in and pair</button>
+</section>
+<div id="status"></div>
+<script type="module">
+import { gcm } from './noble-ciphers.js';
+
+const rawKey = new URLSearchParams(location.hash.slice(1)).get('k');
+history.replaceState(null, '', location.pathname);
+
+function b64urlToBytes(s) {
+  const pad = s.length % 4 === 0 ? '' : '='.repeat(4 - (s.length % 4));
+  const b = atob(s.replace(/-/g, '+').replace(/_/g, '/') + pad);
+  return Uint8Array.from(b, c => c.charCodeAt(0));
+}
+function bytesToB64url(bytes) {
+  let s = btoa(String.fromCharCode(...bytes));
+  return s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+const key = b64urlToBytes(rawKey);
+const status = document.getElementById('status');
+
+function show(id) {
+  for (const el of document.querySelectorAll('.tab')) el.classList.remove('active');
+  document.getElementById(id).classList.add('active');
+}
+document.getElementById('tabKey').onclick = () => show('key');
+document.getElementById('tabLogin').onclick = () => show('login');
+
+function payloadFor(mode) {
+  if (mode === 'key') {
+    return { mode, host: keyHost.value.trim(), apiKey: keyValue.value.trim() };
+  }
+  return {
+    mode, host: loginHost.value.trim(),
+    email: loginEmail.value.trim(), password: loginPassword.value,
+  };
+}
+
+async function send(mode) {
+  status.textContent = 'Sending…';
+  try {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const plaintext = new TextEncoder().encode(JSON.stringify(payloadFor(mode)));
+    const ciphertext = gcm(key, iv).encrypt(plaintext);
+    const res = await fetch('/pair', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ iv: bytesToB64url(iv), ciphertext: bytesToB64url(ciphertext) }),
+    });
+    status.textContent = res.ok ? 'Paired! You can close this page.' : 'Pairing failed. Check the details on the TV.';
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message;
+  }
+}
+for (const b of document.querySelectorAll('button[data-mode]')) {
+  b.onclick = () => send(b.dataset.mode);
+}
+</script>
+</body>
+</html>
