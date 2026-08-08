@@ -151,12 +151,19 @@ may have no route to the internet through the TV.
 secure context, so `crypto.subtle` is undefined on the phone. Rather than serve
 HTTPS (a self-signed cert triggers a browser warning right after the scan) or
 drop encryption (the API key or password would cross the LAN in cleartext), the
-page carries a small vendored AES-GCM implementation inline. It runs in any phone
+page carries a vendored AES-GCM implementation inline. It runs in any phone
 browser over plain HTTP, and both sides speak the same AES-GCM so the TV's
 `PairingCrypto` decrypts it directly.
 
+The vendored routine is the AES-GCM part of `@noble/ciphers` (Paul Miller;
+audited, MIT), at a pinned upstream version, checked into the repo as an app
+asset served inline by `GET /`, with its license header retained and its version
+and provenance recorded. GCM is not hand-rolled. The fixed cross-implementation
+test vector proves the vendored JS and `javax.crypto` agree byte-for-byte.
+
 Wire format: the payload is UTF-8 JSON; the envelope is
 `{ "iv": base64url(12 bytes), "ciphertext": base64url(GCM output incl. tag) }`.
+The IV is a random 96-bit nonce, the recommended GCM size (NIST SP 800-38D).
 The 256-bit key is carried in the URL fragment as base64url and imported by both
 the JS routine and `PairingCrypto`.
 
@@ -217,9 +224,9 @@ stick.
 
 ## Open questions and risks
 
-- Vendored AES-GCM: a small hand-carried crypto routine must exactly match
-  `PairingCrypto`. The fixed cross-implementation test vector pins this; the
-  routine should be a well-reviewed, minimal implementation, not something novel.
+- Vendored AES-GCM: the pinned `@noble/ciphers` routine must exactly match
+  `PairingCrypto`. The fixed cross-implementation test vector pins this; a version
+  bump of the vendored asset re-runs that vector before it is trusted.
 - Login constraints: the mint path assumes a local password without TOTP
   two-factor and not an OAuth-only account. Manual entry and paste-key cover the
   rest.
