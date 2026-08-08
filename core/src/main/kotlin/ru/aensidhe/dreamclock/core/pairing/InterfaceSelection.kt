@@ -24,8 +24,9 @@ object InterfaceSelection {
         records
             .mapNotNull { record ->
                 if (!record.isUp || record.isLoopback) return@mapNotNull null
-                val inet = runCatching { InetAddress.getByName(record.address) }.getOrNull()
-                    ?: return@mapNotNull null
+                val inet =
+                    runCatching { InetAddress.getByName(record.address) }.getOrNull()
+                        ?: return@mapNotNull null
                 if (inet.isLinkLocalAddress) return@mapNotNull null
                 val rank = rank(inet) ?: return@mapNotNull null
                 val family = if (inet is Inet4Address) AddressFamily.IPV4 else AddressFamily.IPV6

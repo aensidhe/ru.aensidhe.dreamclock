@@ -6,8 +6,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-private fun hex(s: String): ByteArray =
-    s.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+private fun hex(s: String): ByteArray = s.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 
 private fun ByteArray.hex(): String = joinToString("") { "%02x".format(it) }
 
