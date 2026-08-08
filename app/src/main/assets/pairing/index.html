@@ -46,8 +46,19 @@ function bytesToB64url(bytes) {
   return s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-const key = b64urlToBytes(rawKey);
 const status = document.getElementById('status');
+let key = null;
+if (rawKey) {
+  try {
+    key = b64urlToBytes(rawKey);
+  } catch (e) {
+    key = null;
+  }
+}
+if (!key) {
+  status.textContent = 'This pairing link has expired. Re-scan the QR code on your TV.';
+  for (const b of document.querySelectorAll('button[data-mode]')) b.disabled = true;
+}
 
 function show(id) {
   for (const el of document.querySelectorAll('.tab')) el.classList.remove('active');
