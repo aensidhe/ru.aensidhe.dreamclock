@@ -26,6 +26,8 @@ object PairingCrypto {
         iv: ByteArray,
         input: ByteArray,
     ): ByteArray {
+        require(key.size == 16 || key.size == 24 || key.size == 32) { "AES key must be 16, 24, or 32 bytes" }
+        require(iv.size == 12) { "GCM IV must be 12 bytes" }
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(mode, SecretKeySpec(key, "AES"), GCMParameterSpec(TAG_BITS, iv))
         return cipher.doFinal(input)

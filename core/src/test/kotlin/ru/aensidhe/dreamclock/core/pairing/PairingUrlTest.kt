@@ -19,4 +19,12 @@ class PairingUrlTest {
             PairingUrl.build("fd00::1a2b", 8973, "AAABBB"),
         )
     }
+
+    @Test
+    fun hostname_stays_bare() {
+        assertEquals(
+            "http://immich.local:8973/#k=K",
+            PairingUrl.build("immich.local", 8973, "K"),
+        )
+    }
 }

@@ -35,10 +35,24 @@ class PairingCryptoTest {
     }
 
     @Test
-    fun a_fresh_random_iv_still_round_trips() {
+    fun a_nondefault_iv_still_round_trips() {
         val freshIv = ByteArray(12) { it.toByte() }
         val ct = PairingCrypto.encrypt(key, freshIv, "hello".toByteArray())
         assertTrue(ct.size > 5)
         assertEquals("hello", String(PairingCrypto.decrypt(key, freshIv, ct)))
+    }
+
+    @Test
+    fun rejects_a_wrong_length_iv() {
+        assertFailsWith<IllegalArgumentException> {
+            PairingCrypto.encrypt(key, ByteArray(16), "x".toByteArray())
+        }
+    }
+
+    @Test
+    fun rejects_a_wrong_length_key() {
+        assertFailsWith<IllegalArgumentException> {
+            PairingCrypto.encrypt(ByteArray(31), iv, "x".toByteArray())
+        }
     }
 }

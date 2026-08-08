@@ -51,6 +51,15 @@ class InterfaceSelectionTest {
     }
 
     @Test
+    fun resolve_requires_family_match_not_name_alone() {
+        val records = listOf(up("wlan0", "10.0.0.9"))
+        assertEquals(
+            "10.0.0.9",
+            InterfaceSelection.resolve(records, "wlan0", AddressFamily.IPV6)?.address,
+        )
+    }
+
+    @Test
     fun resolve_falls_back_to_top_when_saved_is_gone() {
         val records = listOf(up("eth0", "192.168.1.42"))
         assertEquals(

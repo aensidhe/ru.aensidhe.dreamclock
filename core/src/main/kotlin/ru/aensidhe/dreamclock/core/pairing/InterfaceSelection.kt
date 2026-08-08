@@ -20,6 +20,12 @@ data class PairingAddress(
 )
 
 object InterfaceSelection {
+    /**
+     * Addresses are classified via [InetAddress.getByName], which is DNS-capable: given a
+     * hostname it will resolve over the network. Callers MUST pass literal IP strings in
+     * [records] — enumeration (LanInterfaces) already does — since the hermeticity of this
+     * otherwise-pure function depends on the input being literal, not a name to resolve.
+     */
     fun candidates(records: List<NicAddress>): List<PairingAddress> =
         records
             .mapNotNull { record ->
@@ -49,12 +55,12 @@ object InterfaceSelection {
         when {
             inet is Inet4Address && inet.isSiteLocalAddress -> 0
             inet is Inet4Address -> 1
-            inet is Inet6Address && isUniqueLocal(inet) -> 2
+            inet is Inet6Address && isUniqueLocalAddress(inet) -> 2
             inet is Inet6Address -> 3
             else -> null
         }
 
-    private fun isUniqueLocal(inet: Inet6Address): Boolean {
+    private fun isUniqueLocalAddress(inet: Inet6Address): Boolean {
         val first = inet.address.first().toInt() and 0xFE
         return first == 0xFC
     }
