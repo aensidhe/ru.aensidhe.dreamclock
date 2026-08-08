@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +77,7 @@ private fun startPairing(
     request: PairingRequest,
     onNoInterface: () -> Unit,
     onSaved: () -> Unit,
+    onFailed: () -> Unit,
 ): PairingSession? {
     val chosen =
         InterfaceSelection.resolve(
@@ -109,6 +111,9 @@ private fun startPairing(
                     delay(PAIRING_SAVED_STOP_DELAY_MS)
                     withContext(Dispatchers.Main) { onSaved() }
                 }
+            } else {
+                // The server keeps listening so the phone can retry; only the status text changes.
+                request.scope.launch(Dispatchers.Main) { onFailed() }
             }
             outcome == PairingOutcome.Saved
         }
@@ -142,6 +147,18 @@ internal fun ImmichPairingSection(
         pairingServer?.stop()
         pairingServer = null
         pairing = false
+        pairingKey = ""
+        pairingAddress = null
+        pairingPort = 0
+        pairingRemaining = PAIRING_WINDOW_SECONDS
+        pairingStatusRes = R.string.pairing_waiting
+    }
+
+    // Backing out of Settings mid-pairing disposes the branch below (and its LaunchedEffect)
+    // without running stopPairing(), which would otherwise leave the server listening on the
+    // LAN indefinitely. This runs unconditionally so a live session is always torn down.
+    DisposableEffect(Unit) {
+        onDispose { pairingServer?.stop() }
     }
 
     val activeAddress = pairingAddress
@@ -189,6 +206,7 @@ internal fun ImmichPairingSection(
                         pairingStatusRes = R.string.pairing_saved
                         stopPairing()
                     },
+                    onFailed = { pairingStatusRes = R.string.pairing_failed },
                 )
             if (session != null) {
                 pairingPort = session.port
