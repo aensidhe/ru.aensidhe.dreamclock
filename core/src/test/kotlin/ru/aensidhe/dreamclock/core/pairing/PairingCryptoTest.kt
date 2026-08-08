@@ -12,20 +12,12 @@ private fun hex(s: String): ByteArray =
 private fun ByteArray.hex(): String = joinToString("") { "%02x".format(it) }
 
 class PairingCryptoTest {
-    // NIST AES-256-GCM, 96-bit IV. key/iv/plaintext/aad -> ciphertext||tag.
-    private val key = hex("feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308")
-    private val iv = hex("cafebabefacedbaddecaf888")
-    private val plaintext =
-        hex(
-            "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a72" +
-                "1c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39",
-        )
-    private val expected =
-        hex(
-            "522dc1f099567d07f47f37a32a84427d643a8cdcbfe5c0c97598a2bd2555d1aa" +
-                "8cb08e48590dbb3da7b08b1056828838c5f61e6393ba7a0abcc9f662" +
-                "eb9f796c8d356fc31a8433884b696f4f",
-        )
+    // GCM spec Test Case 14 (AES-256-GCM, 96-bit IV, no AAD), verified against OpenSSL.
+    // Any correct AES-GCM — JDK here, @noble/ciphers on the phone — reproduces it.
+    private val key = hex("0000000000000000000000000000000000000000000000000000000000000000")
+    private val iv = hex("000000000000000000000000")
+    private val plaintext = hex("00000000000000000000000000000000")
+    private val expected = hex("cea7403d4d606b6e074ec5d3baf39d18d0d1c8a799996bf0265b98b5d48ab919")
 
     @Test
     fun encrypt_matches_the_nist_vector() {
