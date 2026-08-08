@@ -54,4 +54,14 @@
     <string name="diagnostic_copied">Скопировано в буфер обмена</string>
     <string name="crash_report_available">Отчёт о последнем сбое</string>
     <string name="action_clear">Очистить</string>
+
+    <string name="settings_pairing_interface">Сетевой интерфейс</string>
+    <string name="settings_pair_action">Связать с телефоном</string>
+    <string name="pairing_scan_hint">Отсканируйте камерой телефона</string>
+    <string name="pairing_expires_in">Истекает через %1$s</string>
+    <string name="pairing_cancel">Отмена</string>
+    <string name="pairing_waiting">Ожидание телефона…</string>
+    <string name="pairing_saved">Связано.</string>
+    <string name="pairing_failed">Не удалось связать.</string>
+    <string name="pairing_no_interface">Нет подходящего сетевого интерфейса.</string>
 </resources>

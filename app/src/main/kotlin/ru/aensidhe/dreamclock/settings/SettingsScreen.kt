@@ -256,6 +256,8 @@ private fun ImmichSection(
         scope.launch { repository.update { it.toBuilder().clearImmichKeyCiphertext().build() } }
     }
 
+    ImmichPairingSection(settings, cipher, repository, scope)
+
     val steppers =
         listOf(
             ImmichStepper(R.string.settings_days_either_side, settings.daysEitherSide, 0, 30) { b, v ->
@@ -380,7 +382,7 @@ private fun ToggleRow(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun SelectableRow(
+internal fun SelectableRow(
     label: String,
     description: String?,
     selected: Boolean,
@@ -397,7 +399,7 @@ private fun SelectableRow(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun SectionHeader(text: String) {
+internal fun SectionHeader(text: String) {
     Text(
         text,
         Modifier.padding(top = 16.dp, bottom = 4.dp),

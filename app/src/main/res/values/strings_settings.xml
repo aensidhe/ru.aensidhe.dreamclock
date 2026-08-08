@@ -54,4 +54,14 @@
     <string name="diagnostic_copied">Copied to clipboard</string>
     <string name="crash_report_available">Last crash report</string>
     <string name="action_clear">Clear</string>
+
+    <string name="settings_pairing_interface">Pairing interface</string>
+    <string name="settings_pair_action">Pair with phone</string>
+    <string name="pairing_scan_hint">Scan with your phone\'s camera</string>
+    <string name="pairing_expires_in">Expires in %1$s</string>
+    <string name="pairing_cancel">Cancel</string>
+    <string name="pairing_waiting">Waiting for your phone…</string>
+    <string name="pairing_saved">Paired.</string>
+    <string name="pairing_failed">Pairing failed.</string>
+    <string name="pairing_no_interface">No usable network interface.</string>
 </resources>
