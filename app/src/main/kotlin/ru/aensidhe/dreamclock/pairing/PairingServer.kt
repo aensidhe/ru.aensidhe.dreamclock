@@ -9,7 +9,9 @@ import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.request.contentLength
 import io.ktor.server.request.receiveText
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.RoutingContext
@@ -33,6 +35,11 @@ internal fun Application.pairingRoutes(
         get("/") { serveAsset("index.html", assets) }
         get("/{name}") { serveAsset(call.parameters["name"].orEmpty(), assets) }
         post("/pair") {
+            val length = call.request.contentLength()
+            if (length == null || length > PairingServer.MAX_PAIR_BODY_BYTES) {
+                call.respond(HttpStatusCode.PayloadTooLarge)
+                return@post
+            }
             val ok = onEnvelope(call.receiveText())
             call.respondText(
                 if (ok) "ok" else "no",
@@ -98,6 +105,10 @@ class PairingServer(
     companion object {
         private const val STOP_GRACE_MS = 0L
         private const val STOP_TIMEOUT_MS = 0L
+
+        // The real pairing envelope is a few hundred bytes; this is a generous cap that
+        // still rejects an unauthenticated LAN caller trying to stream an unbounded body.
+        internal const val MAX_PAIR_BODY_BYTES = 64 * 1024L
 
         fun contentTypeFor(name: String): String =
             when {

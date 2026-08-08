@@ -89,6 +89,27 @@ class PairingServerRoutesTest {
         }
 
     @Test
+    fun pair_rejects_oversize_body_without_invoking_envelope_callback() =
+        testApplication {
+            var envelopeCalled = false
+            application {
+                pairingRoutes(::fakeAssets) { body ->
+                    envelopeCalled = true
+                    true
+                }
+            }
+
+            val oversizeBody = "a".repeat((PairingServer.MAX_PAIR_BODY_BYTES + 1).toInt())
+            val response =
+                client.post("/pair") {
+                    setBody(oversizeBody)
+                }
+
+            assertEquals(HttpStatusCode.PayloadTooLarge, response.status)
+            assertFalse(envelopeCalled, "onEnvelope must not run for an oversize body")
+        }
+
+    @Test
     fun pair_responds_bad_request_when_envelope_rejected() =
         testApplication {
             var received: String? = null

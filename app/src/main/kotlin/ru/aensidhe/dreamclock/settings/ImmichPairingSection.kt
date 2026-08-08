@@ -78,6 +78,7 @@ private fun startPairing(
     onNoInterface: () -> Unit,
     onSaved: () -> Unit,
     onFailed: () -> Unit,
+    onStartFailed: () -> Unit,
 ): PairingSession? {
     val chosen =
         InterfaceSelection.resolve(
@@ -100,25 +101,36 @@ private fun startPairing(
                     .build()
             }
         }
-    val server =
-        PairingServer(chosen.address, { name -> PairingAssets.read(request.context, name) }) { envelope ->
-            val outcome = controller.receive(envelope, LocalDate.now(), request.settings.daysEitherSide)
-            if (outcome == PairingOutcome.Saved) {
-                // Stopping the embedded server from inside its own request handler would
-                // cut the "ok" response off before it reaches the phone, so the shutdown
-                // is deferred long enough for the response to flush.
-                request.scope.launch {
-                    delay(PAIRING_SAVED_STOP_DELAY_MS)
-                    withContext(Dispatchers.Main) { onSaved() }
+    // Construction is side-effect-free, but start() binds a socket and can fail (e.g. the
+    // chosen interface disappears between resolution and bind). A failure here must not
+    // crash the click handler; it should report pairing_failed and leave pairing stopped.
+    var startedServer: PairingServer? = null
+    return runCatching {
+        val server =
+            PairingServer(chosen.address, { name -> PairingAssets.read(request.context, name) }) { envelope ->
+                val outcome = controller.receive(envelope, LocalDate.now(), request.settings.daysEitherSide)
+                if (outcome == PairingOutcome.Saved) {
+                    // Stopping the embedded server from inside its own request handler would
+                    // cut the "ok" response off before it reaches the phone, so the shutdown
+                    // is deferred long enough for the response to flush.
+                    request.scope.launch {
+                        delay(PAIRING_SAVED_STOP_DELAY_MS)
+                        withContext(Dispatchers.Main) { onSaved() }
+                    }
+                } else {
+                    // The server keeps listening so the phone can retry; only the status text changes.
+                    request.scope.launch(Dispatchers.Main) { onFailed() }
                 }
-            } else {
-                // The server keeps listening so the phone can retry; only the status text changes.
-                request.scope.launch(Dispatchers.Main) { onFailed() }
+                outcome == PairingOutcome.Saved
             }
-            outcome == PairingOutcome.Saved
-        }
-    val port = server.start()
-    return PairingSession(server, chosen, port, keyString)
+        startedServer = server
+        val port = server.start()
+        PairingSession(server, chosen, port, keyString)
+    }.getOrElse {
+        startedServer?.stop()
+        onStartFailed()
+        null
+    }
 }
 
 /**
@@ -207,6 +219,7 @@ internal fun ImmichPairingSection(
                         stopPairing()
                     },
                     onFailed = { pairingStatusRes = R.string.pairing_failed },
+                    onStartFailed = { pairingStatusRes = R.string.pairing_failed },
                 )
             if (session != null) {
                 pairingPort = session.port
