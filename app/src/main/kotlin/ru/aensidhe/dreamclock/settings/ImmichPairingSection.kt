@@ -1,9 +1,6 @@
 package ru.aensidhe.dreamclock.settings
 
 import android.content.Context
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -11,11 +8,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
@@ -183,7 +179,10 @@ internal fun ImmichPairingSection(
             }
             stopPairing()
         }
-        Box(Modifier.fillMaxWidth().height(LocalConfiguration.current.screenHeightDp.dp)) {
+        Dialog(
+            onDismissRequest = { stopPairing() },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
             PairingScreen(
                 address = activeAddress.address,
                 port = pairingPort,
@@ -193,7 +192,6 @@ internal fun ImmichPairingSection(
                 onCancel = { stopPairing() },
             )
         }
-        return
     }
 
     PairingInterfaceSection(settings) { candidate ->
@@ -241,15 +239,16 @@ private fun PairingInterfaceSection(
 ) {
     val candidates = remember { InterfaceSelection.candidates(LanInterfaces.enumerate()) }
     if (candidates.isEmpty()) return
-    SectionHeader(stringResource(R.string.settings_pairing_interface))
-    candidates.forEach { candidate ->
-        val selected =
-            candidate.interfaceName == settings.pairingInterfaceName &&
-                candidate.family == pairingFamily(settings.pairingAddressFamily)
-        SelectableRow(
-            label = "${candidate.interfaceName} — ${candidate.address}",
-            description = null,
-            selected = selected,
-        ) { onSelect(candidate) }
-    }
+    val current =
+        candidates.firstOrNull {
+            it.interfaceName == settings.pairingInterfaceName &&
+                it.family == pairingFamily(settings.pairingAddressFamily)
+        } ?: candidates.first()
+    CycleRow(
+        label = stringResource(R.string.settings_pairing_interface),
+        options = candidates,
+        selected = current,
+        optionLabel = { "${it.interfaceName} — ${it.address}" },
+        onSelect = onSelect,
+    )
 }

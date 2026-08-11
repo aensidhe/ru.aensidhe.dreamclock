@@ -22,6 +22,11 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -31,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.ListItem
 import androidx.tv.material3.Text
 
 /** Fits three digits at body text size; the largest configured stepper maximum is 60. */
@@ -93,6 +99,60 @@ fun StepperRow(
     }
 }
 
+/** Wraps [current] by [delta] into `[0, size)`. Pure so it can be unit-tested without Compose. */
+fun cycledIndex(
+    current: Int,
+    size: Int,
+    delta: Int,
+): Int {
+    if (size <= 0) return 0
+    return ((current + delta) % size + size) % size
+}
+
+/**
+ * A single full-width focusable row that cycles [options] with D-pad left/right (centre picks the
+ * next one), showing the current choice as `‹ value ›`. Full width keeps up/down moving between
+ * rows, unlike a right-edge button pair.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun <T> CycleRow(
+    label: String,
+    options: List<T>,
+    selected: T,
+    optionLabel: @Composable (T) -> String,
+    onSelect: (T) -> Unit,
+) {
+    if (options.isEmpty()) return
+    val index = options.indexOf(selected).coerceAtLeast(0)
+
+    fun move(delta: Int) = onSelect(options[cycledIndex(index, options.size, delta)])
+    ListItem(
+        selected = false,
+        onClick = { move(1) },
+        headlineContent = { Text(label) },
+        trailingContent = { Text("‹ ${optionLabel(options[index])} ›") },
+        modifier =
+            Modifier.onPreviewKeyEvent { event ->
+                if (event.type != KeyEventType.KeyDown) {
+                    false
+                } else {
+                    when (event.key) {
+                        Key.DirectionLeft -> {
+                            move(-1)
+                            true
+                        }
+                        Key.DirectionRight -> {
+                            move(1)
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            },
+    )
+}
+
 @Composable
 fun TextFieldRow(
     label: String,
@@ -137,6 +197,20 @@ fun TextFieldRow(
                     ).onFocusChanged { focusState ->
                         if (hadFocus && !focusState.isFocused) onCommit(text)
                         hadFocus = focusState.isFocused
+                    }
+                    // A focused text field otherwise swallows D-pad up/down; a single-line field has
+                    // no in-field use for them, so hand them back to row navigation (which honours
+                    // the down override above).
+                    .onPreviewKeyEvent { event ->
+                        if (event.type != KeyEventType.KeyDown) {
+                            false
+                        } else {
+                            when (event.key) {
+                                Key.DirectionUp -> focusManager.moveFocus(FocusDirection.Up)
+                                Key.DirectionDown -> focusManager.moveFocus(FocusDirection.Down)
+                                else -> false
+                            }
+                        }
                     },
         )
     }

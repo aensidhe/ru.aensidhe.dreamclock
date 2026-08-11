@@ -44,8 +44,8 @@ the Android `:app` holds the screensaver, UI, and settings.
 - `SlideDeck` — slide rotation (analog clock / photos / agenda).
 - `AnalogClockSlide` — the analog face (1–12 numerals, minute ticks, hands).
 - `ClockOverlay` — always-on overlay: digital + colloquial + status text.
-- `ColorRenderMode` / `stateColor` — how the active state tints the overlay
-  (and the second hand); the face itself stays neutral.
+- `stateColor` — maps the active state to its colour; it tints the overlay
+  status/colloquial text and the second hand. The face itself stays neutral.
 - `ScheduleEngine` (`:core`) — `(now, config) → active state + status text`.
   Heavily unit-tested.
 - `ColloquialTimeFormatter` (`:core`) — per-locale (`Ru`, `En`). Heavily

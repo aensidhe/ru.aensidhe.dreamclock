@@ -39,7 +39,6 @@ import ru.aensidhe.dreamclock.immich.PhotoHistoryProto
 import ru.aensidhe.dreamclock.immich.PhotoHistoryStore
 import ru.aensidhe.dreamclock.immich.SlideDriver
 import ru.aensidhe.dreamclock.immich.SlideResolver
-import ru.aensidhe.dreamclock.settings.ColorRenderModeProto
 import ru.aensidhe.dreamclock.settings.Language
 import ru.aensidhe.dreamclock.settings.Settings
 import ru.aensidhe.dreamclock.settings.SettingsRepository
@@ -50,7 +49,6 @@ import ru.aensidhe.dreamclock.ui.ClockViewModel
 import ru.aensidhe.dreamclock.ui.DreamRoot
 import ru.aensidhe.dreamclock.ui.ImmichImageLoader
 import ru.aensidhe.dreamclock.ui.SlideDeckModel
-import ru.aensidhe.dreamclock.ui.colorrender.ColorRenderMode
 
 /**
  * Baked default schedule until a schedule-editor UI lands. Four intervals span the full day:
@@ -94,15 +92,6 @@ internal fun Context.localizedStatusText(): (Language, StateType) -> String {
         statusTextFor(cachedContext, state)
     }
 }
-
-internal fun ColorRenderModeProto.toColorRenderMode(): ColorRenderMode =
-    when (this) {
-        ColorRenderModeProto.TEXT_TINT -> ColorRenderMode.TEXT_TINT
-        ColorRenderModeProto.PANEL_TINT -> ColorRenderMode.PANEL_TINT
-        ColorRenderModeProto.FULL_SCRIM -> ColorRenderMode.FULL_SCRIM
-        ColorRenderModeProto.ACCENT -> ColorRenderMode.ACCENT
-        ColorRenderModeProto.UNRECOGNIZED -> ColorRenderMode.TEXT_TINT
-    }
 
 @Composable
 internal fun DreamContent(
@@ -152,7 +141,6 @@ internal fun DreamContent(
     DreamRoot(
         state = uiState,
         showAnalog = settings.showAnalogSlide,
-        mode = settings.colorRenderMode.toColorRenderMode(),
         deck = deck,
         imageLoader = imageLoader,
         everyXthMinute = settings.shownEveryXthMinute,

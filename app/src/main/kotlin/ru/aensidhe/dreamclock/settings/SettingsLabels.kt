@@ -20,24 +20,6 @@ fun languageLabel(language: Language): Int =
         Language.EN -> R.string.lang_en
     }
 
-@StringRes
-fun colorModeLabel(mode: ColorRenderModeProto): Int =
-    when (mode) {
-        ColorRenderModeProto.TEXT_TINT, ColorRenderModeProto.UNRECOGNIZED -> R.string.render_text_tint_label
-        ColorRenderModeProto.PANEL_TINT -> R.string.render_panel_tint_label
-        ColorRenderModeProto.FULL_SCRIM -> R.string.render_full_scrim_label
-        ColorRenderModeProto.ACCENT -> R.string.render_accent_label
-    }
-
-@StringRes
-fun colorModeDescription(mode: ColorRenderModeProto): Int =
-    when (mode) {
-        ColorRenderModeProto.TEXT_TINT, ColorRenderModeProto.UNRECOGNIZED -> R.string.render_text_tint_desc
-        ColorRenderModeProto.PANEL_TINT -> R.string.render_panel_tint_desc
-        ColorRenderModeProto.FULL_SCRIM -> R.string.render_full_scrim_desc
-        ColorRenderModeProto.ACCENT -> R.string.render_accent_desc
-    }
-
 fun probeStatusLabel(
     context: Context,
     result: ProbeResult,

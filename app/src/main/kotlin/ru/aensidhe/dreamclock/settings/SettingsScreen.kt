@@ -102,10 +102,6 @@ fun SettingsScreen(
                         scope.launch { repository.update { it.toBuilder().setLanguage(option).build() } }
                     }
 
-                    ColorModeSection(settings.colorRenderMode) { option ->
-                        scope.launch { repository.update { it.toBuilder().setColorRenderMode(option).build() } }
-                    }
-
                     ToggleRow(
                         null,
                         stringResource(R.string.settings_advanced_debugging),
@@ -164,30 +160,14 @@ private fun LanguageSection(
     selected: Language,
     onSelect: (Language) -> Unit,
 ) {
-    SectionHeader(stringResource(R.string.settings_language))
-    Language.values().filter { it != Language.UNRECOGNIZED }.forEach { option ->
-        SelectableRow(
-            label = stringResource(languageLabel(option)),
-            description = null,
-            selected = option == selected,
-        ) { onSelect(option) }
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun ColorModeSection(
-    selected: ColorRenderModeProto,
-    onSelect: (ColorRenderModeProto) -> Unit,
-) {
-    SectionHeader(stringResource(R.string.settings_render_mode))
-    ColorRenderModeProto.values().filter { it != ColorRenderModeProto.UNRECOGNIZED }.forEach { option ->
-        SelectableRow(
-            label = stringResource(colorModeLabel(option)),
-            description = stringResource(colorModeDescription(option)),
-            selected = option == selected,
-        ) { onSelect(option) }
-    }
+    val options = remember { Language.values().filter { it != Language.UNRECOGNIZED } }
+    CycleRow(
+        label = stringResource(R.string.settings_language),
+        options = options,
+        selected = selected,
+        optionLabel = { stringResource(languageLabel(it)) },
+        onSelect = onSelect,
+    )
 }
 
 private const val KEY_PLACEHOLDER = "••••••"
@@ -377,23 +357,6 @@ private fun ToggleRow(
         headlineContent = { Text(label) },
         trailingContent = { Text(stringResource(if (checked) R.string.state_on else R.string.state_off)) },
         modifier = modifier,
-    )
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-internal fun SelectableRow(
-    label: String,
-    description: String?,
-    selected: Boolean,
-    onSelect: () -> Unit,
-) {
-    ListItem(
-        selected = selected,
-        onClick = onSelect,
-        headlineContent = { Text(label) },
-        supportingContent = description?.let { desc -> { Text(desc) } },
-        trailingContent = if (selected) ({ Text("✓") }) else null,
     )
 }
 

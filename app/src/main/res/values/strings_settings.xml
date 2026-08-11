@@ -3,7 +3,6 @@
     <string name="settings_seconds">Show seconds</string>
     <string name="settings_analog">Analog clock slide</string>
     <string name="settings_language">Language</string>
-    <string name="settings_render_mode">Colour style</string>
 
     <string name="settings_immich_section">Immich photos</string>
     <string name="settings_immich_enable">Show photos</string>
@@ -28,14 +27,6 @@
     <string name="lang_ru">Русский</string>
     <string name="lang_en">English</string>
 
-    <string name="render_text_tint_label">Coloured text</string>
-    <string name="render_text_tint_desc">The clock text takes the state colour</string>
-    <string name="render_panel_tint_label">Soft panel</string>
-    <string name="render_panel_tint_desc">Light text on a translucent coloured card</string>
-    <string name="render_full_scrim_label">Full tint</string>
-    <string name="render_full_scrim_desc">Light text over a full-screen colour wash</string>
-    <string name="render_accent_label">Bold badge</string>
-    <string name="render_accent_desc">Light text on a near-solid colour block</string>
 
     <string name="state_on">On</string>
     <string name="state_off">Off</string>
