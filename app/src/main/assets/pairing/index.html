@@ -3,9 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="./icon.svg" />
 <title>Reverie pairing</title>
 <style>
   body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+  header { display: flex; align-items: center; gap: 12px; }
+  header img { width: 40px; height: 40px; }
+  h1 { margin: 0; font-size: 24px; }
+  h2 { margin: 4px 0 16px; font-size: 16px; font-weight: 400; color: #555; }
   input, button { font-size: 18px; padding: 12px; width: 100%; box-sizing: border-box; margin: 6px 0; }
   .tab { display: none; } .tab.active { display: block; }
   nav button { width: 48%; display: inline-block; }
@@ -13,28 +18,64 @@
 </style>
 </head>
 <body>
-<h1>Pair with your TV</h1>
+<header>
+  <img src="./icon.svg" alt="" />
+  <h1 data-i18n="appName">Reverie</h1>
+</header>
+<h2 data-i18n="subtitle">Pair with your TV</h2>
 <nav>
-  <button id="tabKey">Paste API key</button>
-  <button id="tabLogin">Email &amp; password</button>
+  <button id="tabKey" data-i18n="tabKey">Paste API key</button>
+  <button id="tabLogin" data-i18n="tabLogin">Email &amp; password</button>
 </nav>
 <section id="key" class="tab active">
-  <input id="keyHost" placeholder="Immich URL (https://immich.example)" />
-  <input id="keyValue" placeholder="API key" />
-  <button data-mode="key">Send key</button>
+  <input id="keyHost" data-i18n-ph="keyHostPh" placeholder="Immich URL (https://immich.example)" />
+  <input id="keyValue" data-i18n-ph="keyValuePh" placeholder="API key" />
+  <button data-mode="key" data-i18n="sendKey">Send key</button>
 </section>
 <section id="login" class="tab">
-  <input id="loginHost" placeholder="Immich URL (https://immich.example)" />
-  <input id="loginEmail" placeholder="Email" />
-  <input id="loginPassword" type="password" placeholder="Password" />
-  <button data-mode="login">Log in and pair</button>
+  <input id="loginHost" data-i18n-ph="loginHostPh" placeholder="Immich URL (https://immich.example)" />
+  <input id="loginEmail" data-i18n-ph="loginEmailPh" placeholder="Email" />
+  <input id="loginPassword" type="password" data-i18n-ph="loginPasswordPh" placeholder="Password" />
+  <button data-mode="login" data-i18n="loginBtn">Log in and pair</button>
 </section>
 <div id="status"></div>
 <script type="module">
 import { gcm } from './noble-ciphers.js';
 
-const rawKey = new URLSearchParams(location.hash.slice(1)).get('k');
-history.replaceState(null, '', location.pathname);
+const I18N = {
+  en: {
+    title: 'Reverie pairing', appName: 'Reverie', subtitle: 'Pair with your TV',
+    tabKey: 'Paste API key', tabLogin: 'Email & password',
+    keyHostPh: 'Immich URL (https://immich.example)', keyValuePh: 'API key', sendKey: 'Send key',
+    loginHostPh: 'Immich URL (https://immich.example)', loginEmailPh: 'Email',
+    loginPasswordPh: 'Password', loginBtn: 'Log in and pair',
+    expired: 'This pairing link has expired. Re-scan the QR code on your TV.',
+    sending: 'Sending…', paired: 'Paired! You can close this page.',
+    failedHttp: 'Pairing failed (HTTP {status}). Check the details on the TV.',
+    error: 'Error: {msg}',
+  },
+  ru: {
+    title: 'Связывание Грёзы', appName: 'Грёзы', subtitle: 'Свяжите с телевизором',
+    tabKey: 'Вставить API-ключ', tabLogin: 'Почта и пароль',
+    keyHostPh: 'URL Immich (https://immich.example)', keyValuePh: 'API-ключ', sendKey: 'Отправить ключ',
+    loginHostPh: 'URL Immich (https://immich.example)', loginEmailPh: 'Почта',
+    loginPasswordPh: 'Пароль', loginBtn: 'Войти и связать',
+    expired: 'Ссылка для связывания истекла. Отсканируйте QR-код на телевизоре снова.',
+    sending: 'Отправка…', paired: 'Связано! Можно закрыть страницу.',
+    failedHttp: 'Не удалось связать (HTTP {status}). Проверьте детали на телевизоре.',
+    error: 'Ошибка: {msg}',
+  },
+};
+
+const hashParams = new URLSearchParams(location.hash.slice(1));
+const rawKey = hashParams.get('k');
+const lang = hashParams.get('lang') === 'ru' ? 'ru' : 'en';
+
+const t = I18N[lang];
+document.documentElement.lang = lang;
+document.title = t.title;
+for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = t[el.dataset.i18n];
+for (const el of document.querySelectorAll('[data-i18n-ph]')) el.placeholder = t[el.dataset.i18nPh];
 
 function b64urlToBytes(s) {
   const pad = s.length % 4 === 0 ? '' : '='.repeat(4 - (s.length % 4));
@@ -56,7 +97,7 @@ if (rawKey) {
   }
 }
 if (!key) {
-  status.textContent = 'This pairing link has expired. Re-scan the QR code on your TV.';
+  status.textContent = t.expired;
   for (const b of document.querySelectorAll('button[data-mode]')) b.disabled = true;
 }
 
@@ -84,7 +125,7 @@ function payloadFor(mode) {
 }
 
 async function send(mode) {
-  status.textContent = 'Sending…';
+  status.textContent = t.sending;
   const buttons = document.querySelectorAll('button[data-mode]');
   for (const b of buttons) b.disabled = true;
   try {
@@ -97,10 +138,10 @@ async function send(mode) {
       body: JSON.stringify({ iv: bytesToB64url(iv), ciphertext: bytesToB64url(ciphertext) }),
     });
     status.textContent = res.ok
-      ? 'Paired! You can close this page.'
-      : 'Pairing failed (HTTP ' + res.status + '). Check the details on the TV.';
+      ? t.paired
+      : t.failedHttp.replace('{status}', res.status);
   } catch (e) {
-    status.textContent = 'Error: ' + e.message;
+    status.textContent = t.error.replace('{msg}', e.message);
   } finally {
     for (const b of buttons) b.disabled = false;
   }

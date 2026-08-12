@@ -192,6 +192,7 @@ private fun ImmichSection(
     lastStepperDownFocus: FocusRequester,
 ) {
     val testConnection = remember { FocusRequester() }
+    val pairButton = remember { FocusRequester() }
 
     SectionHeader(stringResource(R.string.settings_immich_section))
     ToggleRow(
@@ -236,7 +237,7 @@ private fun ImmichSection(
         scope.launch { repository.update { it.toBuilder().clearImmichKeyCiphertext().build() } }
     }
 
-    ImmichPairingSection(settings, cipher, repository, scope)
+    ImmichPairingSection(settings, cipher, repository, scope, pairButton)
 
     val steppers =
         listOf(
@@ -264,7 +265,7 @@ private fun ImmichSection(
             max = spec.max,
             step = 1,
             downFocus = if (index == steppers.lastIndex) lastStepperDownFocus else null,
-            upFocus = if (index == 0) testConnection else null,
+            upFocus = if (index == 0) pairButton else null,
         ) { newValue ->
             scope.launch { repository.update { spec.setter(it.toBuilder(), newValue).build() } }
         }

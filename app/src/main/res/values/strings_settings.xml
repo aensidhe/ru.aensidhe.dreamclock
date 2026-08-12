@@ -54,5 +54,9 @@
     <string name="pairing_waiting">Waiting for your phone…</string>
     <string name="pairing_saved">Paired.</string>
     <string name="pairing_failed">Pairing failed.</string>
+    <string name="pairing_failed_decrypt">Pairing failed: could not decrypt. Re-scan the QR code.</string>
+    <string name="pairing_failed_host">Pairing failed: unusable Immich URL.</string>
+    <string name="pairing_failed_validate">Pairing failed: Immich rejected the API key.</string>
+    <string name="pairing_failed_mint">Pairing failed: could not create a key. Check the email and password.</string>
     <string name="pairing_no_interface">No usable network interface.</string>
 </resources>

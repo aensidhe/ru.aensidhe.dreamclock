@@ -26,11 +26,12 @@ fun PairingScreen(
     address: String,
     port: Int,
     keyBase64Url: String,
+    lang: String,
     remainingSeconds: Int,
     status: String,
     onCancel: () -> Unit,
 ) {
-    val url = PairingUrl.build(address, port, keyBase64Url)
+    val url = PairingUrl.build(address, port, keyBase64Url, lang)
     val qr = remember(url) { PairingQr.bitmap(url).asImageBitmap() }
     Surface(Modifier.fillMaxSize()) {
         Column(

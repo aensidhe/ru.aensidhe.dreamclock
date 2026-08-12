@@ -114,6 +114,7 @@ class PairingServer(
             when {
                 name.endsWith(".html") -> "text/html; charset=utf-8"
                 name.endsWith(".js") -> "text/javascript; charset=utf-8"
+                name.endsWith(".svg") -> "image/svg+xml"
                 else -> "application/octet-stream"
             }
     }

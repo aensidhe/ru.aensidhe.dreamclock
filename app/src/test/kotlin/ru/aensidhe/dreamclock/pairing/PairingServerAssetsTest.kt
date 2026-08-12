@@ -8,5 +8,6 @@ class PairingServerAssetsTest {
     fun maps_asset_names_to_content_types() {
         assertEquals("text/html; charset=utf-8", PairingServer.contentTypeFor("index.html"))
         assertEquals("text/javascript; charset=utf-8", PairingServer.contentTypeFor("noble-ciphers.js"))
+        assertEquals("image/svg+xml", PairingServer.contentTypeFor("icon.svg"))
     }
 }

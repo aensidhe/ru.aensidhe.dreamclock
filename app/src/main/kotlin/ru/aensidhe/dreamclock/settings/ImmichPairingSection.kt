@@ -8,6 +8,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
@@ -20,6 +23,7 @@ import java.security.SecureRandom
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Base64
+import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -73,7 +77,7 @@ private fun startPairing(
     request: PairingRequest,
     onNoInterface: () -> Unit,
     onSaved: () -> Unit,
-    onFailed: () -> Unit,
+    onFailed: (String) -> Unit,
     onStartFailed: () -> Unit,
 ): PairingSession? {
     val chosen =
@@ -105,19 +109,21 @@ private fun startPairing(
         val server =
             PairingServer(chosen.address, { name -> PairingAssets.read(request.context, name) }) { envelope ->
                 val outcome = controller.receive(envelope, LocalDate.now(), request.settings.daysEitherSide)
-                if (outcome == PairingOutcome.Saved) {
-                    // Stopping the embedded server from inside its own request handler would
-                    // cut the "ok" response off before it reaches the phone, so the shutdown
-                    // is deferred long enough for the response to flush.
-                    request.scope.launch {
-                        delay(PAIRING_SAVED_STOP_DELAY_MS)
-                        withContext(Dispatchers.Main) { onSaved() }
-                    }
-                } else {
-                    // The server keeps listening so the phone can retry; only the status text changes.
-                    request.scope.launch(Dispatchers.Main) { onFailed() }
+                when (outcome) {
+                    is PairingOutcome.Saved ->
+                        // Stopping the embedded server from inside its own request handler would
+                        // cut the "ok" response off before it reaches the phone, so the shutdown
+                        // is deferred long enough for the response to flush.
+                        request.scope.launch {
+                            delay(PAIRING_SAVED_STOP_DELAY_MS)
+                            withContext(Dispatchers.Main) { onSaved() }
+                        }
+                    is PairingOutcome.Failed ->
+                        // The server keeps listening so the phone can retry; only the status text,
+                        // now carrying the specific reason, changes.
+                        request.scope.launch(Dispatchers.Main) { onFailed(outcome.reason) }
                 }
-                outcome == PairingOutcome.Saved
+                outcome is PairingOutcome.Saved
             }
         startedServer = server
         val port = server.start()
@@ -140,8 +146,10 @@ internal fun ImmichPairingSection(
     cipher: KeyCipher,
     repository: SettingsRepository,
     scope: CoroutineScope,
+    pairButtonFocus: FocusRequester,
 ) {
     val context = LocalContext.current
+    val lang = remember(settings.language) { effectiveLocale(settings.language, Locale.getDefault()).language }
 
     var pairing by remember { mutableStateOf(false) }
     var pairingAddress by remember { mutableStateOf<PairingAddress?>(null) }
@@ -187,6 +195,7 @@ internal fun ImmichPairingSection(
                 address = activeAddress.address,
                 port = pairingPort,
                 keyBase64Url = pairingKey,
+                lang = lang,
                 remainingSeconds = pairingRemaining,
                 status = stringResource(pairingStatusRes),
                 onCancel = { stopPairing() },
@@ -216,7 +225,7 @@ internal fun ImmichPairingSection(
                         pairingStatusRes = R.string.pairing_saved
                         stopPairing()
                     },
-                    onFailed = { pairingStatusRes = R.string.pairing_failed },
+                    onFailed = { reason -> pairingStatusRes = pairingFailureLabel(reason) },
                     onStartFailed = { pairingStatusRes = R.string.pairing_failed },
                 )
             if (session != null) {
@@ -228,8 +237,23 @@ internal fun ImmichPairingSection(
                 pairing = true
             }
         },
+        modifier = Modifier.focusRequester(pairButtonFocus),
     ) { Text(stringResource(R.string.settings_pair_action)) }
 }
+
+/**
+ * Maps a [PairingOutcome.Failed] reason code to a status string shown on the TV. The specific
+ * label is what makes an on-device failure diagnosable, since the clipboard is the only channel
+ * out. Unknown codes fall back to the generic message.
+ */
+internal fun pairingFailureLabel(reason: String): Int =
+    when (reason) {
+        "decrypt" -> R.string.pairing_failed_decrypt
+        "host" -> R.string.pairing_failed_host
+        "validate", "missing key" -> R.string.pairing_failed_validate
+        "mint", "missing login" -> R.string.pairing_failed_mint
+        else -> R.string.pairing_failed
+    }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable

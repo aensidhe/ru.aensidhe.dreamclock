@@ -27,4 +27,20 @@ class PairingUrlTest {
             PairingUrl.build("immich.local", 8973, "K"),
         )
     }
+
+    @Test
+    fun lang_is_appended_to_the_hash() {
+        assertEquals(
+            "http://192.168.1.42:8973/#k=AAABBB&lang=ru",
+            PairingUrl.build("192.168.1.42", 8973, "AAABBB", "ru"),
+        )
+    }
+
+    @Test
+    fun blank_lang_is_omitted() {
+        assertEquals(
+            "http://192.168.1.42:8973/#k=AAABBB",
+            PairingUrl.build("192.168.1.42", 8973, "AAABBB", ""),
+        )
+    }
 }
