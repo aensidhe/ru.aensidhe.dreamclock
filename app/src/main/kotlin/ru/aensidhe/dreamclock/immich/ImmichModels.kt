@@ -72,4 +72,13 @@ data class CreateApiKeyResponse(
     val secret: String,
 )
 
+@Serializable
+data class ImmichUser(
+    val name: String = "",
+    val email: String = "",
+) {
+    /** The name Immich shows for the account, falling back to the email when the name is blank. */
+    fun displayName(): String = name.ifBlank { email }
+}
+
 val MINT_PERMISSIONS: List<String> = listOf("asset.read", "asset.view", "asset.download")

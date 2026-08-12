@@ -285,8 +285,15 @@ private fun ImmichConnectionTest(
     var status by remember { mutableStateOf<ProbeResult?>(null) }
     var diagnostic by remember { mutableStateOf<String?>(null) }
     var dialogOpen by remember { mutableStateOf(false) }
+    var account by remember { mutableStateOf<String?>(null) }
     val statusContext = LocalContext.current
     val debugging = settings.advancedDebugging
+
+    // Loads on open and whenever the stored key changes (e.g. right after pairing), so the
+    // account line reflects the current credentials without the user tapping anything.
+    LaunchedEffect(settings.immichHost, settings.immichKeyCiphertext) {
+        account = loadImmichAccount(settings, cipher)
+    }
 
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         Button(
@@ -321,6 +328,7 @@ private fun ImmichConnectionTest(
                                 )
                             if (debugging) dialogOpen = true
                         }
+                    if (status is ProbeResult.Reachable) account = loadImmichAccount(settings, cipher)
                 }
             },
             enabled = settings.immichHost.isNotBlank() && !settings.immichKeyCiphertext.isEmpty,
@@ -332,6 +340,7 @@ private fun ImmichConnectionTest(
         }
     }
 
+    account?.let { Text(stringResource(R.string.settings_immich_logged_in_as, it)) }
     status?.let { Text(probeStatusLabel(statusContext, it)) }
 
     val detail = diagnostic
@@ -339,6 +348,24 @@ private fun ImmichConnectionTest(
         Button(onClick = { dialogOpen = true }) { Text(stringResource(R.string.action_details)) }
         if (dialogOpen) DiagnosticDialog(detail) { dialogOpen = false }
     }
+}
+
+/**
+ * Fetches the Immich account name for the stored credentials, or null when there is no key, the
+ * host is blank, or the call fails. Failures stay silent here; the connection test is what
+ * surfaces credential or reachability errors.
+ */
+private suspend fun loadImmichAccount(
+    settings: Settings,
+    cipher: KeyCipher,
+): String? {
+    if (settings.immichHost.isBlank() || settings.immichKeyCiphertext.isEmpty) return null
+    return runCatching {
+        withContext(Dispatchers.Default) {
+            val apiKey = cipher.decrypt(settings.immichKeyCiphertext.toByteArray())
+            ImmichClient.api(settings.immichHost).getMyUser(apiKey).displayName()
+        }
+    }.getOrNull()?.ifBlank { null }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

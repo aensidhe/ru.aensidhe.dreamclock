@@ -1,6 +1,7 @@
 package ru.aensidhe.dreamclock.immich
 
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 
@@ -10,6 +11,11 @@ interface ImmichApi {
         @Header("x-api-key") apiKey: String,
         @Body request: SearchMetadataRequest,
     ): SearchResponse
+
+    @GET("api/users/me")
+    suspend fun getMyUser(
+        @Header("x-api-key") apiKey: String,
+    ): ImmichUser
 
     @POST("api/auth/login")
     suspend fun login(

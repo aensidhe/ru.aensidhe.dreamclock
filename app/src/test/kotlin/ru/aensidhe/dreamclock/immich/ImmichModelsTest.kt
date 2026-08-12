@@ -49,6 +49,22 @@ class ImmichModelsTest {
     }
 
     @Test
+    fun `decodes the current user and ignores unknown keys`() {
+        val decoded =
+            immichJson.decodeFromString<ImmichUser>(
+                """{ "id": "u1", "name": "Alice", "email": "alice@example.com", "isAdmin": true }""",
+            )
+        assertEquals("Alice", decoded.name)
+        assertEquals("alice@example.com", decoded.email)
+    }
+
+    @Test
+    fun `display name falls back to email when the name is blank`() {
+        assertEquals("Alice", ImmichUser(name = "Alice", email = "alice@example.com").displayName())
+        assertEquals("bob@example.com", ImmichUser(name = "", email = "bob@example.com").displayName())
+    }
+
+    @Test
     fun `encodes a request with defaults included`() {
         val encoded = immichJson.encodeToString(SearchMetadataRequest(takenAfter = "A", takenBefore = "B"))
         assertTrue(encoded.contains("\"takenAfter\":\"A\""))

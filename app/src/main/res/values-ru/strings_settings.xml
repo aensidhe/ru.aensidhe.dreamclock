@@ -11,6 +11,7 @@
     <string name="settings_immich_clear_key">Удалить ключ</string>
     <string name="settings_immich_key_hint">Права ключа: asset.read, asset.view</string>
     <string name="settings_immich_test">Проверить соединение</string>
+    <string name="settings_immich_logged_in_as">Вход выполнен как %1$s</string>
     <string name="settings_days_either_side">Дней вокруг сегодня</string>
     <string name="settings_max_empty_years_back">Пустых лет для поиска</string>
     <string name="settings_photo_interval">Секунд на фото</string>
