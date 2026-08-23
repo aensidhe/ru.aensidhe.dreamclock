@@ -672,13 +672,13 @@ Nothing on screen says what the Immich API key needs to be able to do. The app c
 In `app/src/main/res/values/strings_settings.xml`, before `</resources>`:
 
 ```xml
-    <string name="settings_immich_key_hint">Key permissions required: asset.read, asset.view</string>
+    <string name="settings_immich_key_hint">Key permissions: asset.read, asset.view, user.read</string>
 ```
 
 In `app/src/main/res/values-ru/strings_settings.xml`, before `</resources>`:
 
 ```xml
-    <string name="settings_immich_key_hint">Права ключа: asset.read, asset.view</string>
+    <string name="settings_immich_key_hint">Права ключа: asset.read, asset.view, user.read</string>
 ```
 
 - [ ] **Step 2: Render the hint**
@@ -701,7 +701,7 @@ Expected: BUILD SUCCESSFUL.
 
 - [ ] **Step 4: Verify the permission names against Immich**
 
-Open the Immich API key documentation for the deployed server version and confirm the two permission identifiers are spelled exactly as the server presents them in the key creation dialog. If they differ, correct both string resources before committing. Do not guess — the whole value of this hint is that it matches what the user sees in Immich.
+Open the Immich API key documentation for the deployed server version and confirm the three permission identifiers are spelled exactly as the server presents them in the key creation dialog. If they differ, correct both string resources before committing. Do not guess — the whole value of this hint is that it matches what the user sees in Immich.
 
 - [ ] **Step 5: Commit**
 

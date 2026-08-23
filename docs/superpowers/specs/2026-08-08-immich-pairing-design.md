@@ -95,8 +95,8 @@ Everything Android, network, or UI lives in `:app`.
    - paste-key mode: validate the key with one cheap authenticated call, then
      save it;
    - email/password mode: `POST /api/auth/login`, then `POST /api/api-keys` with
-     `permissions: [asset.read, asset.view, asset.download]`, save that key, and
-     discard the password — it is used only for those two calls and never
+     `permissions: [asset.read, asset.view, asset.download, user.read]`, save that
+     key, and discard the password — it is used only for those two calls and never
      persisted or echoed back.
 7. On success the server stops, the key is dropped, the screen confirms and
    auto-closes to settings, whose status line now reflects the saved-credential
@@ -194,9 +194,11 @@ All labels are localized Ru/En via the existing settings-label mechanism.
 
 - Paste-key mode validates with one cheap authenticated call before saving.
 - Email/password mode calls `POST /api/auth/login`, then `POST /api/api-keys`
-  requesting `asset.read`, `asset.view`, `asset.download`. A normal logged-in
-  session can create an API key (`apiKey.create`). The minted key is
-  least-privilege — read-only — unlike a hand-made all-permissions key.
+  requesting `asset.read`, `asset.view`, `asset.download`, `user.read` (the last
+  lets the key read the current account for the settings "logged in as"
+  indicator). A normal logged-in session can create an API key (`apiKey.create`).
+  The minted key is least-privilege — read-only — unlike a hand-made
+  all-permissions key.
 
 ## Testing
 

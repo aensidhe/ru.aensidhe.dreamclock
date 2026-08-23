@@ -15,7 +15,7 @@
 - Canonical gate for every task: `./gradlew verify` (ktlint, detekt, all unit tests, assemble both modules) must be green.
 - Tests: TDD for pure-logic units with case tables; pragmatic tests elsewhere; Compose/Ktor/asset paths validated on-device (no adb — sideload the debug APK over LocalSend).
 - AES-GCM nonce (IV) is 12 bytes (96 bits), the NIST SP 800-38D recommended size, both sides.
-- Minted key permissions are exactly `asset.read`, `asset.view`, `asset.download`.
+- Minted key permissions are exactly `asset.read`, `asset.view`, `asset.download`, `user.read`.
 - The vendored crypto is the AES-GCM part of `@noble/ciphers`, pinned to an exact version, checked in as an app asset with its license header retained; GCM is never hand-rolled.
 - Commits: Conventional Commits with a `:robot:` marker after the type (e.g. `feat: :robot: …`); no `Co-Authored-By` trailer.
 - Integrate via feature branch → PR → CI green → local `git merge --ff-only` → push; `main` requires signed commits and the `build` status check.
@@ -476,7 +476,7 @@ git commit -m "feat: :robot: persist the chosen pairing interface and family"
   - `@Serializable data class CreateApiKeyResponse(val secret: String)`
   - `suspend fun ImmichApi.login(body: LoginRequest): LoginResponse` → `POST api/auth/login`
   - `suspend fun ImmichApi.createApiKey(bearer: String, body: CreateApiKeyRequest): CreateApiKeyResponse` → `POST api/api-keys`, `Authorization` header
-  - `val MINT_PERMISSIONS: List<String> = listOf("asset.read", "asset.view", "asset.download")`
+  - `val MINT_PERMISSIONS: List<String> = listOf("asset.read", "asset.view", "asset.download", "user.read")`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -526,6 +526,7 @@ class ImmichMintTest {
             assertTrue(body.contains("asset.read"))
             assertTrue(body.contains("asset.view"))
             assertTrue(body.contains("asset.download"))
+            assertTrue(body.contains("user.read"))
             assertEquals("minted-key", response.secret)
         }
 }
@@ -563,7 +564,7 @@ data class CreateApiKeyResponse(
     val secret: String,
 )
 
-val MINT_PERMISSIONS: List<String> = listOf("asset.read", "asset.view", "asset.download")
+val MINT_PERMISSIONS: List<String> = listOf("asset.read", "asset.view", "asset.download", "user.read")
 ```
 
 Add to the `ImmichApi` interface:
@@ -1586,7 +1587,7 @@ Spec coverage — every section of `2026-08-08-immich-pairing-design.md` maps to
 - Ktor CIO server, `GET /` + `POST /pair`, ephemeral port, bound to the selected address → Tasks 8, 11, 12.
 - QR with fragment key, one-line hint → Tasks 2, 9, 12.
 - History scrub, two modes, vendored `@noble/ciphers`, 12-byte IV, `{iv, ciphertext}` base64url → Tasks 8, 10, 6.
-- Decrypt → validate paste-key / login→mint (`asset.read/view/download`, discard password) → Tasks 5, 7.
+- Decrypt → validate paste-key / login→mint (`asset.read/view/download/user.read`, discard password) → Tasks 5, 7.
 - Save through the Keystore store → Task 12 (uses existing `KeystoreCipher` + `CredentialsStore`).
 - Interface filter (`isUp && !isLoopback && !isLinkLocal`), ordering, per-address rows, persist by name+family, resolve-at-pairing fallback → Tasks 3, 4, 9, 12.
 - Countdown, Cancel, single-use ephemeral key → Tasks 12, 7.

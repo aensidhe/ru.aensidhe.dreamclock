@@ -133,9 +133,9 @@ on-screen keyboard. Always available as the baseline.
    - API-key mode: validate the key with a cheap authenticated call, then save
      it.
    - Email/password mode: `POST /api/auth/login`, then `POST /api/api-keys` with
-     `permissions: [asset.read, asset.view, asset.download]`, and store that
-     read-only key. The password is used only for those two calls and is never
-     persisted or echoed back.
+     `permissions: [asset.read, asset.view, asset.download, user.read]`, and store
+     that read-only key. The password is used only for those two calls and is
+     never persisted or echoed back.
 6. The server stops once a valid credential is saved; the in-memory key is
    dropped.
 
@@ -150,8 +150,9 @@ Proto DataStore.
 
 ### Required Immich API key permissions
 
-`asset.read`, `asset.view`, `asset.download`. The email/password mint path
-additionally needs the logged-in session's ability to create an API key
+`asset.read`, `asset.view`, `asset.download`, `user.read` (the last powers the
+settings "logged in as" indicator via `GET /api/users/me`). The email/password
+mint path additionally needs the logged-in session's ability to create an API key
 (`apiKey.create`), which a normal user session has.
 
 ## Photo pipeline and fetch

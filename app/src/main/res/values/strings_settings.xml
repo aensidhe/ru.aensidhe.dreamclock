@@ -9,7 +9,7 @@
     <string name="settings_immich_host">Server address</string>
     <string name="settings_immich_key">API key</string>
     <string name="settings_immich_clear_key">Clear key</string>
-    <string name="settings_immich_key_hint">Key permissions required: asset.read, asset.view</string>
+    <string name="settings_immich_key_hint">Key permissions: asset.read, asset.view, user.read</string>
     <string name="settings_immich_test">Test connection</string>
     <string name="settings_immich_logged_in_as">Logged in as %1$s</string>
     <string name="settings_days_either_side">Days around today</string>
