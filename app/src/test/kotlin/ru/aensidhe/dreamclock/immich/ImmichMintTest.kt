@@ -43,6 +43,22 @@ class ImmichMintTest {
             assertTrue(body.contains("asset.read"))
             assertTrue(body.contains("asset.view"))
             assertTrue(body.contains("asset.download"))
+            // user.read lets the minted key read /api/users/me for the "Logged in as" indicator.
+            assertTrue(body.contains("user.read"))
             assertEquals("minted-key", response.secret)
+        }
+
+    @Test
+    fun get_my_user_hits_users_me_with_the_api_key() =
+        runBlocking {
+            server.enqueue(MockResponse().setBody("""{"name":"Alice","email":"a@b.c"}"""))
+            val api = ImmichClient.api(server.url("/").toString())
+
+            val user = api.getMyUser("secret-key")
+
+            val recorded = server.takeRequest()
+            assertEquals("/api/users/me", recorded.path)
+            assertEquals("secret-key", recorded.getHeader("x-api-key"))
+            assertEquals("Alice", user.displayName())
         }
 }

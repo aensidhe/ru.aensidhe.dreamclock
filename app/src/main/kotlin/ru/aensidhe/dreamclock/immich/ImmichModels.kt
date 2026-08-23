@@ -81,4 +81,4 @@ data class ImmichUser(
     fun displayName(): String = name.ifBlank { email }
 }
 
-val MINT_PERMISSIONS: List<String> = listOf("asset.read", "asset.view", "asset.download")
+val MINT_PERMISSIONS: List<String> = listOf("asset.read", "asset.view", "asset.download", "user.read")
