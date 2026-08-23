@@ -26,12 +26,7 @@ fun probeStatusLabel(
 ): String =
     when (result) {
         ProbeResult.Checking -> context.getString(R.string.probe_checking)
-        is ProbeResult.Reachable ->
-            when {
-                result.total == null -> context.getString(R.string.probe_connected)
-                result.more -> context.getString(R.string.probe_connected_count_more, result.total)
-                else -> context.getString(R.string.probe_connected_count, result.total)
-            }
+        ProbeResult.Reachable -> context.getString(R.string.probe_connected)
         ProbeResult.Unauthorized -> context.getString(R.string.probe_unauthorized)
         ProbeResult.Unreachable -> context.getString(R.string.probe_unreachable)
         is ProbeResult.Error -> context.getString(R.string.probe_error, result.detail)

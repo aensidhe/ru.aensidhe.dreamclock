@@ -8,10 +8,7 @@ import ru.aensidhe.dreamclock.core.photos.DateWindow
 sealed interface ProbeResult {
     data object Checking : ProbeResult
 
-    data class Reachable(
-        val total: Int?,
-        val more: Boolean = false,
-    ) : ProbeResult
+    data object Reachable : ProbeResult
 
     data object Unauthorized : ProbeResult
 
@@ -24,11 +21,6 @@ sealed interface ProbeResult {
 
 object ImmichHealth {
     private const val MAX_DETAIL = 100
-
-    // Immich reports assets.total as the number of items in the returned page, not the grand
-    // total, so a size-1 probe always counts 1. Request a real page and, when a next page
-    // exists, tell the label there are more than we counted.
-    private const val PROBE_PAGE_SIZE = 100
 
     fun truncateDetail(raw: String): String = raw.trim().take(MAX_DETAIL)
 
@@ -47,18 +39,19 @@ object ImmichHealth {
     ): ProbeResult {
         val bounds = ImmichSearchBoundsFactory.forWindow(window, zone)
         return try {
-            val response =
-                api.searchMetadata(
-                    apiKey = apiKey,
-                    request =
-                        SearchMetadataRequest(
-                            takenAfter = bounds.takenAfter,
-                            takenBefore = bounds.takenBefore,
-                            page = 1,
-                            size = PROBE_PAGE_SIZE,
-                        ),
-                )
-            ProbeResult.Reachable(response.assets.total, more = response.assets.nextPage != null)
+            // Connectivity check only: one row is enough to confirm the key authenticates and the
+            // search endpoint answers, so keep the response tiny.
+            api.searchMetadata(
+                apiKey = apiKey,
+                request =
+                    SearchMetadataRequest(
+                        takenAfter = bounds.takenAfter,
+                        takenBefore = bounds.takenBefore,
+                        page = 1,
+                        size = 1,
+                    ),
+            )
+            ProbeResult.Reachable
         } catch (e: HttpException) {
             val body =
                 runCatching {

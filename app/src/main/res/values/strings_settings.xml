@@ -19,8 +19,6 @@
     <string name="settings_analog_slide_seconds">Clock seconds</string>
     <string name="probe_checking">Checking…</string>
     <string name="probe_connected">Connected</string>
-    <string name="probe_connected_count">Connected — %1$d photos for today</string>
-    <string name="probe_connected_count_more">Connected — %1$d+ photos for today</string>
     <string name="probe_unauthorized">Authorization failed</string>
     <string name="probe_unreachable">Host unreachable</string>
     <string name="probe_error">Error: %1$s</string>

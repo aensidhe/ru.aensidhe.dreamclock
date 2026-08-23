@@ -19,8 +19,6 @@
     <string name="settings_analog_slide_seconds">Секунд на слайд часов</string>
     <string name="probe_checking">Проверка…</string>
     <string name="probe_connected">Подключено</string>
-    <string name="probe_connected_count">Подключено — %1$d фото на сегодня</string>
-    <string name="probe_connected_count_more">Подключено — %1$d+ фото на сегодня</string>
     <string name="probe_unauthorized">Ошибка авторизации</string>
     <string name="probe_unreachable">Сервер недоступен</string>
     <string name="probe_error">Ошибка: %1$s</string>

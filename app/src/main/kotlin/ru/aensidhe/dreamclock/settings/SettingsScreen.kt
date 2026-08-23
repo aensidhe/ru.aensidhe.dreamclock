@@ -311,7 +311,7 @@ private fun ImmichConnectionTest(
                                         SimilarTimeWindows.windowFor(LocalDate.now(), settings.daysEitherSide, 0)
                                     ImmichHealth.probe(api, apiKey, window, ZoneId.systemDefault())
                                 }
-                            if (result is ProbeResult.Reachable) {
+                            if (result == ProbeResult.Reachable) {
                                 historyStore.update { PhotoHistory.resetOnHostChange(it, settings.immichHost) }
                             }
                             result
@@ -328,7 +328,7 @@ private fun ImmichConnectionTest(
                                 )
                             if (debugging) dialogOpen = true
                         }
-                    if (status is ProbeResult.Reachable) account = loadImmichAccount(settings, cipher)
+                    if (status == ProbeResult.Reachable) account = loadImmichAccount(settings, cipher)
                 }
             },
             enabled = settings.immichHost.isNotBlank() && !settings.immichKeyCiphertext.isEmpty,

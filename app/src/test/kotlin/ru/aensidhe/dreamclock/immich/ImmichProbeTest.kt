@@ -5,7 +5,6 @@ import java.time.ZoneId
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -18,29 +17,14 @@ class ImmichProbeTest {
     @AfterTest fun tearDown() = server.shutdown()
 
     @Test
-    fun probe_requests_a_full_page_not_a_single_row() =
+    fun probe_reports_reachable_when_the_search_endpoint_answers() =
         runBlocking {
-            server.enqueue(MockResponse().setBody("""{"assets":{"total":7,"count":7,"items":[]}}"""))
+            server.enqueue(MockResponse().setBody("""{"assets":{"total":0,"count":0,"items":[]}}"""))
             val api = ImmichClient.api(server.url("/").toString())
 
             val result = ImmichHealth.probe(api, "key", window, ZoneId.of("UTC"))
 
-            val recorded = server.takeRequest()
-            assertEquals("/api/search/metadata", recorded.path)
-            assertTrue(recorded.body.readUtf8().contains("\"size\":100"))
-            assertEquals(ProbeResult.Reachable(7, more = false), result)
-        }
-
-    @Test
-    fun probe_flags_more_when_a_next_page_exists() =
-        runBlocking {
-            server.enqueue(
-                MockResponse().setBody("""{"assets":{"total":100,"count":100,"items":[],"nextPage":"2"}}"""),
-            )
-            val api = ImmichClient.api(server.url("/").toString())
-
-            val result = ImmichHealth.probe(api, "key", window, ZoneId.of("UTC"))
-
-            assertEquals(ProbeResult.Reachable(100, more = true), result)
+            assertEquals("/api/search/metadata", server.takeRequest().path)
+            assertEquals(ProbeResult.Reachable, result)
         }
 }
