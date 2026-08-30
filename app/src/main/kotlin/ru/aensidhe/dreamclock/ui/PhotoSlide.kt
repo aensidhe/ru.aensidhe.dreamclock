@@ -79,10 +79,10 @@ private fun CaptionBlock(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier, horizontalAlignment = Alignment.End) {
+        lines.people?.let {
+            Text(it, color = Color.White, fontSize = 20.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
         lines.dateTime?.let { Text(it, color = Color.White, fontSize = 20.sp) }
         lines.location?.let { Text(it, color = Color.White, fontSize = 20.sp) }
-        lines.people?.let {
-            Text(it, color = Color.White, fontSize = 24.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        }
     }
 }
