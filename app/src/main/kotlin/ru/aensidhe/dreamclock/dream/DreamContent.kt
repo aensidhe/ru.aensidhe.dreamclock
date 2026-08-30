@@ -183,6 +183,12 @@ private suspend fun buildSlideDeck(
             planner = planner,
             zone = ZoneId.systemDefault(),
         )
-    val resolver = SlideResolver(credentials.host, load.assets.associate { it.id to it.caption }, locale)
+    val resolver =
+        SlideResolver(
+            host = credentials.host,
+            captions = load.assets.associate { it.id to it.caption },
+            locale = locale,
+            showPeople = !settings.hidePeopleNames,
+        )
     return SlideDeckModel(driver, resolver)
 }

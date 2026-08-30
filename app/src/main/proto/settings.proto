@@ -23,4 +23,5 @@ message Settings {
   bool advanced_debugging = 14;
   string pairing_interface_name = 15;
   AddressFamilyProto pairing_address_family = 16;
+  bool hide_people_names = 17;
 }

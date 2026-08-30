@@ -181,6 +181,25 @@ private class ImmichStepper(
     val setter: (Settings.Builder, Int) -> Settings.Builder,
 )
 
+private fun immichSteppers(settings: Settings): List<ImmichStepper> =
+    listOf(
+        ImmichStepper(R.string.settings_days_either_side, settings.daysEitherSide, 0, 30) { b, v ->
+            b.setDaysEitherSide(v)
+        },
+        ImmichStepper(R.string.settings_max_empty_years_back, settings.maxEmptyYearsBack, 1, 50) { b, v ->
+            b.setMaxEmptyYearsBack(v)
+        },
+        ImmichStepper(R.string.settings_photo_interval, settings.photoIntervalSeconds, 3, 60) { b, v ->
+            b.setPhotoIntervalSeconds(v)
+        },
+        ImmichStepper(R.string.settings_shown_every_xth_minute, settings.shownEveryXthMinute, 1, 60) { b, v ->
+            b.setShownEveryXthMinute(v)
+        },
+        ImmichStepper(R.string.settings_analog_slide_seconds, settings.analogSlideSeconds, 3, 60) { b, v ->
+            b.setAnalogSlideSeconds(v)
+        },
+    )
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ImmichSection(
@@ -239,24 +258,7 @@ private fun ImmichSection(
 
     ImmichPairingSection(settings, cipher, repository, scope, pairButton)
 
-    val steppers =
-        listOf(
-            ImmichStepper(R.string.settings_days_either_side, settings.daysEitherSide, 0, 30) { b, v ->
-                b.setDaysEitherSide(v)
-            },
-            ImmichStepper(R.string.settings_max_empty_years_back, settings.maxEmptyYearsBack, 1, 50) { b, v ->
-                b.setMaxEmptyYearsBack(v)
-            },
-            ImmichStepper(R.string.settings_photo_interval, settings.photoIntervalSeconds, 3, 60) { b, v ->
-                b.setPhotoIntervalSeconds(v)
-            },
-            ImmichStepper(R.string.settings_shown_every_xth_minute, settings.shownEveryXthMinute, 1, 60) { b, v ->
-                b.setShownEveryXthMinute(v)
-            },
-            ImmichStepper(R.string.settings_analog_slide_seconds, settings.analogSlideSeconds, 3, 60) { b, v ->
-                b.setAnalogSlideSeconds(v)
-            },
-        )
+    val steppers = immichSteppers(settings)
     steppers.forEachIndexed { index, spec ->
         StepperRow(
             label = stringResource(spec.labelRes),
@@ -264,11 +266,18 @@ private fun ImmichSection(
             min = spec.min,
             max = spec.max,
             step = 1,
-            downFocus = if (index == steppers.lastIndex) lastStepperDownFocus else null,
             upFocus = if (index == 0) pairButton else null,
         ) { newValue ->
             scope.launch { repository.update { spec.setter(it.toBuilder(), newValue).build() } }
         }
+    }
+    ToggleRow(
+        null,
+        stringResource(R.string.settings_show_people_names),
+        !settings.hidePeopleNames,
+        downFocus = lastStepperDownFocus,
+    ) { on ->
+        scope.launch { repository.update { it.toBuilder().setHidePeopleNames(!on).build() } }
     }
 }
 

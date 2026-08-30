@@ -17,6 +17,7 @@
     <string name="settings_photo_interval">Секунд на фото</string>
     <string name="settings_shown_every_xth_minute">Часы каждые N минут</string>
     <string name="settings_analog_slide_seconds">Секунд на слайд часов</string>
+    <string name="settings_show_people_names">Показывать имена людей</string>
     <string name="probe_checking">Проверка…</string>
     <string name="probe_connected">Подключено</string>
     <string name="probe_unauthorized">Ошибка авторизации</string>
