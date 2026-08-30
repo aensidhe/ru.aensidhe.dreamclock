@@ -15,6 +15,7 @@ data class SearchMetadataRequest(
     val takenBefore: String,
     val type: String = "IMAGE",
     val withExif: Boolean = true,
+    val withPeople: Boolean = true,
     val page: Int = 1,
     val size: Int = 100,
 )
@@ -38,6 +39,22 @@ data class ImmichAsset(
     val type: String,
     val localDateTime: String? = null,
     val exifInfo: ExifInfo? = null,
+    val people: List<ImmichPerson> = emptyList(),
+)
+
+@Serializable
+data class ImmichPerson(
+    val id: String,
+    // Nullable on purpose: Immich stores "" for an unnamed face today, but a null must not
+    // fail decoding of a whole page.
+    val name: String? = null,
+    val isHidden: Boolean = false,
+    val faces: List<ImmichFace> = emptyList(),
+)
+
+@Serializable
+data class ImmichFace(
+    val boundingBoxX1: Int? = null,
 )
 
 @Serializable
