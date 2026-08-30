@@ -26,8 +26,9 @@ both status lines in the same commit.
 2. Immich photos (built) — ±N days around today, across all past years, with QR /
    local-network pairing to carry an Immich key across from a phone. Video/audio
    playback remains a deferred sub-plan
-3. People names on photo slides — caption the faces Immich recognised. Not
-   designed yet; warrants its own brainstorm before any plan
+3. People names on photo slides (built) — a third caption line naming the
+   people Immich recognised, joined as a natural list per locale, with a
+   settings toggle
 4. Tick colours by schedule — each tick on the analog face takes the colour of
    the state the schedule assigns to the time it marks
 5. Schedule editor (D-pad UI over the existing Schedule model: windows,
@@ -135,5 +136,6 @@ use: manual host/key entry, the connection test, and the rotating photo deck. Th
 first-time-key-entry focus risk is accepted — fix it only if it recurs. QR /
 local-network pairing (Plan 5) is built, merged, and validated on-device: the
 phone pairing page mints a scoped key and hands it to the TV over the LAN.
-Video/audio playback (Plan 6) remains a deferred sub-plan. Features 3–6 are not
-yet built. See the latest specs in `docs/superpowers/specs/`.
+Video/audio playback (Plan 6) remains a deferred sub-plan. Feature 3 (people
+names) is built and merged, awaiting on-device validation. Features 4–6 are
+not yet built. See the latest specs in `docs/superpowers/specs/`.

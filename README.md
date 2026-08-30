@@ -24,8 +24,8 @@ Built feature by feature, in priority order:
    server, showing photos within ±N days of today across every past year, with
    local-network pairing to bring an Immich key over from a phone. Video playback
    is deferred.
-3. People names (planned) — photo slides captioned with the names of the people
-   Immich recognised in them.
+3. People names (built) — photo slides captioned with the names of the people
+   Immich recognised in them, joined the way you would say them aloud.
 4. Tick colours (planned) — every tick on the analog face takes the colour of
    the state the schedule assigns to the time it marks, so the whole day is
    readable at a glance around the dial.
@@ -41,7 +41,8 @@ display options and hands off to the system screensaver picker.
 Feature 1 is built and running on-device: the clock, the analog face, the
 D-pad settings screen, an adaptive launcher icon, and a TV banner. Feature 2's
 Immich photo deck, settings, and local-network pairing are built and validated
-on-device; video playback is deferred. Features 3–6 are planned. See the design
+on-device; video playback is deferred. Feature 3's people captions are built
+and awaiting on-device validation. Features 4–6 are planned. See the design
 specs under [`docs/superpowers/specs/`](docs/superpowers/specs/).
 
 ## Tech stack
