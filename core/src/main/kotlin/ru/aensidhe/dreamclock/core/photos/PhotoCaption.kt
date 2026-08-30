@@ -9,11 +9,13 @@ data class CaptionSource(
     val takenAt: LocalDateTime?,
     val city: String?,
     val country: String?,
+    val people: List<String> = emptyList(),
 )
 
 data class CaptionLines(
     val dateTime: String?,
     val location: String?,
+    val people: String? = null,
 )
 
 object PhotoCaption {
@@ -40,6 +42,8 @@ object PhotoCaption {
                 .filter { it.isNotEmpty() }
                 .joinToString(", ")
                 .ifEmpty { null }
-        return if (dateTime == null && location == null) null else CaptionLines(dateTime, location)
+        val people = PeopleList.join(source.people, locale)
+        val empty = dateTime == null && location == null && people == null
+        return if (empty) null else CaptionLines(dateTime, location, people)
     }
 }

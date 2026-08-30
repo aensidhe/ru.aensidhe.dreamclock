@@ -53,4 +53,41 @@ class PhotoCaptionTest {
     fun `nothing available yields null`() {
         assertNull(PhotoCaption.format(CaptionSource(null, " ", null), ClockLocale.EN))
     }
+
+    @Test
+    fun `people line is joined per locale`() {
+        val en = PhotoCaption.format(CaptionSource(takenAt, null, null, listOf("Anna", "Boris")), ClockLocale.EN)!!
+        assertEquals("Anna and Boris", en.people)
+        val ru =
+            PhotoCaption.format(
+                CaptionSource(takenAt, null, null, listOf("Аня", "Боря", "Вася")),
+                ClockLocale.RU,
+            )!!
+        assertEquals("Аня, Боря и Вася", ru.people)
+    }
+
+    @Test
+    fun `people only caption is not null`() {
+        val c = PhotoCaption.format(CaptionSource(null, null, null, listOf("Anna")), ClockLocale.EN)!!
+        assertNull(c.dateTime)
+        assertNull(c.location)
+        assertEquals("Anna", c.people)
+    }
+
+    @Test
+    fun `all three lines present`() {
+        val c = PhotoCaption.format(CaptionSource(takenAt, "Berlin", "Germany", listOf("Anna")), ClockLocale.EN)!!
+        assertEquals(CaptionLines("19 July 2026 | 14:32", "Berlin, Germany", "Anna"), c)
+    }
+
+    @Test
+    fun `no people leaves the line null`() {
+        val c = PhotoCaption.format(CaptionSource(takenAt, "Berlin", null), ClockLocale.EN)!!
+        assertNull(c.people)
+    }
+
+    @Test
+    fun `blank people and nothing else yields null`() {
+        assertNull(PhotoCaption.format(CaptionSource(null, null, null, listOf(" ", "")), ClockLocale.EN))
+    }
 }
