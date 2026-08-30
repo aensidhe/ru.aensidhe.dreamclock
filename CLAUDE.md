@@ -97,6 +97,14 @@ the real complexity and get the most test coverage.
   `app/build/outputs/apk/debug/app-debug.apk` over with LocalSend, install by
   hand. Anything the device must report back has to be visible on screen and
   copyable to the clipboard, because the clipboard is the only channel out.
+- Immich source is cloned at `~/sources/github.com/immich-app/immich`
+  (`main`, possibly stale; all release tags present). For API questions —
+  which permission an endpoint needs, what a response contains — read the
+  source at the tag matching the family server (`v2.7.5` as of 2026-08) via a
+  detached worktree, e.g. `git worktree add --detach ../immich-v2.7.5 v2.7.5`,
+  rather than guessing. Permissions live in the `@Authenticated({ permission })`
+  decorator on each controller method and as `x-immich-permission` per
+  operation in `open-api/immich-openapi-specs.json`.
 
 ## Conventions
 
