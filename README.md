@@ -21,8 +21,9 @@ Built feature by feature, in priority order:
    slide renders a full 1–12 face with minute ticks; its second hand carries the
    current state color.
 2. Immich photos (built) — slides drawn from an [Immich](https://immich.app)
-   server, showing photos within ±N days of today across every past year. Video
-   playback and local-network pairing are deferred.
+   server, showing photos within ±N days of today across every past year, with
+   local-network pairing to bring an Immich key over from a phone. Video playback
+   is deferred.
 3. People names (planned) — photo slides captioned with the names of the people
    Immich recognised in them.
 4. Tick colours (planned) — every tick on the analog face takes the colour of
@@ -39,8 +40,8 @@ display options and hands off to the system screensaver picker.
 
 Feature 1 is built and running on-device: the clock, the analog face, the
 D-pad settings screen, an adaptive launcher icon, and a TV banner. Feature 2's
-Immich photo deck and settings are built and validated on-device; video playback
-and local-network pairing are deferred. Features 3–6 are planned. See the design
+Immich photo deck, settings, and local-network pairing are built and validated
+on-device; video playback is deferred. Features 3–6 are planned. See the design
 specs under [`docs/superpowers/specs/`](docs/superpowers/specs/).
 
 ## Tech stack

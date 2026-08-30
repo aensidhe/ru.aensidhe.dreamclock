@@ -23,8 +23,9 @@ both status lines in the same commit.
 
 1. Kid-friendly dual clock (built) — locale time + colloquial spoken form + 3
    color states, with an analog face and a state-tinted second hand
-2. Immich photos (built) — ±N days around today, across all past years. Video/audio
-   playback and QR / local-network pairing remain deferred sub-plans
+2. Immich photos (built) — ±N days around today, across all past years, with QR /
+   local-network pairing to carry an Immich key across from a phone. Video/audio
+   playback remains a deferred sub-plan
 3. People names on photo slides — caption the faces Immich recognised. Not
    designed yet; warrants its own brainstorm before any plan
 4. Tick colours by schedule — each tick on the analog face takes the colour of
@@ -123,7 +124,8 @@ icon, and TV banner, validated on-device.
 
 Feature 2 (Immich photos) is built, merged, and validated on-device over weeks of
 use: manual host/key entry, the connection test, and the rotating photo deck. The
-first-time-key-entry focus risk is accepted — fix it only if it recurs.
-Video/audio playback (Plan 6) and QR / local-network pairing (Plan 5) remain
-deferred sub-plans. Features 3–6 are not yet built. See the latest specs in
-`docs/superpowers/specs/`.
+first-time-key-entry focus risk is accepted — fix it only if it recurs. QR /
+local-network pairing (Plan 5) is built, merged, and validated on-device: the
+phone pairing page mints a scoped key and hands it to the TV over the LAN.
+Video/audio playback (Plan 6) remains a deferred sub-plan. Features 3–6 are not
+yet built. See the latest specs in `docs/superpowers/specs/`.
