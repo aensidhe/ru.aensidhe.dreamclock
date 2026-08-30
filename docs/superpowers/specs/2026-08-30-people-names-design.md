@@ -30,7 +30,9 @@ Out of scope:
 
 ## Decisions
 
-- Placement: a third line in the existing bottom-right caption block.
+- Placement: the first line of the existing bottom-right caption block, above
+  date/time and location, at the caption's 20 sp size. (On-device feedback
+  moved it up from a larger third line.)
 - Name form: verbatim from Immich.
 - Joining: locale-aware natural list — RU `Аня, Боря и Вася`, EN
   `Anna, Boris, and Vasya`. English uses the Oxford comma; Russian puts no
@@ -102,8 +104,8 @@ Out of scope:
   by the toggle; names always travel with the asset load. The toggle is one of
   the keys that rebuild the slide deck, so it takes effect when the deck is
   next rebuilt, the same way the language setting does.
-- `CaptionBlock` draws `lines.people` as a third `Text` at 24 sp; date and
-  location stay at 20 sp. The size is a starting point to tune on-device.
+- `CaptionBlock` draws `lines.people` as the first `Text`, above date and
+  location, at the same 20 sp, capped at two rows with an ellipsis.
 - `OverlaySuppression` is untouched: a caption with only a people line is still
   a non-null caption, so the paired-slide overlay rule keeps working. The rule
   therefore fires slightly more often than before: a left photo with no date

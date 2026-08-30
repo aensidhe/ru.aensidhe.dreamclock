@@ -26,9 +26,9 @@ both status lines in the same commit.
 2. Immich photos (built) — ±N days around today, across all past years, with QR /
    local-network pairing to carry an Immich key across from a phone. Video/audio
    playback remains a deferred sub-plan
-3. People names on photo slides (built) — a third caption line naming the
-   people Immich recognised, joined as a natural list per locale, with a
-   settings toggle
+3. People names on photo slides (built) — a caption line above date and
+   location naming the people Immich recognised, joined as a natural list per
+   locale, with a settings toggle
 4. Tick colours by schedule — each tick on the analog face takes the colour of
    the state the schedule assigns to the time it marks
 5. Schedule editor (D-pad UI over the existing Schedule model: windows,
