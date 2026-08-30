@@ -33,7 +33,8 @@ Out of scope:
 - Placement: a third line in the existing bottom-right caption block.
 - Name form: verbatim from Immich.
 - Joining: locale-aware natural list — RU `Аня, Боря и Вася`, EN
-  `Anna, Boris and Vasya`. No Oxford comma.
+  `Anna, Boris, and Vasya`. English uses the Oxford comma; Russian puts no
+  comma before a single «и».
 - Setting: a toggle in the Immich section of Settings.
 - Fetch path: `withPeople = true` on the existing bulk search, not a per-slide
   asset fetch. People ride with each asset in the daily load, so the slide
@@ -72,8 +73,8 @@ Out of scope:
   - empty → `null`;
   - one → the name;
   - two → `A и B` / `A and B`;
-  - three or more → all but the last joined with `, `, then the locale's
-    conjunction and the last name.
+  - three or more → all but the last joined with `, `, then the conjunction
+    and the last name: RU `А, Б и В`, EN `A, B, and C` (Oxford comma).
 - `PhotoCaption.format` fills `people` via `PeopleList.join` and returns `null`
   only when all three lines are absent.
 
