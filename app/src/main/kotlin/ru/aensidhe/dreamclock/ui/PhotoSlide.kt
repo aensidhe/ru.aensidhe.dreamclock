@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.ImageLoader
@@ -80,6 +81,8 @@ private fun CaptionBlock(
     Column(modifier, horizontalAlignment = Alignment.End) {
         lines.dateTime?.let { Text(it, color = Color.White, fontSize = 20.sp) }
         lines.location?.let { Text(it, color = Color.White, fontSize = 20.sp) }
-        lines.people?.let { Text(it, color = Color.White, fontSize = 24.sp) }
+        lines.people?.let {
+            Text(it, color = Color.White, fontSize = 24.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
     }
 }

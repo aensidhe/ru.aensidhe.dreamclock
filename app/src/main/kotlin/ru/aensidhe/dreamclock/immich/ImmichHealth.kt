@@ -49,6 +49,7 @@ object ImmichHealth {
                         takenBefore = bounds.takenBefore,
                         page = 1,
                         size = 1,
+                        withPeople = false,
                     ),
             )
             ProbeResult.Reachable

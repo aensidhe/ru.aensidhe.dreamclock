@@ -134,6 +134,7 @@ internal fun DreamContent(
             settings.daysEitherSide,
             settings.maxEmptyYearsBack,
             settings.language,
+            settings.hidePeopleNames,
             today,
         ) {
             value = buildSlideDeck(credentials, settings, httpClient, today, historyStore)
