@@ -60,4 +60,57 @@ class AssetMapperTest {
     fun `blank id is dropped`() {
         assertNull(AssetMapper.toSlideAsset(ImmichAsset(id = "", type = "IMAGE")))
     }
+
+    private fun person(
+        id: String,
+        name: String?,
+        vararg x: Int,
+        hidden: Boolean = false,
+    ) = ImmichPerson(id = id, name = name, isHidden = hidden, faces = x.map { ImmichFace(boundingBoxX1 = it) })
+
+    private fun namesOf(vararg people: ImmichPerson): List<String> =
+        AssetMapper.toSlideAsset(ImmichAsset(id = "a", type = "IMAGE", people = people.toList()))!!.caption.people
+
+    @Test
+    fun `hidden and unnamed people are dropped`() {
+        assertEquals(
+            listOf("Anna"),
+            namesOf(
+                person("p1", "Anna", 10),
+                person("p2", "", 20),
+                person("p3", null, 30),
+                person("p4", "   ", 40),
+                person("p5", "Ghost", 50, hidden = true),
+            ),
+        )
+    }
+
+    @Test
+    fun `names are ordered left to right by the leftmost face`() {
+        assertEquals(
+            listOf("Left", "Middle", "Right"),
+            namesOf(person("p1", "Right", 900), person("p2", "Left", 100, 950), person("p3", "Middle", 500)),
+        )
+    }
+
+    @Test
+    fun `people without coordinates come last in arrival order`() {
+        assertEquals(
+            listOf("Anna", "NoBoxA", "NoBoxB"),
+            namesOf(person("p1", "NoBoxA"), person("p2", "NoBoxB"), person("p3", "Anna", 5)),
+        )
+    }
+
+    @Test
+    fun `names are trimmed and de-duplicated keeping the first`() {
+        assertEquals(
+            listOf("Anna", "Boris"),
+            namesOf(person("p1", " Anna ", 10), person("p2", "Boris", 20), person("p3", "Anna", 30)),
+        )
+    }
+
+    @Test
+    fun `no people yields an empty list`() {
+        assertEquals(emptyList<String>(), namesOf())
+    }
 }

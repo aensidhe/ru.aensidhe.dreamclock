@@ -25,9 +25,18 @@ object AssetMapper {
                     takenAt = parseTakenAt(exif?.dateTimeOriginal ?: asset.localDateTime),
                     city = exif?.city,
                     country = exif?.country,
+                    people = peopleNames(asset.people),
                 ),
         )
     }
+
+    // sortedBy is stable, so people without a face coordinate keep their arrival order at the end.
+    private fun peopleNames(people: List<ImmichPerson>): List<String> =
+        people
+            .filterNot { it.isHidden }
+            .sortedBy { person -> person.faces.mapNotNull { it.boundingBoxX1 }.minOrNull() ?: Int.MAX_VALUE }
+            .mapNotNull { person -> person.name?.trim()?.takeIf { it.isNotEmpty() } }
+            .distinct()
 
     private fun parseTakenAt(value: String?): LocalDateTime? {
         if (value.isNullOrBlank()) return null
