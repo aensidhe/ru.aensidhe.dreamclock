@@ -23,6 +23,7 @@ class SlideResolverTest {
         mapOf(
             "p1" to CaptionSource(LocalDateTime.of(2026, 7, 19, 14, 32), "Berlin", "Germany"),
             "p2" to CaptionSource(null, null, null),
+            "p3" to CaptionSource(null, null, null, listOf("Anna", "Boris")),
         )
     private val resolver = SlideResolver("https://immich.example", captions, ClockLocale.EN)
 
@@ -57,5 +58,20 @@ class SlideResolverTest {
     fun `clock and video both resolve to the clock render`() {
         assertTrue(resolver.resolve(ClockSlide) is RenderClock)
         assertTrue(resolver.resolve(VideoSlide(photo("v1"))) is RenderClock)
+    }
+
+    @Test
+    fun `people line is shown by default`() {
+        val slide = resolver.resolve(SinglePhotoSlide(photo("p3"))) as RenderPhoto
+        assertEquals("Anna and Boris", slide.caption?.people)
+    }
+
+    @Test
+    fun `people line is dropped when showPeople is off`() {
+        val quiet = SlideResolver("https://immich.example", captions, ClockLocale.EN, showPeople = false)
+        val slide = quiet.resolve(SinglePhotoSlide(photo("p3"))) as RenderPhoto
+        assertNull(slide.caption)
+        val withDate = quiet.resolve(SinglePhotoSlide(photo("p1"))) as RenderPhoto
+        assertEquals("Berlin, Germany", withDate.caption?.location)
     }
 }

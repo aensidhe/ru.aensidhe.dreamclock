@@ -14,6 +14,7 @@ class SlideResolver(
     private val host: String,
     private val captions: Map<String, CaptionSource>,
     private val locale: ClockLocale,
+    private val showPeople: Boolean = true,
 ) {
     fun resolve(slide: PlannedSlide): RenderSlide =
         when (slide) {
@@ -27,6 +28,9 @@ class SlideResolver(
         RenderPhoto(
             previewUrl = ImmichImageUrls.preview(host, asset.id),
             placeholderUrl = ImmichImageUrls.placeholder(host, asset.id),
-            caption = captions[asset.id]?.let { PhotoCaption.format(it, locale) },
+            caption = captions[asset.id]?.let { PhotoCaption.format(visible(it), locale) },
         )
+
+    private fun visible(source: CaptionSource): CaptionSource =
+        if (showPeople) source else source.copy(people = emptyList())
 }
