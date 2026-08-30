@@ -53,7 +53,10 @@ Out of scope:
   `immichJson` already ignores unknown keys, so extra fields Immich sends on
   people and faces are harmless.
 - `AssetMapper.toSlideAsset` derives `CaptionSource.people`:
-  1. keep people with `!isHidden` and a non-null, non-blank `name`;
+  1. drop hidden people and people with no name. A `null` name, an empty
+     string, and a whitespace-only string all mean "no name" and are treated
+     identically — Immich represents an unnamed face as `""` and some versions
+     as `null`;
   2. sort by the smallest `boundingBoxX1` across the person's faces; people
      with no face coordinate sort last, preserving arrival order among
      themselves;
@@ -108,10 +111,12 @@ Out of scope:
   - `PhotoCaptionTest` — a people-only caption, all three lines present, and
     the existing cases still passing with the default empty list.
 - `:app`, pragmatic:
-  - `ImmichModelsTest` — decode a search fixture containing a named person, an
-    unnamed person, a hidden person, and a person without faces.
-  - `AssetMapperTest` — filtering, left-to-right ordering, trailing placement of
-    people without coordinates, and de-duplication.
+  - `ImmichModelsTest` — decode a search fixture containing a named person, a
+    person with `"name": ""`, a person with `"name": null`, a hidden person,
+    and a person without faces.
+  - `AssetMapperTest` — filtering (hidden, `null` name, empty name, blank
+    name all dropped), left-to-right ordering, trailing placement of people
+    without coordinates, and de-duplication.
   - `SlideResolverTest` — the toggle strips names; on, the third line is
     present.
 - On-device: a photo with a recognised, named face shows the name; the toggle
@@ -127,4 +132,5 @@ Out of scope:
   Pages are fetched once per day per year, so the cost is negligible.
 - Shape drift: Immich may send `name` as `null` on some versions. A JSON `null`
   for a non-nullable `String` would fail decoding of the whole page, which is
-  why `name` is `String?` and filtered as blank.
+  why `name` is `String?`. Downstream, `null` and `""` are the same case: no
+  name.
