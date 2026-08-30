@@ -61,10 +61,14 @@ Out of scope:
      with no face coordinate sort last, preserving arrival order among
      themselves;
   3. trim names and drop duplicates, keeping the first occurrence.
-- `MINT_PERMISSIONS` and the key-permission hint strings are unchanged. Immich
-  gates the search endpoint on `asset.read` and maps people straight from the
-  asset, so the current keys should already return them. See Risks for the
-  fallback.
+- `MINT_PERMISSIONS` and the key-permission hint strings are unchanged.
+  Verified against Immich `v2.7.5` source: `POST /search/metadata` is
+  decorated `@Authenticated({ permission: Permission.AssetRead })`
+  (`server/src/controllers/search.controller.ts`), the OpenAPI spec carries
+  `x-immich-permission: asset.read` for it, `withPeople` selects faces and
+  people in `server/src/utils/database.ts`, and `mapAsset` in
+  `server/src/dtos/asset-response.dto.ts` attaches `people` with no further
+  permission check. The existing keys return people as they are.
 
 ## Pure logic (`:core`, package `photos`)
 
@@ -124,13 +128,16 @@ Out of scope:
 
 ## Risks
 
-- Permission: if a valid key returns assets without `people`, Immich's version
-  requires `person.read` for that data. Fix: add `person.read` to
-  `MINT_PERMISSIONS`, both hint strings, and the spec's permission list, and
-  re-pair once. Manual-key users add the permission in Immich.
+- Permission: settled for `v2.7.5` (see Data layer). If a future Immich gates
+  embedded people on `person.read`, the fix is to add it to
+  `MINT_PERMISSIONS` and both hint strings and re-pair once; manual-key users
+  add the permission in Immich.
 - Response size: `withPeople` adds a few hundred bytes per face to each page.
   Pages are fetched once per day per year, so the cost is negligible.
-- Shape drift: Immich may send `name` as `null` on some versions. A JSON `null`
-  for a non-nullable `String` would fail decoding of the whole page, which is
-  why `name` is `String?`. Downstream, `null` and `""` are the same case: no
-  name.
+- Shape drift: at `v2.7.5` `person.name` is a non-null column defaulting to
+  `""`, so unnamed people arrive as `"name": ""`. `name` is still declared
+  `String?` so that a future `null` cannot fail decoding of a whole page.
+  Downstream, `null` and `""` are the same case: no name.
+- Face coordinates: `boundingBoxX1` is emitted through
+  `transformFaceBoundingBox`, so it already accounts for Immich edits
+  (crops, rotations) and is safe to use for ordering.
