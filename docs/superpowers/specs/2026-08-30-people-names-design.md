@@ -99,12 +99,15 @@ Out of scope:
 - `SlideResolver` gains a `showPeople: Boolean` constructor parameter. When it
   is `false`, the resolver formats `source.copy(people = emptyList())`. The
   construction site passes `!settings.hidePeopleNames`. Fetching is not gated
-  by the toggle; names always travel with the asset load so the toggle takes
-  effect on the next slide without a refetch.
+  by the toggle; names always travel with the asset load. The toggle is one of
+  the keys that rebuild the slide deck, so it takes effect when the deck is
+  next rebuilt, the same way the language setting does.
 - `CaptionBlock` draws `lines.people` as a third `Text` at 24 sp; date and
   location stay at 20 sp. The size is a starting point to tune on-device.
 - `OverlaySuppression` is untouched: a caption with only a people line is still
-  a non-null caption, so the paired-slide overlay rule keeps working.
+  a non-null caption, so the paired-slide overlay rule keeps working. The rule
+  therefore fires slightly more often than before: a left photo with no date
+  and no location but with recognised people now counts as captioned.
 - New strings in `values/strings_settings.xml` and
   `values-ru/strings_settings.xml`.
 
@@ -124,7 +127,8 @@ Out of scope:
   - `SlideResolverTest` — the toggle strips names; on, the third line is
     present.
 - On-device: a photo with a recognised, named face shows the name; the toggle
-  hides it on the next slide; a photo without faces is unchanged.
+  hides it on the next slide; a photo without faces is unchanged; a photo with
+  many recognised people, single and paired, to check the two-row cap.
 
 ## Risks
 

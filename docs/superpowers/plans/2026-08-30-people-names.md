@@ -753,7 +753,7 @@ git commit -m "feat(immich): :robot: let the slide resolver hide people names" -
 - Consumes: `SlideResolver(..., showPeople: Boolean)` (Task 5); `ToggleRow(focusRequester, label, checked, downFocus, onToggle)` and `StepperRow` in `SettingsScreen.kt` (exist).
 - Produces: `Settings.hidePeopleNames` (generated getter `getHidePeopleNames()`, Kotlin property `hidePeopleNames`, builder `setHidePeopleNames`). The field is inverted so that installs predating it show names without a migration; do not add it to `SettingsSerializer.defaultValue`.
 
-There is no unit test for Compose UI in this project; this task's test is a green `./gradlew verify` (proto generation, compile, ktlint, detekt). `SettingsLabelsTest` and `LocalizationTest` will catch a string missing from either locale.
+There is no unit test for Compose UI in this project; this task's test is a green `./gradlew verify` (proto generation, compile, ktlint, detekt). No test checks that a string exists in both locales; verify both `strings_settings.xml` files by eye.
 
 - [ ] **Step 1: Add the proto field**
 
@@ -986,5 +986,5 @@ git commit -m "docs: :robot: record people names as built, pending on-device val
 
 1. `git rebase main` on `people-names`, push, open a PR so CI runs.
 2. `./gradlew :app:assembleDebug`, carry `app/build/outputs/apk/debug/app-debug.apk` to the TV with LocalSend.
-3. On-device checks: a photo with a recognised, named face shows the name at the bottom right; the settings toggle hides it after the deck reloads; a photo without faces looks unchanged; the toggle sits after the last stepper and D-pad down from it still reaches the bottom buttons.
+3. On-device checks: a photo with a recognised, named face shows the name at the bottom right; the settings toggle hides it after the deck reloads; a photo without faces looks unchanged; a photo with many recognised people, single and paired, shows at most two rows of names; the toggle sits after the last stepper and D-pad down from it still reaches the bottom buttons.
 4. Once green and validated: `git switch main && git merge --ff-only people-names && git push`, then flip the two status lines from "awaiting on-device validation" to "validated on-device".
