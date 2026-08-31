@@ -137,5 +137,5 @@ first-time-key-entry focus risk is accepted — fix it only if it recurs. QR /
 local-network pairing (Plan 5) is built, merged, and validated on-device: the
 phone pairing page mints a scoped key and hands it to the TV over the LAN.
 Video/audio playback (Plan 6) remains a deferred sub-plan. Feature 3 (people
-names) is built and merged, awaiting on-device validation. Features 4–6 are
-not yet built. See the latest specs in `docs/superpowers/specs/`.
+names) is built, merged, and validated on-device. Features 4–6 are not yet
+built. See the latest specs in `docs/superpowers/specs/`.
