@@ -18,26 +18,26 @@ class DefaultScheduleTest {
             ).state
 
     @Test
-    fun `sleeps from midnight until 07-00`() {
+    fun `sleeps from midnight until 06-00`() {
         assertEquals(StateType.SLEEP, stateAt(0, 0))
-        assertEquals(StateType.SLEEP, stateAt(6, 59))
+        assertEquals(StateType.SLEEP, stateAt(5, 59))
     }
 
     @Test
-    fun `plays from 07-00 until 21-00`() {
-        assertEquals(StateType.PLAY, stateAt(7, 0))
-        assertEquals(StateType.PLAY, stateAt(20, 59))
+    fun `plays from 06-00 until 20-00`() {
+        assertEquals(StateType.PLAY, stateAt(6, 0))
+        assertEquals(StateType.PLAY, stateAt(19, 59))
     }
 
     @Test
-    fun `prepares from 21-00 until 22-00`() {
-        assertEquals(StateType.PREPARE, stateAt(21, 0))
-        assertEquals(StateType.PREPARE, stateAt(21, 59))
+    fun `prepares from 20-00 until 21-00`() {
+        assertEquals(StateType.PREPARE, stateAt(20, 0))
+        assertEquals(StateType.PREPARE, stateAt(20, 59))
     }
 
     @Test
-    fun `sleeps from 22-00 until midnight`() {
-        assertEquals(StateType.SLEEP, stateAt(22, 0))
+    fun `sleeps from 21-00 until midnight`() {
+        assertEquals(StateType.SLEEP, stateAt(21, 0))
         assertEquals(StateType.SLEEP, stateAt(23, 45))
     }
 }
