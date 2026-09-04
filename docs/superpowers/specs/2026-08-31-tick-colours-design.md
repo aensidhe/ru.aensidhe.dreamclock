@@ -1,7 +1,7 @@
 # Feature 4 — Tick colours design
 
 Status: complete — the hour-boundary transition is settled (duo-tail plus
-snap, below); awaiting user approval of this revision before planning.
+snap, below); approved and implemented, pending on-device validation.
 Date: 2026-08-31, transition settled 2026-09-05.
 
 ## Goal

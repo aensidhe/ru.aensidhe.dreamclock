@@ -43,8 +43,9 @@ Feature 1 is built and running on-device: the clock, the analog face, the
 D-pad settings screen, an adaptive launcher icon, and a TV banner. Feature 2's
 Immich photo deck, settings, and local-network pairing are built and validated
 on-device; video playback is deferred. Feature 3's people captions are built
-and validated on-device. Feature 4's schedule-coloured tick ring is built, pending on-device
-validation. Features 5–6 are planned. See the design specs under
+and validated on-device. Feature 4's schedule-coloured tick ring is built,
+pending on-device validation. Features 5–6 are planned. See the design specs
+under
 [`docs/superpowers/specs/`](docs/superpowers/specs/).
 
 ## Tech stack
