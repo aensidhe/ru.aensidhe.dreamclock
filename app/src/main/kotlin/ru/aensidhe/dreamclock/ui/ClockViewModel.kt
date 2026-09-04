@@ -54,7 +54,7 @@ fun buildClockUiState(
 class ClockViewModel(
     scope: CoroutineScope,
     private val settingsFlow: Flow<Settings>,
-    private val schedule: Schedule,
+    val schedule: Schedule,
     private val statusTextFor: (Language, StateType) -> String,
     private val nowProvider: () -> LocalDateTime = LocalDateTime::now,
     private val systemLocale: Locale = Locale.getDefault(),

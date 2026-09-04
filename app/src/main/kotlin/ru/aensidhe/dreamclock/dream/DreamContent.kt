@@ -141,6 +141,7 @@ internal fun DreamContent(
         }
     DreamRoot(
         state = uiState,
+        schedule = viewModel.schedule,
         showAnalog = settings.showAnalogSlide,
         deck = deck,
         imageLoader = imageLoader,

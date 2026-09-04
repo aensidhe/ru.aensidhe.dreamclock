@@ -33,6 +33,7 @@ fun SlideDeck(
     showAnalog: Boolean,
     now: LocalDateTime,
     secondHandColor: Color,
+    tickStyles: List<TickStyle>,
     everyXthMinute: Int,
     photoSeconds: Int,
     analogSeconds: Int,
@@ -41,7 +42,7 @@ fun SlideDeck(
     Box(Modifier.fillMaxSize().background(Color.Black)) {
         if (deck == null || imageLoader == null) {
             LaunchedEffect(Unit) { onSuppressBottomLeft(false) }
-            if (showAnalog) AnalogClockSlide(now, secondHandColor)
+            if (showAnalog) AnalogClockSlide(now, secondHandColor, tickStyles)
             return@Box
         }
         val context = LocalPlatformContext.current
@@ -74,7 +75,7 @@ fun SlideDeck(
             when (slide) {
                 is RenderPhoto -> PhotoSlide(slide, imageLoader, Modifier.fillMaxSize())
                 is RenderPairedPhoto -> PairedPhotoSlide(slide, imageLoader, Modifier.fillMaxSize())
-                RenderClock -> if (showAnalog) AnalogClockSlide(now, secondHandColor)
+                RenderClock -> if (showAnalog) AnalogClockSlide(now, secondHandColor, tickStyles)
                 null -> {}
             }
         }
