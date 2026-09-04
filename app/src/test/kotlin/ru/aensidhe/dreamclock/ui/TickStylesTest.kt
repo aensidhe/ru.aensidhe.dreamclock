@@ -14,6 +14,7 @@ import ru.aensidhe.dreamclock.core.schedule.Window
 class TickStylesTest {
     private val play = Color(0xFF7CB342)
     private val prepare = Color(0xFFFFB300)
+    private val sleep = Color(0xFF5E35B1)
 
     private val schedule =
         Schedule(
@@ -67,7 +68,16 @@ class TickStylesTest {
 
     @Test
     fun `mid-hour edge splits the base colours at its minute`() {
-        val styles = tickStyles(at(20, 45), schedule)
-        assertTrue((0..55).all { styles[it].base == prepare })
+        val day =
+            DaySchedule(
+                listOf(
+                    Window(LocalTime.MIDNIGHT, StateType.SLEEP),
+                    Window(LocalTime.of(20, 0), StateType.PREPARE),
+                    Window(LocalTime.of(20, 30), StateType.SLEEP),
+                ),
+            )
+        val styles = tickStyles(at(20, 45), Schedule(day))
+        assertTrue((0..29).all { styles[it].base == prepare })
+        assertTrue((30..55).all { styles[it].base == sleep })
     }
 }
