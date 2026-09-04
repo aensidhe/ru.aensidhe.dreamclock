@@ -29,8 +29,10 @@ both status lines in the same commit.
 3. People names on photo slides (built) — a caption line above date and
    location naming the people Immich recognised, joined as a natural list per
    locale, with a settings toggle
-4. Tick colours by schedule — each tick on the analog face takes the colour of
-   the state the schedule assigns to the time it marks
+4. Tick colours (built) — the ticks are the minutes of the current hour, each
+   coloured by the state the schedule assigns to that minute; ticks 56–59
+   carry a growing share of the coming hour's colour and the ring snaps at
+   hh:00
 5. Schedule editor (D-pad UI over the existing Schedule model: windows,
    day-of-week, date overrides — model already supports it, no UI yet)
 6. Agenda slide every N photos
@@ -47,7 +49,7 @@ the Android `:app` holds the screensaver, UI, and settings.
 - `AnalogClockSlide` — the analog face (1–12 numerals, minute ticks, hands).
 - `ClockOverlay` — always-on overlay: digital + colloquial + status text.
 - `stateColor` — maps the active state to its colour; it tints the overlay
-  status/colloquial text and the second hand. The face itself stays neutral.
+  status/colloquial text, the second hand, and the minute-tick ring.
 - `ScheduleEngine` (`:core`) — `(now, config) → active state + status text`.
   Heavily unit-tested.
 - `ColloquialTimeFormatter` (`:core`) — per-locale (`Ru`, `En`). Heavily
@@ -137,5 +139,5 @@ first-time-key-entry focus risk is accepted — fix it only if it recurs. QR /
 local-network pairing (Plan 5) is built, merged, and validated on-device: the
 phone pairing page mints a scoped key and hands it to the TV over the LAN.
 Video/audio playback (Plan 6) remains a deferred sub-plan. Feature 3 (people
-names) is built, merged, and validated on-device. Features 4–6 are not yet
-built. See the latest specs in `docs/superpowers/specs/`.
+names) is built, merged, and validated on-device. Feature 4 (tick colours) is built, pending on-device validation. Features 5–6
+are not yet built. See the latest specs in `docs/superpowers/specs/`.

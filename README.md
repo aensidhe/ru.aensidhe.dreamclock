@@ -26,9 +26,10 @@ Built feature by feature, in priority order:
    is deferred.
 3. People names (built) — photo slides captioned with the names of the people
    Immich recognised in them, joined the way you would say them aloud.
-4. Tick colours (planned) — every tick on the analog face takes the colour of
-   the state the schedule assigns to the time it marks, so the whole day is
-   readable at a glance around the dial.
+4. Tick colours (built) — the minute ticks show the current hour: each tick
+   takes the colour of the state the schedule assigns to that minute, in sync
+   with the status text, and the last four ticks carry a growing share of the
+   coming hour's colour before the ring turns over on the hour.
 5. Schedule editor (planned) — a D-pad UI over the existing schedule model
    (time windows, day-of-week, date overrides).
 6. Agenda (planned) — tomorrow's agenda rendered as a slide every N photos.
@@ -42,7 +43,8 @@ Feature 1 is built and running on-device: the clock, the analog face, the
 D-pad settings screen, an adaptive launcher icon, and a TV banner. Feature 2's
 Immich photo deck, settings, and local-network pairing are built and validated
 on-device; video playback is deferred. Feature 3's people captions are built
-and validated on-device. Features 4–6 are planned. See the design specs under
+and validated on-device. Feature 4's schedule-coloured tick ring is built, pending on-device
+validation. Features 5–6 are planned. See the design specs under
 [`docs/superpowers/specs/`](docs/superpowers/specs/).
 
 ## Tech stack
