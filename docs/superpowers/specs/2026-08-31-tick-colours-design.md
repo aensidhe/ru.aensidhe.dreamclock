@@ -1,8 +1,8 @@
 # Feature 4 — Tick colours design
 
-Status: draft — the hour-boundary transition is an open question; everything
-else is agreed. Not ready for implementation planning.
-Date: 2026-08-31.
+Status: complete — the hour-boundary transition is settled (duo-tail plus
+snap, below); awaiting user approval of this revision before planning.
+Date: 2026-08-31, transition settled 2026-09-05.
 
 ## Goal
 
@@ -10,8 +10,10 @@ Colour the 60 minute ticks of the analog face by the schedule, so the ring
 around the dial reads as the current state and quietly announces the next
 one. The ticks are the minutes of the current hour: tick i carries the
 colour of the state the schedule assigns to minute i of the hour now
-showing. How the ring transitions at the hour boundary is still open — see
-Open question below; a sudden whole-ring change is ruled out.
+showing. The last four ticks carry a duo-coloured tail announcing the
+coming hour, and the whole ring snaps to the new hour exactly as the
+minute hand crosses 12 — a telegraphed jumping-hour event, not an
+unannounced flip.
 
 ## Scope
 
@@ -41,7 +43,14 @@ Reached in conversation, later choices overriding earlier ones:
   shows 19:xx, so the ring normally matches the status text colour and the
   tick under the minute hand always does.
 - Numerals stay white; the coloured ring does the signalling.
-- The hour-boundary transition is undecided (see Open question).
+- Hour-boundary transition: a static duo-coloured tail on ticks 56–59 plus
+  an instant whole-ring snap at hh:00. The tail is part of the hour's
+  fixed mapping — always on, no trigger moment, no mid-hour repaint — so
+  the snap arrives announced, and it fires exactly as the minute hand
+  crosses 12, reading as the hour turning (the jumping-hour reading).
+- Duo ticks are split into two pure-state-colour segments, never blended
+  hues: earlier crossfade and gradient-ramp candidates died precisely
+  because interpolated colours match no state.
 
 ## Semantics
 
@@ -49,39 +58,50 @@ Let H be the current hour of the local date-time now. Tick i (i = 0..59,
 tick 0 at 12 o'clock) shows the state of minute i of hour H, resolved
 through the schedule's date resolution for today (overrides, then
 day-of-week, then default), exactly as `ScheduleEngine.activeState`
-resolves it. The mapping changes only when the displayed hour changes;
-how that change is presented is the open question below.
+resolves it. The mapping changes only when the displayed hour changes —
+instantly, at hh:00.
+
+The duo-tail: ticks 56–59 each carry a second colour, the state of the
+same minute i of hour H+1 (resolved for the date-time an hour ahead, so
+the midnight tail correctly previews tomorrow's overrides and
+day-of-week). Each duo tick is drawn as two pure-colour segments along
+its length: the outer segment shows the coming hour's colour and its
+share grows across the tail — 1/5 at tick 56, 2/5 at 57, 3/5 at 58, 4/5
+at 59. Tick 55 stays solid; tick 59 never fully arrives — the hh:00 snap
+completes it. The exact split direction (outer versus inner segment for
+the coming colour) is a rendering choice validated on-device.
 
 Consequences:
 
 - Uniform hours give a single-colour ring equal to the status text colour;
-  transitions between identical colours are invisible.
+  transitions between identical colours are invisible, and a duo tick
+  whose two states match renders solid with no special-casing.
 - A window starting mid-hour (the model allows any LocalTime) splits the
   ring at that minute for the whole hour.
 - Hour ticks are minutes 0, 5, 10, … and colour by the same rule; their
-  length and width emphasis is unchanged.
+  length and width emphasis is unchanged. The tail indices 56–59 are all
+  short minute ticks, so a long hour tick is never split.
 
-## Open question — the hour-boundary transition
+## Rejected transition candidates (history)
 
-An instant whole-ring repaint at hh:00 is rejected as too sudden.
-Candidates considered and rejected so far:
+Kept so the reasoning is not re-litigated:
 
+- Instant whole-ring repaint with no announcement: too sudden.
 - Rolling re-mapping (tick i shows the next time the minute hand reaches
-  it): rejected — most of the dial describes the coming hour even early in
-  the current one.
+  it): most of the dial describes the coming hour even early in the
+  current one.
 - Fixed two-minute preview (at :58, ticks behind the hand repaint to the
-  coming hour): rejected — the activation at :58 is itself a mass flip.
+  coming hour): the activation at :58 is itself a mass flip.
 - Sweep-wash animation at hh:00 (new colours wipe clockwise over ~a
-  minute): rejected.
-- Crossfade at hh:00 and a gradient ramp over the last minutes: rejected —
-  both pass through hues that match no state.
+  minute).
+- Crossfade at hh:00 and a gradient ramp over the last minutes: both pass
+  through hues that match no state.
 - Growing wash-in preview (a front sweeps from 12 through the spent ticks
-  over the last 10 minutes, one tick per 10 s, complete at hh:00):
-  rejected.
+  over the last 10 minutes, one tick per 10 s, complete at hh:00).
 
-Re-mapping and previews are not ruled out as concepts; the rejections are
-of these concrete behaviours. The feature does not proceed to planning
-until this is settled.
+The settled duo-tail escapes these because it is static (part of the
+hour's mapping, no trigger moment), uses only pure state hues, and turns
+the hh:00 repaint into an event announced for the whole preceding hour.
 
 ## Pure logic (`:core`, package `schedule`)
 
@@ -94,18 +114,25 @@ until this is settled.
 
 Returns exactly 60 entries, index i per tick i, computed by delegating to
 `activeState` at the date-time each tick stands for (now with the minute
-replaced). Sixty `activeState` calls once an hour is negligible. The
-signature may grow once the transition behaviour is settled.
+replaced). Sixty `activeState` calls once an hour is negligible.
+
+The signature does not grow for the duo-tail: the caller invokes it
+twice, at `now` and at `now.plusHours(1)`, and pairs the last four
+entries. Date resolution for the next hour (midnight rollover into a new
+day-of-week or override) falls out of `activeState` for free.
 
 ## UI (`:app`)
 
-- `AnalogClockSlide` takes a `tickColors: List<Color>` parameter (size 60)
-  and `drawTicks` uses `tickColors[i]` instead of the shared `tickColor`
-  constant, which is removed.
-- The caller computes `ScheduleEngine.minuteStates(now, schedule)`, maps
-  each state through the existing `stateColor`, and recomputes only when
-  the displayed minute changes, not on the per-second updates that drive
-  the hands.
+- `AnalogClockSlide` takes a per-tick colour list (size 60) where each
+  entry is either a solid colour or a pair with a split fraction; the
+  shared `tickColor` constant is removed. `drawTicks` draws a solid tick
+  as today, and a duo tick as two collinear segments along the tick's
+  length, split at the given fraction, each in a pure state colour.
+- The caller computes `ScheduleEngine.minuteStates` for `now` and
+  `now.plusHours(1)`, maps states through the existing `stateColor`,
+  builds solids for ticks 0–55 and pairs with fractions 1/5..4/5 for
+  ticks 56–59, and recomputes only when the displayed hour changes, not
+  on the per-second updates that drive the hands.
 - `ClockOverlay`, `stateColor`, and the schedule wiring are unchanged.
 
 ## Docs
@@ -120,19 +147,26 @@ built, in the same commit, per the mirror rule in CLAUDE.md.
   - a uniform hour returns 60 identical states;
   - an hour containing a mid-hour window edge splits at the right index;
   - a date-override day resolves through the override;
-  - the list always has 60 entries.
-  Transition-specific cases follow once the transition is settled.
-- `:app`: no new unit tests; the change is a parameter plumbed through
-  Compose code.
-- On-device: the ring matches the status text colour during a steady hour;
-  the settled transition behaviour is observed around 20:00 and 21:00
-  with no sudden whole-ring change.
+  - the list always has 60 entries;
+  - called at 23:xx of a day before an override (or a day-of-week
+    change), `minuteStates(now.plusHours(1))` resolves through the next
+    day's schedule.
+- `:app`: no new unit tests for the Compose plumbing; if the
+  tick-colour-list assembly (solids plus tail pairs) lands in a plain
+  function, a small unit test covers the tail indices and fractions.
+- On-device: the ring matches the status text colour during a steady
+  hour; around 19:56–20:00 the duo-tail appears green-over-amber and the
+  ring snaps to amber exactly as the minute hand crosses 12; same around
+  21:00 for amber-to-purple.
 
 ## Risks
 
-- Any transition is invisible between same-state hours, so on-device
-  validation must be timed around 20:00 or 21:00; a wrong transition rule
+- The transition is invisible between same-state hours, so on-device
+  validation must be timed around 20:00 or 21:00; a wrong tail or snap
   could otherwise go unnoticed for days.
+- The duo split lives inside short minute ticks, small at TV distance;
+  if the two segments are illegible the fractions or tick sizing may
+  need on-device tuning (the split direction is likewise settled there).
 - The second hand and the ring now both encode the current state; if the
   doubled signal looks noisy on the TV, dropping the second-hand tint is a
   one-line follow-up, deliberately not part of this feature.
