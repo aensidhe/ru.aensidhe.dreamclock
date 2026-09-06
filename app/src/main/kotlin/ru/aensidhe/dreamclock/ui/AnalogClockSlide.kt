@@ -23,7 +23,6 @@ private const val MINUTE_TICK_FRACTION = 0.045f
 
 private val tickColor = Color(0xFF8794AB)
 private val handColor = Color(0xFFF2F5FB)
-private val numeralColor = Color(0xFFEEF2F8)
 
 private val numeralPaint =
     Paint().apply {
@@ -37,13 +36,14 @@ private val numeralPaint =
 fun AnalogClockSlide(
     now: LocalDateTime,
     secondHandColor: Color,
+    numeralColors: List<Color>,
 ) {
     Canvas(Modifier.fillMaxSize()) {
         val radius = min(size.width, size.height) / 2f * 0.82f * (1f - MINUTE_TICK_FRACTION)
         val center = Offset(size.width / 2f, size.height / 2f)
 
         drawTicks(center, radius)
-        drawNumerals(center, radius)
+        drawNumerals(center, radius, numeralColors)
 
         fun hand(
             fraction: Float,
@@ -89,6 +89,7 @@ private fun DrawScope.drawTicks(
 private fun DrawScope.drawNumerals(
     center: Offset,
     radius: Float,
+    colors: List<Color>,
 ) {
     numeralPaint.textSize = radius * 0.15f
     val numeralRadius = radius * 0.80f
@@ -97,6 +98,7 @@ private fun DrawScope.drawNumerals(
         val angle = (n / 12f * 2f * Math.PI - Math.PI / 2f).toFloat()
         val x = center.x + cos(angle) * numeralRadius
         val y = center.y + sin(angle) * numeralRadius + baseline
+        numeralPaint.color = colors[n - 1].toArgb()
         drawContext.canvas.nativeCanvas.drawText(n.toString(), x, y, numeralPaint)
     }
 }

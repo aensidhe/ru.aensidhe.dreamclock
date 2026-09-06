@@ -144,6 +144,7 @@ internal fun DreamContent(
         showAnalog = settings.showAnalogSlide,
         deck = deck,
         imageLoader = imageLoader,
+        schedule = viewModel.schedule,
         everyXthMinute = settings.shownEveryXthMinute,
         photoSeconds = settings.photoIntervalSeconds,
         analogSeconds = settings.analogSlideSeconds,
