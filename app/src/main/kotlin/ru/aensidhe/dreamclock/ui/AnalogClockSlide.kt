@@ -21,7 +21,6 @@ import kotlin.math.sin
 /** Minute tick length as a fraction of the radius. The face is inset by this much. */
 private const val MINUTE_TICK_FRACTION = 0.045f
 
-private val tickColor = Color(0xFF8794AB)
 private val handColor = Color(0xFFF2F5FB)
 
 private val numeralPaint =
@@ -77,7 +76,7 @@ private fun DrawScope.drawTicks(
         val hour = i % 5 == 0
         val inner = radius - if (hour) radius * 0.09f else radius * MINUTE_TICK_FRACTION
         drawLine(
-            color = tickColor,
+            color = handColor,
             start = Offset(center.x + cos(angle) * inner, center.y + sin(angle) * inner),
             end = Offset(center.x + cos(angle) * radius, center.y + sin(angle) * radius),
             strokeWidth = if (hour) max(3f, radius * 0.014f) else max(1.5f, radius * 0.007f),
