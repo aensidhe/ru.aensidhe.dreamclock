@@ -13,7 +13,7 @@ Reverie (Russian: Грёзы), shown as a localized app label.
 
 ## Build order (do not skip ahead)
 
-Documented goals, built one at a time. Build feature 1 first; features 2–5
+Documented goals, built one at a time. Build feature 1 first; features 2–7
 are recorded scope, not yet designed in full.
 
 This list is mirrored in `README.md` under `## Features`, with the same numbering
@@ -24,17 +24,21 @@ both status lines in the same commit.
 1. Kid-friendly dual clock (built) — locale time + colloquial spoken form + 3
    color states, with an analog face and a state-tinted second hand
 2. Immich photos (built) — ±N days around today, across all past years, with QR /
-   local-network pairing to carry an Immich key across from a phone. Video/audio
-   playback remains a deferred sub-plan
+   local-network pairing to carry an Immich key across from a phone
 3. People names on photo slides (built) — a caption line above date and
    location naming the people Immich recognised, joined as a natural list per
    locale, with a settings toggle
 4. Numeral colours (built) — each numeral takes the colour of the state at
    the first minute of its hour in the current half-day; play hours keep the
    neutral white, so only prepare and sleep hours stand out
-5. Schedule editor (D-pad UI over the existing Schedule model: windows,
+5. Video and audio playback — videos from the same ±N-day Immich window play
+   their full clip in the slide deck, with schedule-aware audio (three-way mode:
+   respect schedule / force mute / force unmute); designed in outline in
+   `docs/superpowers/specs/2026-07-19-immich-photos-design.md`, spec to be
+   refreshed before building
+6. Schedule editor (D-pad UI over the existing Schedule model: windows,
    day-of-week, date overrides — model already supports it, no UI yet)
-6. Agenda slide every N photos
+7. Agenda slide every N photos
 
 ## Architecture
 
@@ -138,7 +142,7 @@ use: manual host/key entry, the connection test, and the rotating photo deck. Th
 first-time-key-entry focus risk is accepted — fix it only if it recurs. QR /
 local-network pairing (Plan 5) is built, merged, and validated on-device: the
 phone pairing page mints a scoped key and hands it to the TV over the LAN.
-Video/audio playback (Plan 6) remains a deferred sub-plan. Feature 3 (people
-names) is built, merged, and validated on-device. Feature 4 (numeral colours)
-is built, pending on-device validation. Features 5–6 are not yet built. See
-the latest specs in `docs/superpowers/specs/`.
+Feature 3 (people names) is built, merged, and validated on-device. Feature 4
+(numeral colours) is built, pending on-device validation. Feature 5 (video and
+audio playback) is not yet built and is the next build target; features 6–7
+are not yet built. See the latest specs in `docs/superpowers/specs/`.
