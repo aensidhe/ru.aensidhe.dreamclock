@@ -11,34 +11,24 @@ Xiaomi TV Stick, ≥1080p.
 Package (`applicationId`): `ru.aensidhe.dreamclock`. The user-facing app name is
 Reverie (Russian: Грёзы), shown as a localized app label.
 
-## Build order (do not skip ahead)
+## Features
 
-Documented goals, built one at a time. Build feature 1 first; features 2–7
-are recorded scope, not yet designed in full.
+What the app does today. The numbering is historical; specs refer to "feature N".
 
-This list is mirrored in `README.md` under `## Features`, with the same numbering
-and a user-facing wording, plus a feature range quoted in each file's status
-section. Adding, removing, or reordering a feature means editing both files and
-both status lines in the same commit.
-
-1. Kid-friendly dual clock (built) — locale time + colloquial spoken form + 3
-   color states, with an analog face and a state-tinted second hand
-2. Immich photos (built) — ±N days around today, across all past years, with QR /
+1. Kid-friendly dual clock — locale time + colloquial spoken form + 3 color
+   states, with an analog face and a state-tinted second hand
+2. Immich photos — ±N days around today, across all past years, with QR /
    local-network pairing to carry an Immich key across from a phone
-3. People names on photo slides (built) — a caption line above date and
-   location naming the people Immich recognised, joined as a natural list per
-   locale, with a settings toggle
-4. Numeral colours (built) — each numeral takes the colour of the state at
-   the first minute of its hour in the current half-day; play hours keep the
-   neutral white, so only prepare and sleep hours stand out
-5. Video and audio playback — videos from the same ±N-day Immich window play
-   their full clip in the slide deck, with schedule-aware audio (three-way mode:
-   respect schedule / force mute / force unmute); designed in outline in
-   `docs/superpowers/specs/2026-07-19-immich-photos-design.md`, spec to be
-   refreshed before building
-6. Schedule editor (D-pad UI over the existing Schedule model: windows,
-   day-of-week, date overrides — model already supports it, no UI yet)
-7. Agenda slide every N photos
+3. People names on photo slides — a caption line above date and location
+   naming the people Immich recognised, joined as a natural list per locale,
+   with a settings toggle
+4. Numeral colours — each numeral takes the colour of the state at the first
+   minute of its hour in the current half-day; play hours keep the neutral
+   white, so only prepare and sleep hours stand out
+
+Planned work and the backlog are tracked exclusively in GitHub issues (features
+5–7 are #23, #24, #25), never in this file. README's Features section describes
+what the app does today; update it when a feature ships.
 
 ## Architecture
 
@@ -133,16 +123,7 @@ the real complexity and get the most test coverage.
 
 ## Current status
 
-Feature 1 (kid-friendly clock) is built and merged: analog face, colloquial
-time, state colors, D-pad settings screen, dream preview, adaptive launcher
-icon, and TV banner, validated on-device.
-
-Feature 2 (Immich photos) is built, merged, and validated on-device over weeks of
-use: manual host/key entry, the connection test, and the rotating photo deck. The
-first-time-key-entry focus risk is accepted — fix it only if it recurs. QR /
-local-network pairing (Plan 5) is built, merged, and validated on-device: the
-phone pairing page mints a scoped key and hands it to the TV over the LAN.
-Feature 3 (people names) is built, merged, and validated on-device. Feature 4
-(numeral colours) is built, pending on-device validation. Feature 5 (video and
-audio playback) is not yet built and is the next build target; features 6–7
-are not yet built. See the latest specs in `docs/superpowers/specs/`.
+Features 1–4 are built and merged. The first-time-key-entry
+focus risk in Immich setup is accepted — fix it only if it recurs. The backlog
+and planned features live in GitHub issues. See the latest specs in
+`docs/superpowers/specs/`.
